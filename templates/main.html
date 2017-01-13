@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		{{page "head"}}
+		<script>
+			$(document).ready( function () { 
+				{{range script "script"}}
+					{{.}}
+				{{end}}
+			} );
+		</script>
+	</head>
+	<body onload='setBackground("{{text "background" "0"}}","{{text "background" "1"}}","{{text "background" "2"}}")' >
+		<div style="position: fixed; top: 5%; left:5%; height: 60%; width: 50%; z-index: 0;">
+			<div class="container" style="height: 60%">
+				<div id="banner" class="row"> 
+					{{page "banner"}}
+				</div>
+				<div class="panel">
+					<div class="row"> 
+						<div class="col-xs-2">
+							{{with $test := service "account" "isLoggedIn"}}
+								{{if eq "True" $test}}
+									Hello, {{service "account" "session" "name"}}
+								{{end}}
+							{{end}}
+						</div>
+						<div class="col-xs-10">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
