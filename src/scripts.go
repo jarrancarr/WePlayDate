@@ -30,6 +30,7 @@ func addScripts() {
 		myCircle.setAttributeNS(null,"stroke",color);
 		myCircle.setAttributeNS(null,"stroke-width","1");
 		myCircle.setAttributeNS(null,"fill-opacity","0.4");
+		myCircle.setAttributeNS(null,"onclick","pop(this)");
 		var animate = document.createElementNS(svgNS,"animate");
 		animate.setAttributeNS(null,"attributeName","cy");
 		animate.setAttributeNS(null,"from",height);
