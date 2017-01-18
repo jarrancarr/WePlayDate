@@ -6,6 +6,7 @@ import (
 )
 
 func addServices() {
+	logger.Trace.Println("addServices()")
 	acs = website.CreateAccountService()
 	wePlayDate.AddService("account", acs)
 	wePlayDate.AddSiteProcessor("secure", acs.CheckSecure)

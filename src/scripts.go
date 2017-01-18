@@ -1,6 +1,7 @@
 package main
 
 func addScripts() {
+	logger.Trace.Println("addScripts()")
 	wePlayDate.AddScript("pre-script", `$('a.categoryButton').hover(
 		function () {$(this).animate({backgroundColor: '#b2d2d2'})},
 		function () {$(this).animate({backgroundColor: '#d3ede8'})}  );`)
