@@ -42,7 +42,7 @@
 		</div>
 		<div id="nav-menu">
 			<svg id="menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
-				{{range htmls "circleMenuItem" "MODAL>>loginModal,aboutModal,applyModal,infoModal,adminModal,loungeModal" "TX>>50,120,190,260,330,400" "FILL>>93e,3e9,9e3,e93,39e,e39"	"LABEL>>Enter,About,Apply,Info,Admin,Lounge" "CX>>90,160,230,300,370,440"}}
+				{{range htmls "circleMenuItem" "MODAL>>loginModal,aboutModal,applyModal,infoModal" "TX>>50,130,210,290,370,450" "FILL>>93e,3e9,9e3,e93,39e,e39"	"LABEL>>Enter,About,Apply,Info,Admin,Lounge" "CX>>90,170,250,330,410,490"}}
 					{{.}}
 				{{end}}
 			</svg>
@@ -61,11 +61,25 @@
 			</svg>
 		</div>
 		<div id="loginModal" class="modalDialog">
-			<div>
+			<div style="text-align: center; width: 600px;">
 				<a href="#closeModal" title="Close" class="closeModal">X</a>
-				<h2>Join us at li'lPlayDates!</h2>
-				<p>Tell us about yourself</p>
-				<p>Who do you know?</p>
+				
+				<h2>Enter {{.Site.Name}}!</h2>
+				
+				<div class="container">
+					<form action="/main" method="post">
+						<span>
+							User Name: <input type="text" class= "ptButton ptInput" name="UserName"><br><br>
+							Password: <input type="password" class= "ptButton ptInput" name="Password"><br><br><br>
+						</span>
+						<input type="submit" class= "ptButton" value="Login">
+						<a href="#applyModal" class= "ptButton">Register</a>
+						<a href="#clearModal" class= "ptButton">Cancel</a>
+						<a href="#passwordModal" class= "ptButton">Forgot Password?</a>
+						<input type="hidden" name="postProcessingHandler" value="login">
+						<input type="hidden" name="redirect" value="home">
+					</form>
+				</div>
 			</div>
 		</div>
 		<div id="aboutModal" class="modalDialog">
@@ -76,18 +90,41 @@
 			</div>
 		</div>
 		<div id="applyModal" class="modalDialog">
-			<div>
+			<div style="text-align: center; width: 600px;">
 				<a href="#closeModal" title="Close" class="closeModal">X</a>
-				<h2>Join us at li'lPlayDates!</h2>
-				<form>
-					Name: <input type="text" name="name" value="full name"><br>
-					Mom: <input type="radio" name="position" value="Mom"/>
-					Dad: <input type="radio" name="position" value="Dad"/><br>
-					Kids: <input type="number" name="numKids" min="1" max="9"/><br>
-					<input type="submit">
-				</form>
-				<p>Tell us about yourself</p>
-				<p>Who do you know?</p>
+				<h2>Join us at {{.Site.Name}}!</h2>
+				<div class="container">
+					<form id="family" action="/main" method="post">
+						UserName: <input type="text" class= "ptButton" name="name" placeholder="family user name"><br>
+						Email: <input type="text" class= "ptButton" name="email" placeholder="please enter a valid email"><br>
+						<ul></ul><br>
+						<input type="submit" class="ptButton" id="submitFamily" value="Apply" style="display: none;">
+						<a href="#clearModal" class= "ptButton">Cancel</a>
+						<input type="hidden" name="postProcessingHandler" value="apply">
+						<input type="hidden" name="redirect" value="main#checkEmail">
+						<input type="button" class="ptButton" onclick="showHide('newKid')" value="Add Child"/>
+						<input type="button" class="ptButton" onclick="showHide('newParent')" value="Add Parent"/>
+					</form>
+					<div id="newKid" class="container" style="display: none;">
+						<h4>Add a Child</h4>
+						<form id="kid">
+							Name: <input type="text" class= "ptButton" id="newKid" name="name" placeholder="full name">
+							Boy: <input type="radio" class= "ptButton" id="boy" name="gender" value="Boy"/>
+							Girl: <input type="radio" class= "ptButton" id="girl" name="gender" value="Girl"/><br>
+							Age: <input type="number" class= "ptButton" id="age" min="1" max="6" value="1"/>
+							<input type="button" class="ptButton" onclick="addKid()" value="Add"/>
+						</form>
+					</div>
+					<div id="newParent" class="container" style="display: none;">
+						<h3>Add Parent to Family</h3>
+						<form id="parent">
+							Name: <input type="text" class= "ptButton" id="newParent" name="name" placeholder="full name">
+							Mom: <input type="radio" class= "ptButton" id="mom" name="gender" value="Mom"/>
+							Dad: <input type="radio" class= "ptButton" id="dad" name="gender" value="Dad"/><br><br>
+							<input type="button" class="ptButton" onclick="addParent()" value="Add"/>
+						</form>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div id="infoModal" class="modalDialog">
@@ -113,6 +150,20 @@
 				<h2>Welcoome to li'lPlayDates lounge!</h2>
 				<p>Tell us about yourself</p>
 				<p>Who do you know?</p>
+			</div>
+		</div>
+		<div id="failedLogin" class="modalDialog">
+			<div>
+				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<h2>Sorry, that login was not recognized.</h2>
+				<p>Please try again.</p>
+			</div>
+		</div>
+		<div id="checkEmail" class="modalDialog">
+			<div>
+				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<h2>Your application was successful</h2>
+				<p>Check you email for a secure link to set up you account.</p>
 			</div>
 		</div>
 	</body>

@@ -17,6 +17,12 @@ type Person struct {
 	IDo		map[*Activity]int8
 }
 
+type Group struct {
+	member []Family
+	Circle []Group
+	Permission map[string]bool
+}
+
 type Challenge struct {
 	Phrase, Reply  string
 }
@@ -24,6 +30,7 @@ type Challenge struct {
 type Family struct {
 	Mother, Father *Person
 	Child []*Person
+	Outer Group
 }
 
 type Activity struct {

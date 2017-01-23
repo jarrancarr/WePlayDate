@@ -6,8 +6,9 @@ html, body {
 
 div.container {
     width: 90%;
-    border: 1px solid gray;
-	margin: 0 auto;
+    border: 1px solid blue;
+	margin: 15px auto;
+	padding: 15px;
 }
 
 header, footer {
@@ -144,3 +145,74 @@ article {
 }
 
 .closeModal:hover { background: #0df; }
+
+.ptButton {
+	-moz-box-shadow:inset 0px 1px 0px 0px #641ce8;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #641ce8;
+	box-shadow:inset 0px 1px 0px 0px #641ce8;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #bed1c9), color-stop(1, #148ade));
+	background:-moz-linear-gradient(top, #bed1c9 5%, #148ade 100%);
+	background:-webkit-linear-gradient(top, #bed1c9 5%, #148ade 100%);
+	background:-o-linear-gradient(top, #bed1c9 5%, #148ade 100%);
+	background:-ms-linear-gradient(top, #bed1c9 5%, #148ade 100%);
+	background:linear-gradient(to bottom, #bed1c9 5%, #148ade 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#bed1c9', endColorstr='#148ade',GradientType=0);
+	background-color:#bed1c9;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	border:1px solid #124d77;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:13px;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #154682;
+}
+.ptButton:hover {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #148ade), color-stop(1, #bed1c9));
+	background:-moz-linear-gradient(top, #148ade 5%, #bed1c9 100%);
+	background:-webkit-linear-gradient(top, #148ade 5%, #bed1c9 100%);
+	background:-o-linear-gradient(top, #148ade 5%, #bed1c9 100%);
+	background:-ms-linear-gradient(top, #148ade 5%, #bed1c9 100%);
+	background:linear-gradient(to bottom, #148ade 5%, #bed1c9 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#148ade', endColorstr='#bed1c9',GradientType=0);
+	background-color:#148ade;
+}
+.ptButton:active {
+	position:relative;
+	top:1px;
+}
+
+.ptInput {
+	float: right;
+}
+
+.peekaboo {
+	display: none;
+}
+.ptListItem {
+	box-shadow:inset 0px 1px 0px 0px #641ce8;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #bed1c9), color-stop(1, #148ade));
+	background:-moz-linear-gradient(top, #bed1c9 5%, #148ade 100%);
+	background:-webkit-linear-gradient(top, #bed1c9 5%, #148ade 100%);
+	background:-o-linear-gradient(top, #bed1c9 5%, #148ade 100%);
+	background:-ms-linear-gradient(top, #bed1c9 5%, #148ade 100%);
+	background:linear-gradient(to bottom, #bed1c9 5%, #148ade 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#bed1c9', endColorstr='#148ade',GradientType=0);
+	background-color:#bed1c9;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	border:1px solid #124d77;
+	display:block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:13px;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #154682;
+}
