@@ -1,6 +1,12 @@
 package main
 
 import (
+	//"net/http"
+	//"io/ioutil"
+	//"errors"
+	//"strings"
+	
+	//"github.com/jarrancarr/website"
 	"github.com/jarrancarr/website/html"
 )
 
@@ -26,8 +32,11 @@ func addPages() {
 	
 	home := wePlayDate.AddPage("home", "home", "/home")
 	home.AddPostHandler("logout", acs.LogoutPostHandler)	
+	home.AddAJAXHandler("newRoom", mss.CreateRoomAJAXHandler)
 	
 	home.Html.Add("circleMenuItem", html.NewTag("circle id==login cx==${CX} cy==10 r==50 fill==#${FILL} stroke==#222 stroke-width==1 fill-opacity==0.8"))
 	home.Html.Add("circleMenuItem", html.NewTag("a xlink:href==#${MODAL}").AppendChild(
 		html.NewTag("text x==${TX} y==25 font-family==Verdana font-size==26 fill==#ee9 ${LABEL}")))	
+	home.AddParam("newRoomSetup", "setup: newRoomName = $('#newRoom-name').val(); newRoomPass = $('#newRoom-pass').val(); ")
+	home.AddParam("newRoomSuccess", `success:var ul = $( "<ul/>", {"class": "ptButton"}); var obj = JSON.parse(data); $("#roomList").empty(); $("#roomList").append(ul); $.each(obj, function(val, i) { item = $(document.createElement('button')).text( val + '  ' + i + ' occupance' ); item.attr("class", "ptButton"); item.attr("onclick","enterRoom('"+val+"')"); ul.append( item ); ul.append( '<br/>' ); });`)
 }

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jarrancarr/website"
+	"github.com/jarrancarr/website/service"
 	"github.com/jarrancarr/website/ecommerse"
 )
 
@@ -17,6 +18,7 @@ var (
 	wePlayDate *website.Site
 	acs *website.AccountService
 	ecs *ecommerse.ECommerseService
+	mss *service.MessageService
 	logger *website.Log
 )
 
@@ -25,6 +27,7 @@ func main() {
 	website.DataDir = "../data"
 	//logger = website.NewLog(ioutil.Discard, ioutil.Discard, ioutil.Discard, os.Stderr, os.Stdout)
 	logger = website.NewLog(ioutil.Discard, os.Stdout, os.Stdout, os.Stdout, os.Stdout)
+	service.Logger = logger
 
 	setup()
 	http.HandleFunc("/js/", website.ServeResource)
@@ -69,8 +72,8 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	secret := make([]byte, 16)
 	rand.Read(secret)
 	
-	website.Users = append(website.Users, website.Account{"", "Logan", "J", "Carr", "", "lcarr", "LCarr48", 
-		base64.URLEncoding.EncodeToString(secret), []*website.Role{website.StandardRoles["basic"]}, false, time.Now().Add(time.Minute*15)})
+	website.Users = append(website.Users, website.Account{"", "Logan", "J", "Carr", "", userName, base64.URLEncoding.EncodeToString(secret), 
+		email, []*website.Role{website.StandardRoles["basic"]}, false, time.Now().Add(time.Minute*15)})
 	
 	// email user the key to log in.
 	logger.Info.Println("Log in key is: "+base64.URLEncoding.EncodeToString(secret))

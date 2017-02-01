@@ -95,7 +95,7 @@
 				<h2>Join us at {{.Site.Name}}!</h2>
 				<div class="container">
 					<form id="family" action="/main" method="post">
-						UserName: <input type="text" class= "ptButton" name="name" placeholder="family user name"><br>
+						UserName: <input type="text" class= "ptButton" name="userName" placeholder="family user name"><br>
 						Email: <input type="text" class= "ptButton" name="email" placeholder="please enter a valid email"><br>
 						<ul></ul><br>
 						<input type="submit" class="ptButton" id="submitFamily" value="Apply" style="display: none;">
@@ -160,7 +160,7 @@
 			</div>
 		</div>
 		<div id="checkEmail" class="modalDialog">
-			<div>
+			<div style="text-align: center;">
 				<a href="#closeModal" title="Close" class="closeModal">X</a>
 				<h2>Your application was successful</h2>
 				<p>Check you email for a secure link to set up you account.</p>

@@ -2,6 +2,7 @@ package main
 
 import (	
 	"github.com/jarrancarr/website"
+	"github.com/jarrancarr/website/service"
 	"github.com/jarrancarr/website/ecommerse"
 )
 
@@ -12,4 +13,6 @@ func addServices() {
 	wePlayDate.AddSiteProcessor("secure", acs.CheckSecure)
 	ecs = ecommerse.CreateService(acs)
 	wePlayDate.AddService("ecommerse", ecs)
+	mss = service.CreateService(acs)
+	wePlayDate.AddService("message", mss)
 }

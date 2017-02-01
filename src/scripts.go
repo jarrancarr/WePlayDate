@@ -14,8 +14,8 @@ func addScripts() {
 		var span = this.getElementsByTagName('span');
 		$(span[0]).animate({opacity: 0.7});
 		$(span[1]).animate({color: '#444'}); } `)
-
 	wePlayDate.AddScript("pre-script", `createCircles();`)
+	wePlayDate.AddScript("pre-script","$('.letter').draggable({containment:'#board',cursor:'move',snap:'#board',zIndex:3,stop:function(){ $(this).remove().appendTo($('#board')); } }).css('position','absolute'); ")
 	
 	wePlayDate.AddScript("post-script", `
 		function showHide(id) {
@@ -25,8 +25,7 @@ func addScripts() {
 			} else {
 				e.style.display = 'block';
 			}
-		}`)
-		
+		}`)		
 	wePlayDate.AddScript("post-script", `
 		var child = 0;
 		function addKid() {
@@ -47,7 +46,7 @@ func addScripts() {
 		function addParent() {
 			var parent = $('#newParent');
 			var form = $('#family');
-			form.append("<input type='hidden' name='Parent"+parent+"' value='"+parent.find('#newParent').val()+"|"+$('input[name=gender]:checked','#parent').val()+"'/>");
+			form.append("<input type='hidden' name='parent"+parent+"' value='"+parent.find('#newParent').val()+"|"+$('input[name=gender]:checked','#parent').val()+"'/>");
 			form.find('ul').append("<li class='ptListItem'>"+parent.find('#newParent').val()+", "+$('input[name=gender]:checked','#parent').val()+"</li>");
 			parent[0].style.display = 'none';
 			parent.find('#newKid').val('');
@@ -99,5 +98,13 @@ func addScripts() {
 		        color += letters[Math.floor(Math.random() * 4)];
 		    }
 		    return color;
+		}`)
+		
+		
+	wePlayDate.AddScript("home-script", `
+		function enterRoom(roomName) {
+			body = $('body');
+			body.append("<div id='"+roomName+"' class='ptFloatDialog'>this is "+roomName+"</div>");
+			$('.ptFloatDialog').each(function(){ $( this ).position({my:"right bottom"}); });
 		}`)
 }
