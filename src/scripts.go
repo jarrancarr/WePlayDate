@@ -15,8 +15,18 @@ func addScripts() {
 		$(span[0]).animate({opacity: 0.7});
 		$(span[1]).animate({color: '#444'}); } `)
 	wePlayDate.AddScript("pre-script", `createCircles();`)
-	wePlayDate.AddScript("pre-script","$('.letter').draggable({containment:'#board',cursor:'move',snap:'#board',zIndex:3,stop:function(){ $(this).remove().appendTo($('#board')); } }).css('position','absolute'); ")
-	
+	wePlayDate.AddScript("pre-script",`
+		$('.letter').draggable({
+			containment:'#board',
+			cursor:'move',
+			zIndex:3,
+			revert: true });
+		$('#word').droppable({ 
+			accept:'.letter', 
+			drop: function(event, ui) { 
+				$(ui.draggable).clone().appendTo($('#word')).css('top','10px').css('left','0px').css('margin-left','-20px');
+			} 
+		}); `)
 	wePlayDate.AddScript("post-script", `
 		function showHide(id) {
 			var e = $('#'+id)[0];
@@ -40,7 +50,6 @@ func addScripts() {
 			child = child + 1;
 			if (parent>0) $('#submitFamily')[0].style.display = 'inline';
 		}`)
-		
 	wePlayDate.AddScript("post-script", `
 		var parent = 0;
 		function addParent() {
@@ -54,7 +63,6 @@ func addScripts() {
 			parent = parent + 1;
 			if (child>0) $('#submitFamily')[0].style.display = 'inline';
 		}`)
-		
 	wePlayDate.AddScript("post-script", `
 		function createCircles(){
 			for(i=0;i<500;i++) {
@@ -99,12 +107,25 @@ func addScripts() {
 		    }
 		    return color;
 		}`)
-		
-		
 	wePlayDate.AddScript("home-script", `
 		function enterRoom(roomName) {
 			body = $('body');
-			body.append("<div id='"+roomName+"' class='ptFloatDialog'>this is "+roomName+"</div>");
-			$('.ptFloatDialog').each(function(){ $( this ).position({my:"right bottom"}); });
+			body.append("<div id='"+roomName+"' class='ptFloatDialog'><a href='#closeModal' title='Close' class='closeModal'>X</a><h4>"+roomName+"</h4><div class='scroll'><ul></ul></div></div>");
+			$('.ptFloatDialog').each(function(){ 
+				$( this ).position({my:"right bottom"}); });
+			var iter = 1;
+			setInterval(function(){ 
+				var li = $( "<li class='ptListItem push'>send "+iter+"</li>"); 
+				$('#'+roomName+' ul').append(li);
+				if ( $('#'+roomName+' ul li').length > 12) $('#'+roomName+' ul li:first').remove(); }, 1300);
+			setInterval(function(){ 
+				var li = $( "<li class='ptListItem pull'>receive "+iter+"</li>"); 
+				$('#'+roomName+' ul').append(li);
+				if ( $('#'+roomName+' ul li').length > 12) $('#'+roomName+' ul li:first').remove(); }, 1600);
+				iter += 1;
 		}`)
 }
+
+
+
+				

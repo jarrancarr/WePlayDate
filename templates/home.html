@@ -27,55 +27,58 @@
 								{{end}}
 							{{end}}
 						</div>
-						<div id="board" class="col-xs-10">
+						<div class="col-xs-10">
 							{{target "roomList" "<ul class='ptButton'><li class='ptButton'>Lobby</li></ul>"}}
 							<input id="newRoom-name" type="text" class="ptButton" size="24"/>
 							<input id="newRoom-pass" type="password" class="ptButton" size="24"/>
 							<input id="newRoom-trigger" class="ptButton" type="button" value="newRoom" />
 							</br></br>
-							<div id="letter-A" class="letter vowel">A</div>
-							<div id="letter-B" class="letter consonent">B</div>
-							<div id="letter-C" class="letter consonent">C</div>
-							<div id="letter-D" class="letter consonent">D</div>
-							<div id="letter-E" class="letter vowel">E</div>
-							<div id="letter-F" class="letter consonent">F</div>
-							<div id="letter-G" class="letter consonent">G</div>
-							<div id="letter-H" class="letter consonent">H</div>
-							<div id="letter-I" class="letter vowel">I</div></br>
-							<div id="letter-J" class="letter consonent">J</div>
-							<div id="letter-K" class="letter consonent">K</div>
-							<div id="letter-L" class="letter consonent">L</div>
-							<div id="letter-M" class="letter consonent">M</div>
-							<div id="letter-N" class="letter consonent">N</div>
-							<div id="letter-O" class="letter vowel">O</div>
-							<div id="letter-P" class="letter consonent">P</div>
-							<div id="letter-Qu" class="letter consonent">Qu</div></br>
-							<div id="letter-R" class="letter consonent">R</div>
-							<div id="letter-S" class="letter consonent">S</div>
-							<div id="letter-T" class="letter consonent">T</div>
-							<div id="letter-U" class="letter vowel">U</div>
-							<div id="letter-V" class="letter consonent">V</div>
-							<div id="letter-W" class="letter consonent">W</div>
-							<div id="letter-X" class="letter consonent">X</div>
-							<div id="letter-Y" class="letter consonent">Y</div>
-							<div id="letter-Z" class="letter consonent">Z</div></br>
-							<div id="digraph-TH" class="letter digraph">TH</div>
-							<div id="digraph-SH" class="letter digraph">SH</div>
-							<div id="digraph-CH" class="letter digraph">CH</div>
-							<div id="digraph-GH" class="letter digraph">GH</div>
-							<div id="digraph-RH" class="letter digraph">RH</div>
-							<div id="digraph-WH" class="letter digraph">WH</div></br>
-							<div id="digraph-PH" class="letter digraph">PH</div>
-							<div id="digraph-WH" class="letter digraph">CK</div>
-							<div id="digraph-WR" class="letter digraph">WR</div></br>
-							<div id="digraph-AI" class="letter vowel">AI</div>
-							<div id="digraph-AE" class="letter vowel">AE</div>
-							<div id="digraph-AY" class="letter vowel">AY</div>
-							<div id="digraph-A_E" class="letter vowel">A_E</div></br>
-							<div id="digraph-EI" class="letter vowel">EI</div>
-							<div id="digraph-EIGH" class="letter vowel">EIGH</div>
-							<div id="digraph-AY" class="letter vowel">AY</div>
-							<div id="digraph-A_E" class="letter vowel">A_E</div>
+							<div id="board">
+								<div id="word"></div></br>
+								<div id="letter-A" class="letter vowel">A</div>
+								<div id="letter-B" class="letter consonent">B</div>
+								<div id="letter-C" class="letter consonent">C</div>
+								<div id="letter-D" class="letter consonent">D</div>
+								<div id="letter-E" class="letter vowel">E</div>
+								<div id="letter-F" class="letter consonent">F</div>
+								<div id="letter-G" class="letter consonent">G</div>
+								<div id="letter-H" class="letter consonent">H</div>
+								<div id="letter-I" class="letter vowel">I</div></br>
+								<div id="letter-J" class="letter consonent">J</div>
+								<div id="letter-K" class="letter consonent">K</div>
+								<div id="letter-L" class="letter consonent">L</div>
+								<div id="letter-M" class="letter consonent">M</div>
+								<div id="letter-N" class="letter consonent">N</div>
+								<div id="letter-O" class="letter vowel">O</div>
+								<div id="letter-P" class="letter consonent">P</div>
+								<div id="letter-Qu" class="letter consonent">Qu</div></br>
+								<div id="letter-R" class="letter consonent">R</div>
+								<div id="letter-S" class="letter consonent">S</div>
+								<div id="letter-T" class="letter consonent">T</div>
+								<div id="letter-U" class="letter vowel">U</div>
+								<div id="letter-V" class="letter consonent">V</div>
+								<div id="letter-W" class="letter consonent">W</div>
+								<div id="letter-X" class="letter consonent">X</div>
+								<div id="letter-Y" class="letter consonent">Y</div>
+								<div id="letter-Z" class="letter consonent">Z</div></br>
+								<div id="digraph-TH" class="letter digraph">TH</div>
+								<div id="digraph-SH" class="letter digraph">SH</div>
+								<div id="digraph-CH" class="letter digraph">CH</div>
+								<div id="digraph-GH" class="letter digraph">GH</div>
+								<div id="digraph-RH" class="letter digraph">RH</div>
+								<div id="digraph-WH" class="letter digraph">WH</div></br>
+								<div id="digraph-PH" class="letter digraph">PH</div>
+								<div id="digraph-WH" class="letter digraph">CK</div>
+								<div id="digraph-WR" class="letter digraph">WR</div></br>
+								<div id="digraph-AI" class="letter vowel">AI</div>
+								<div id="digraph-AE" class="letter vowel">AE</div>
+								<div id="digraph-AY" class="letter vowel">AY</div>
+								<div id="digraph-A_E" class="letter vowel">A_E</div></br>
+								<div id="digraph-EI" class="letter vowel">EI</div>
+								<div id="digraph-EIGH" class="letter vowel">EIGH</div>
+								<div id="digraph-AY" class="letter vowel">AY</div>
+								<div id="digraph-A_E" class="letter vowel">A_E</div>
+							</div>
 						</div>
 					</div>
 				</div>
