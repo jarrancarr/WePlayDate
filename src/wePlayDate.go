@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	wePlayDate *website.Site
+	weePlayDate *website.Site
 	acs *website.AccountService
 	ecs *ecommerse.ECommerseService
 	mss *service.MessageService
@@ -39,18 +39,16 @@ func main() {
 
 func setup() {
 	logger.Trace.Println("setup()")
-	wePlayDate = website.CreateSite("WePlayDate", "localhost:8070")
+	weePlayDate = website.CreateSite("WePlayDate", "localhost:8070")
 	acs := website.CreateAccountService()
-	wePlayDate.AddService("account", acs)
-	wePlayDate.AddSiteProcessor("secure", acs.CheckSecure) // check for logged in user
+	weePlayDate.AddService("account", acs)
+	weePlayDate.AddSiteProcessor("secure", acs.CheckSecure) // check for logged in user
 	addScripts();
 	addMenus();
 	addServices();
 	addPages();
 	addTemplatePages();
 }
-
-
 
 func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Debug.Println("AccountService.RegisterPostHandler(w http.ResponseWriter, r *http.Request, session<"+s.GetId()+">, page<"+p.Title+">)")

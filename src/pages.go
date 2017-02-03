@@ -12,7 +12,7 @@ import (
 
 func addPages() {
 	logger.Trace.Println("addPages()")
-	main := wePlayDate.AddPage("WePlayDate", "main", "/")
+	main := weePlayDate.AddPage("WePlayDate", "main", "/")
 	main.AddBypassSiteProcessor("secure")
 	main.AddPostHandler("login", acs.LoginPostHandler)	
 	main.AddPostHandler("apply", RegisterPostHandler)	
@@ -29,7 +29,7 @@ func addPages() {
 	main.Html.Add("pictures", html.NewTag("circle id==${ID}-circle cx==${CX}% cy==${CY}% r==${R} fill==url(#${ID}) stroke==#39e stoke-width==16px stroke-opacity==0.5").AppendChild(
 		html.NewTag("animate id==fadein-${ID} attributeName==opacity values==${FADE} dur==${DUR}s begin==${ITERATOR}s repeatCount=indefinite")))
 	
-	home := wePlayDate.AddPage("home", "home", "/home")
+	home := weePlayDate.AddPage("home", "home", "/home")
 	home.AddPostHandler("logout", acs.LogoutPostHandler)	
 	home.AddAJAXHandler("newRoom", mss.CreateRoomAJAXHandler)
 	

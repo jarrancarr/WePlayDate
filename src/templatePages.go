@@ -2,8 +2,9 @@ package main
 
 func addTemplatePages() {
 	logger.Trace.Println("addTemplatePages()")
-	wePlayDate.AddPage("", "head", "")
-	wePlayDate.AddPage("header", "header", "")
-	wePlayDate.AddPage("", "footer", "")
-	wePlayDate.AddPage("", "banner", "")
+	weePlayDate.AddPage("", "head", "")
+	weePlayDate.AddPage("header", "header", "")
+	weePlayDate.AddPage("", "footer", "")
+	weePlayDate.AddPage("", "banner", "")
+	weePlayDate.AddPage("", "wallchart", "")
 }

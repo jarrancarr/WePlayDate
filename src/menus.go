@@ -8,8 +8,8 @@ import (
 
 func addMenus() {
 	logger.Trace.Println("addMenus()")
-	wePlayDate.AddParamTriggerHandler("language", chooseLanguage)
-	wePlayDate.Data["languages"] = []string{"en", "cs", "fr", "sp"}
+	weePlayDate.AddParamTriggerHandler("language", chooseLanguage)
+	weePlayDate.Data["languages"] = []string{"en", "cs", "fr", "sp"}
 }
 
 func chooseLanguage(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {

@@ -2,20 +2,20 @@ package main
 
 func addScripts() {
 	logger.Trace.Println("addScripts()")
-	wePlayDate.AddScript("pre-script", `$('a.categoryButton').hover(
+	weePlayDate.AddScript("pre-script", `$('a.categoryButton').hover(
 		function () {$(this).animate({backgroundColor: '#b2d2d2'})},
 		function () {$(this).animate({backgroundColor: '#d3ede8'})}  );`)
-	wePlayDate.AddScript("pre-script", `$('div.categoryBox').hover(over, out); `)
-	wePlayDate.AddScript("pre-script", `function over() {
+	weePlayDate.AddScript("pre-script", `$('div.categoryBox').hover(over, out); `)
+	weePlayDate.AddScript("pre-script", `function over() {
 		var span = this.getElementsByTagName('span');
 		$(span[0]).animate({opacity: 0.3});
 		$(span[1]).animate({color: 'white'}); } `)
-	wePlayDate.AddScript("pre-script", `function out() {
+	weePlayDate.AddScript("pre-script", `function out() {
 		var span = this.getElementsByTagName('span');
 		$(span[0]).animate({opacity: 0.7});
 		$(span[1]).animate({color: '#444'}); } `)
-	wePlayDate.AddScript("pre-script", `createCircles();`)
-	wePlayDate.AddScript("pre-script",`
+	weePlayDate.AddScript("pre-script", `createCircles();`)
+	weePlayDate.AddScript("pre-script",`
 		$('.letter').draggable({
 			containment:'#board',
 			cursor:'move',
@@ -27,7 +27,7 @@ func addScripts() {
 				$(ui.draggable).clone().appendTo($('#word')).css('top','10px').css('left','0px').css('margin-left','-20px');
 			} 
 		}); `)
-	wePlayDate.AddScript("post-script", `
+	weePlayDate.AddScript("post-script", `
 		function showHide(id) {
 			var e = $('#'+id)[0];
 			if (e.style.display == 'block' || e.style.display == '' || !e.style.display) {
@@ -36,7 +36,7 @@ func addScripts() {
 				e.style.display = 'block';
 			}
 		}`)		
-	wePlayDate.AddScript("post-script", `
+	weePlayDate.AddScript("post-script", `
 		var child = 0;
 		function addKid() {
 			var kid = $('#newKid');
@@ -50,7 +50,7 @@ func addScripts() {
 			child = child + 1;
 			if (parent>0) $('#submitFamily')[0].style.display = 'inline';
 		}`)
-	wePlayDate.AddScript("post-script", `
+	weePlayDate.AddScript("post-script", `
 		var parent = 0;
 		function addParent() {
 			var parent = $('#newParent');
@@ -63,7 +63,7 @@ func addScripts() {
 			parent = parent + 1;
 			if (child>0) $('#submitFamily')[0].style.display = 'inline';
 		}`)
-	wePlayDate.AddScript("post-script", `
+	weePlayDate.AddScript("post-script", `
 		function createCircles(){
 			for(i=0;i<500;i++) {
 				var myCircle = document.createElementNS(svgNS,"circle");
@@ -107,25 +107,34 @@ func addScripts() {
 		    }
 		    return color;
 		}`)
-	wePlayDate.AddScript("home-script", `
+	weePlayDate.AddScript("home-script", `
 		function enterRoom(roomName) {
+			if ($('#'+roomName).length) { return; }
 			body = $('body');
-			body.append("<div id='"+roomName+"' class='ptFloatDialog'><a href='#closeModal' title='Close' class='closeModal'>X</a><h4>"+roomName+"</h4><div class='scroll'><ul></ul></div></div>");
-			$('.ptFloatDialog').each(function(){ 
-				$( this ).position({my:"right bottom"}); });
-			var iter = 1;
-			setInterval(function(){ 
-				var li = $( "<li class='ptListItem push'>send "+iter+"</li>"); 
-				$('#'+roomName+' ul').append(li);
-				if ( $('#'+roomName+' ul li').length > 12) $('#'+roomName+' ul li:first').remove(); }, 1300);
-			setInterval(function(){ 
-				var li = $( "<li class='ptListItem pull'>receive "+iter+"</li>"); 
-				$('#'+roomName+' ul').append(li);
-				if ( $('#'+roomName+' ul li').length > 12) $('#'+roomName+' ul li:first').remove(); }, 1600);
-				iter += 1;
+			body.append("<div id='"+roomName+"' class='ptFloatDialog'><a class='closeModal' title='Close'>X</a><h4 class='dialogHeader'>"+roomName+"</h4><div class='scroll'><ul></ul></div><div><a class='sendMessage' title='Send'>S</a><a class='addEmoji' title='Emoji'>:)</a><a class='gesture' title='Gesture'>*</a><a class='invitePerson' title='Invite'>+</a><a class='other' title='Other'>?</a><textarea class='ptExpand' cols='40' rows='4' name='message-"+roomName+"'/></div></div>");
+			$('.ptFloatDialog').each(function(){ $( this ).position({my:"right bottom"}); });
+			$('#'+roomName+' a.closeModal').attr("onclick", "$('#"+roomName+"').remove();");
+			$('#'+roomName+' a.sendMessage').attr("onclick","var li = $( '<li class=\"ptListItem push\">'+$('#"+roomName+" textarea').val()+'</li>'); $('#"+roomName+" ul').append(li); if ( $('#"+roomName+" ul li').length > 12) $('#"+roomName+" ul li:first').remove(); sendMessage('"+roomName+"',$('#"+roomName+" textarea').val());");
+			$('#'+roomName+' a.addEmoji').attr("onclick","alert('Not yet implemented.')");
+			$('#'+roomName+' a.gesture').attr("onclick","alert('Not yet implemented.')");
+			$('#'+roomName+' a.invitePerson').attr("onclick","alert('Not yet implemented.')");
+		}`)
+	weePlayDate.AddScript("home-script", `
+		function sendMessage(room,message) {
+			// alert(room+": "+message);
+			$.ajax({
+					url: '/home',
+					type: 'AJAX',
+					headers: { 'ajaxProcessingHandler':'message' },
+					dataType: 'html',
+					data: { 'roomName':room,'message':message },
+					success: function(data, textStatus, jqXHR) {
+						$("#"+room+" textarea").val('')
+					},
+					error: function(data, textStatus, jqXHR) {
+						console.log("send message fail!");
+						$("#"+room+" textarea").val('')
+					}
+				});
 		}`)
 }
-
-
-
-				

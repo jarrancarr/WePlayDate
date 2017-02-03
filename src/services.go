@@ -9,10 +9,10 @@ import (
 func addServices() {
 	logger.Trace.Println("addServices()")
 	acs = website.CreateAccountService()
-	wePlayDate.AddService("account", acs)
-	wePlayDate.AddSiteProcessor("secure", acs.CheckSecure)
+	weePlayDate.AddService("account", acs)
+	weePlayDate.AddSiteProcessor("secure", acs.CheckSecure)
 	ecs = ecommerse.CreateService(acs)
-	wePlayDate.AddService("ecommerse", ecs)
+	weePlayDate.AddService("ecommerse", ecs)
 	mss = service.CreateService(acs)
-	wePlayDate.AddService("message", mss)
+	weePlayDate.AddService("message", mss)
 }
