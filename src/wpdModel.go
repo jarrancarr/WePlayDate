@@ -3,14 +3,14 @@ package main
 import (
 	//"fmt"
 	"time"
+	"github.com/jarrancarr/website"
 )
 
 type Person struct {
-	Name	string
+	Name	[]string
 	DOB		time.Time
 	Male	bool
 	Email	string
-	Password string
 	Admin	bool
 	Questions []Challenge
 	ICan	map[*Skill]int8
@@ -28,9 +28,11 @@ type Challenge struct {
 }
 
 type Family struct {
-	Mother, Father *Person
-	Child []*Person
-	Outer Group
+	Login	*website.Account
+	Parent	[]*Person
+	Child	[]*Person
+	Outer	*Group
+	Zip		string
 }
 
 type Activity struct {
@@ -68,4 +70,16 @@ var (
 		1:map[*Skill]int{&Run:9, &Kick:9, &BallHandle:9},
 		4:map[*Skill]int{&Run:16, &Kick:16, &BallHandle:9, &Attack:4,&Sprint:4}}}
 	Soccer = Activity{"Soccer", []*Activity{&Goalie, &Striker, &Fullback, &Halfback}, nil}
+	
+	Families = map[string]*Family{"Carr":&Family{
+		&website.Account{[]string{"Carr"},"CarrFamily","jcarr","jcarr@novetta.com", 
+			 []*website.Role{website.StandardRoles["basic"],} , false, time.Now()},
+		[]*Person{
+			&Person{[]string{"Jarran","Carr"}, time.Date(1971,8,4,0,0,0,0,time.UTC), true, "jarran.carr@gmail.com", true, nil, nil, nil, },
+			&Person{[]string{"Jamie","Carr"}, time.Date(1972,2,12,0,0,0,0,time.UTC), true, "jamiesgems@bellsouth.com", true, nil, nil, nil, },
+		},
+		[]*Person{ &Person{[]string{"Logan","Carr"}, time.Date(2015,5,19,0,0,0,0,time.UTC), true, "", true, nil, nil, nil, }, },
+		nil,
+		"20720",
+	},	}
 )

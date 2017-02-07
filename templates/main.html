@@ -4,10 +4,13 @@
 		{{page "head"}}
 		<script>
 			$(document).ready( function () { 
-				{{range script "pre-script"}}
+				{{range script "init-script"}}
 					{{.}}
 				{{end}}
 			} );
+			{{range script "main-script"}}
+				{{.}}
+			{{end}}
 		</script>
 	</head>
 	<body>

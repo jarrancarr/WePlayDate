@@ -14,7 +14,7 @@ func addPages() {
 	logger.Trace.Println("addPages()")
 	main := weePlayDate.AddPage("WePlayDate", "main", "/")
 	main.AddBypassSiteProcessor("secure")
-	main.AddPostHandler("login", acs.LoginPostHandler)	
+	main.AddPostHandler("login", LoginPostHandler)	
 	main.AddPostHandler("apply", RegisterPostHandler)	
 	acs.FailLoginPage="/main#failedLogin"
 	acs.LogoutPage="/main#goodBye"
@@ -32,6 +32,8 @@ func addPages() {
 	home := weePlayDate.AddPage("home", "home", "/home")
 	home.AddPostHandler("logout", acs.LogoutPostHandler)	
 	home.AddAJAXHandler("newRoom", mss.CreateRoomAJAXHandler)
+	home.AddAJAXHandler("getRooms", mss.GetRoomsAJAXHandler)
+	home.AddAJAXHandler("message", mss.MessageAJAXHandler)
 	
 	home.Html.Add("circleMenuItem", html.NewTag("circle id==login cx==${CX} cy==10 r==50 fill==#${FILL} stroke==#222 stroke-width==1 fill-opacity==0.8"))
 	home.Html.Add("circleMenuItem", html.NewTag("a xlink:href==#${MODAL}").AppendChild(

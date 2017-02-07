@@ -70,11 +70,26 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	secret := make([]byte, 16)
 	rand.Read(secret)
 	
-	website.Users = append(website.Users, website.Account{"", "Logan", "J", "Carr", "", userName, base64.URLEncoding.EncodeToString(secret), 
+	website.Users = append(website.Users, website.Account{[]string{"Logan", "J", "Carr"}, userName, base64.URLEncoding.EncodeToString(secret), 
 		email, []*website.Role{website.StandardRoles["basic"]}, false, time.Now().Add(time.Minute*15)})
 	
 	// email user the key to log in.
 	logger.Info.Println("Log in key is: "+base64.URLEncoding.EncodeToString(secret))
 	
 	return r.Form.Get("redirect"), nil
+}
+
+func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("WeePlayDate.LoginPostHandler(w http.ResponseWriter, r *http.Request, session<"+s.GetId()+">, page<"+p.Title+">)")
+	userName := r.Form.Get("UserName")
+	password := r.Form.Get("Password")
+	
+	if Families[userName] != nil && Families[userName].Login.Password == password {
+		s.Data["name"] = userName
+		s.Data["userName"] = userName
+		s.Item["family"] = Families[userName]
+		acs.Active[userName] = s
+		return r.Form.Get("redirect"), nil
+	}
+	return acs.FailLoginPage, nil
 }
