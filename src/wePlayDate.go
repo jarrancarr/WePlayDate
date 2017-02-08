@@ -23,6 +23,7 @@ var (
 )
 
 func main() {
+	initData()
 	website.ResourceDir = ".."
 	website.DataDir = "../data"
 	//logger = website.NewLog(ioutil.Discard, ioutil.Discard, ioutil.Discard, os.Stderr, os.Stdout)
@@ -30,6 +31,9 @@ func main() {
 	service.Logger = logger
 
 	setup()
+	
+	go simulateCommunity(mss)
+	
 	http.HandleFunc("/js/", website.ServeResource)
 	http.HandleFunc("/css/", website.ServeResource)
 	http.HandleFunc("/img/", website.ServeResource)
@@ -48,6 +52,8 @@ func setup() {
 	addServices();
 	addPages();
 	addTemplatePages();
+	
+	website.Users = []website.Account{*(Families["jjlcarr"].Login), *(Families["adaknight"].Login),}
 }
 
 func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
@@ -85,10 +91,12 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 	password := r.Form.Get("Password")
 	
 	if Families[userName] != nil && Families[userName].Login.Password == password {
-		s.Data["name"] = userName
+		logger.Debug.Println("Family: "+userName+" logging in")
+		s.Data["name"] = Families[userName].Parent[0].FullName()
 		s.Data["userName"] = userName
 		s.Item["family"] = Families[userName]
 		acs.Active[userName] = s
+		acs.GetAccount(userName)
 		return r.Form.Get("redirect"), nil
 	}
 	return acs.FailLoginPage, nil
