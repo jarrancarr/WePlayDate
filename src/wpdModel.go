@@ -21,8 +21,8 @@ type Person struct {
 }
 
 type Group struct {
-	member []Family
-	Circle []Group
+	member []*Family
+	Circle map[string]*Group
 	Permission map[string]bool
 }
 
@@ -30,12 +30,26 @@ type Challenge struct {
 	Phrase, Reply  string
 }
 
+type Message struct {
+	From 	*Family
+	CC		[]*Family
+	Subject, Body string
+}
+
 type Family struct {
 	Login	*website.Account
 	Parent	[]*Person
 	Child	[]*Person
 	Outer	*Group
-	Zip		string
+	Zip		[]string
+	Buzzword []string
+	Turnoff []string
+}
+
+type Region struct {
+	Name		string
+	Lat, Long	float32
+	room		*service.Room
 }
 
 type Activity struct {
@@ -90,10 +104,26 @@ var (
 	
 	Families = map[string]*Family{
 		"jjlcarr":&Family{&website.Account{[]string{"Carr"},"jjlcarr","jcarr48","jcarr@novetta.com", []*website.Role{website.StandardRoles["basic"], },
-		false, time.Now()}, []*Person{ &Jarran,	&Jamie,	}, []*Person{ &Logan, }, nil, "20720", },
+		false, time.Now()}, []*Person{ &Jarran,	&Jamie,	}, []*Person{ &Logan, }, nil, []string{"20720"}, []string{"hi", "help"}, []string{"hate"}},
 		"adaknight":&Family{&website.Account{[]string{"Knight"},"adaknight","aknight96","", []*website.Role{website.StandardRoles["basic"], }, 
-		false, time.Now()},	[]*Person{ &Andy,	&Deanna,	}, []*Person{ &AJ, }, nil, "20720", },	
-	}	
+		false, time.Now()},	[]*Person{ &Andy,	&Deanna,	}, []*Person{ &AJ, }, nil, []string{"20720"}, []string{"Hi", "Help"}, []string{"hate"}},	
+	}
+	
+	Conversation = []string{"Hello", "Nice kids", "Be right back", "see you later", "what time", "the park was nice", 
+		"tomorrow is better", "I don't know", "Wait till I call you", "there are more at home", "what did you find there", 
+		"how was surfing", "were sailing tomorrow", "taking the dogs for a walk", "playing with the cat", "shopping for a dress", 
+		"have to do some home repair", "You can't tell him that!", "Were going camping", "cooking on the BBQ", "trying a vegan recipie", 
+		"where did you go to school", "how are the schools in that area", "she is the best teacher", "I'm not so sure", 
+		"my parents are in town", "there is a swim meet", "I'll see you at hockey practice", "Is you car fixed yet?", "You gave me that apron", 
+		"He's talking politics", "whatever, I can make it.", "teaching my kids about life", "Is there a playground at that park?", 
+		"where was that persian restaurant?", "Who sang that song?", "What were you planning this weekend?", "When do you have free?", 
+		"Why don't you meet me at that place?", "How would you punish your kids for that?", "I can try.", "Well, I have a few tools.", 
+		"You'll have to pardon the mess.", "I got all these ingredients...", "I'll knit you another pair.", "That just happened", 
+		"I'll show you how to build that", "The plummer is here", "The fix-it guy is at the door.", "I need to learn how to work on my car", 
+		"oops... baby is crying", "I got plenty of extra firewood", "I'm trying to decide what color to paint that room", 
+		"were having family night", "We had a lot of fun at your house", "The kids have all of those toys", "He is taking a potter class", 
+		"If the weather is nice, we'll have a picnic.", "make sure you bring a jacket", "hiking the trails", "bicycling to the hills", 
+		"what about a roller skate party?", "The movie was too scary", }
 )
 
 func initData() {
@@ -111,7 +141,9 @@ func initData() {
 		}
 		userName := dad.Name[0][:1] + mom.Name[0][:1] + strings.ToLower(familyName)
 		Families[userName] = &Family{&website.Account{[]string{familyName,}, userName, "password", userName+"@childsplay.com", 
-			[]*website.Role{website.StandardRoles["basic"], }, false, time.Now()}, []*Person{ &dad, &mom}, children, nil, fmt.Sprintf("%d",20700+rand.Intn(40))}
+			[]*website.Role{website.StandardRoles["basic"], }, false, time.Now()}, []*Person{ &dad, &mom}, children, nil, 
+			[]string{fmt.Sprintf("%d",20710+rand.Intn(20))}, []string{"love"}, []string{"hate"}}
+		website.Users = append(website.Users,*Families[userName].Login)
 	}
 	for i:=0; i<400; i++ { // single moms
 		familyName := familyNames[rand.Intn(len(familyNames))]
@@ -125,7 +157,9 @@ func initData() {
 		}
 		userName := mom.Name[0][:2] + strings.ToLower(familyName)
 		Families[userName] = &Family{&website.Account{[]string{familyName,}, userName, "password", userName+"@childsplay.com", 
-			[]*website.Role{website.StandardRoles["basic"], }, false, time.Now()}, []*Person{ &mom}, children, nil, fmt.Sprintf("%d",20700+rand.Intn(40))}
+			[]*website.Role{website.StandardRoles["basic"], }, false, time.Now()}, []*Person{ &mom}, children, nil, 
+			[]string{fmt.Sprintf("%d",20710+rand.Intn(20))}, []string{"love"}, []string{"hate"}}
+		website.Users = append(website.Users,*Families[userName].Login)
 	}
 	for i:=0; i<200; i++ { // single dads
 		familyName := familyNames[rand.Intn(len(familyNames))]
@@ -139,7 +173,9 @@ func initData() {
 		}
 		userName := dad.Name[0][:2] + strings.ToLower(familyName)
 		Families[userName] = &Family{&website.Account{[]string{familyName,}, userName, "password", userName+"@childsplay.com", 
-			[]*website.Role{website.StandardRoles["basic"], }, false, time.Now()}, []*Person{ &dad}, children, nil, fmt.Sprintf("%d",20700+rand.Intn(40))}
+			[]*website.Role{website.StandardRoles["basic"], }, false, time.Now()}, []*Person{ &dad}, children, nil, 
+			[]string{fmt.Sprintf("%d",20710+rand.Intn(20))}, []string{"love"}, []string{"hate"}}
+		website.Users = append(website.Users,*Families[userName].Login)
 	}
 }
 
@@ -162,9 +198,17 @@ func simulateCommunity(mss *service.MessageService) {
 
 func activeUser(fm *Family, mss *service.MessageService) {
 	logger.Trace.Println()
-	mss.Execute([]string{"addRoom","zip-"+fm.Zip},nil)
+	userSession := website.Session{make(map[string]interface{}), make(map[string]string)}
+	userSession.Data["name"] = fm.Parent[0].FullName()
+	userSession.Data["userName"] = fm.Login.User
+	userSession.Item["family"] = fm
+	acs.Lock.Lock()
+	acs.Active[fm.Login.User] = &userSession
+	acs.Lock.Unlock()
+	mss.Execute([]string{"addRoom","zip-"+fm.Zip[0]}, &userSession, nil)
 	for i := 0; i<100; i = rand.Intn(101) {
-		mss.Execute([]string{"post", "zip-"+fm.Zip, fm.Parent[0].FullName(), "test message from "+fm.Login.User+" at time "+time.Now().Format("3:04:23 PM")},nil)
+		mss.Execute([]string{"post", "zip-"+fm.Zip[0], fm.Parent[0].FullName(), "("+fm.Login.User+"):"+Conversation[rand.Intn(len(Conversation))]}, &userSession ,nil)
 		time.Sleep(time.Duration(rand.Int31n(10000))*time.Millisecond)
 	}
+	mss.Execute([]string{"exitRoom","zip-"+fm.Zip[0]}, &userSession, nil)
 }

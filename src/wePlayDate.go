@@ -2,12 +2,14 @@ package main
 
 import (
 	"net/http"
+	"strings"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"crypto/rand"
 	"encoding/base64"
 	"time"
+	//"sync"
 
 	"github.com/jarrancarr/website"
 	"github.com/jarrancarr/website/service"
@@ -84,20 +86,51 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	
 	return r.Form.Get("redirect"), nil
 }
-
 func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Debug.Println("WeePlayDate.LoginPostHandler(w http.ResponseWriter, r *http.Request, session<"+s.GetId()+">, page<"+p.Title+">)")
 	userName := r.Form.Get("UserName")
 	password := r.Form.Get("Password")
 	
-	if Families[userName] != nil && Families[userName].Login.Password == password {
+	fam := Families[userName]
+	
+	if fam != nil && fam.Login.Password == password {
 		logger.Debug.Println("Family: "+userName+" logging in")
-		s.Data["name"] = Families[userName].Parent[0].FullName()
+		s.Data["name"] = fam.Parent[0].Name[0]
+		if len(fam.Parent)>1 {
+			s.Data["name"] += ", "+fam.Parent[1].Name[0]
+		}
+		for _, ch := range(fam.Child) {
+			s.Data["name"] += ", "+ch.Name[0]
+		}
+		s.Data["name"] += " " + fam.Parent[0].Name[1]
 		s.Data["userName"] = userName
-		s.Item["family"] = Families[userName]
+		s.Item["family"] = fam
 		acs.Active[userName] = s
-		acs.GetAccount(userName)
+		for _, z := range(fam.Zip) {
+			mss.Execute([]string{"addRoom", z, ""}, s, p)
+		}
 		return r.Form.Get("redirect"), nil
 	}
 	return acs.FailLoginPage, nil
+}
+func SelectFamilyMember(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("WeePlayDate.SelectFamilyMember(w http.ResponseWriter, r *http.Request, session<"+s.GetId()+">, page<"+p.Title+">)")
+	for k,v := range(r.Form) {
+		logger.Debug.Println(k+"::"+strings.Join(v,"//"))
+	}
+	name := strings.Split(r.Form["parent"][0]," ")[0]
+	for _, nm := range(r.Form["parent"][1:]) {
+		name += ", " + strings.Split(nm, " ")[0]
+	}
+	for _, nm := range(r.Form["child"]) {
+		name += ", " + strings.Split(nm, " ")[0]
+	}
+	name += strings.Split(r.Form["parent"][0]," ")[1]
+	s.Data["name"] = name
+	
+	return r.Form.Get("redirect"), nil
+}
+func WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	w.Write([]byte(`["me", "myself", "Eye"]`))
+	return "ok", nil
 }

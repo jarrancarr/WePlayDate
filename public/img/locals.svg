@@ -1,0 +1,18 @@
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="3e2mm" width="2e2mm" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 800 1000">
+	<defs>
+		<filter id="c" style="color-interpolation-filters:sRGB" height="1" width="1" y="-.1" x="-.1">
+			<feGaussianBlur stdDeviation="4"/>
+		</filter>
+		<filter id="b" style="color-interpolation-filters:sRGB" height="1" width="1" y="-.1" x="-.1">
+			<feGaussianBlur stdDeviation="4"/>
+		</filter>
+		<filter id="a" style="color-interpolation-filters:sRGB" height="1" width="1" y="-.1" x="-.1">
+			<feGaussianBlur stdDeviation="4"/>
+		</filter>
+	</defs>
+	<g>
+		<circle cx="0" filter="url(#a)" cy="0" r="50" fill="#5040c0"/>
+		<circle cx="0" filter="url(#b)" cy="0" r="100" fill="#a04080"/>
+		<circle cx="0" filter="url(#c)" cy="0" r="150" fill="#50c0a0"/>
+	</g>
+</svg>

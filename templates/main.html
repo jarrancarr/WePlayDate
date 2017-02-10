@@ -7,6 +7,9 @@
 				{{range script "init-script"}}
 					{{.}}
 				{{end}}
+				{{range script "init-main-script"}}
+					{{.}}
+				{{end}}
 			} );
 			{{range script "main-script"}}
 				{{.}}
@@ -75,12 +78,12 @@
 							User Name: <input type="text" class= "ptButton ptInput" name="UserName"><br><br>
 							Password: <input type="password" class= "ptButton ptInput" name="Password"><br><br><br>
 						</span>
-						<input type="submit" class= "ptButton" value="Login">
-						<a href="#applyModal" class= "ptButton">Register</a>
-						<a href="#clearModal" class= "ptButton">Cancel</a>
+						<input type="submit" class="ptButton" value="Login">
+						<a href="#applyModal" class="ptButton">Register</a>
+						<a href="#clearModal" class="ptButton">Cancel</a>
 						<a href="#passwordModal" class= "ptButton">Forgot Password?</a>
 						<input type="hidden" name="postProcessingHandler" value="login">
-						<input type="hidden" name="redirect" value="home">
+						<input type="hidden" name="redirect" value="home#welcomeModal">
 					</form>
 				</div>
 			</div>
