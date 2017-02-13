@@ -14,6 +14,8 @@
 			{{range script "main-script"}}
 				{{.}}
 			{{end}}
+			child = {{session "data" "numChildren"}};
+			parent = {{session "data" "numParents"}};
 		</script>
 	</head>
 	<body>
@@ -48,7 +50,7 @@
 		</div>
 		<div id="nav-menu">
 			<svg id="menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
-				{{range htmls "circleMenuItem" "MODAL>>loginModal,aboutModal,applyModal,infoModal" "TX>>50,130,210,290,370,450" "FILL>>93e,3e9,9e3,e93,39e,e39"	"LABEL>>Enter,About,Apply,Info,Admin,Lounge" "CX>>90,170,250,330,410,490"}}
+				{{range htmls "circleMenuItem" "MODAL>>loginModal,aboutModal,applyModal,infoModal" "TX>>50,130,210,290,370,450" "FILL>>93e,3e9,9e3,e93,39e,e39" "LABEL>>Enter,About,Apply,Info,Sponcer,Lounge" "CX>>90,170,250,330,410,490"}}
 					{{.}}
 				{{end}}
 			</svg>
@@ -102,14 +104,29 @@
 				<div class="container">
 					<form id="family" action="/main" method="post">
 						UserName: <input type="text" class= "ptButton" name="userName" placeholder="family user name"><br>
-						Email: <input type="text" class= "ptButton" name="email" placeholder="please enter a valid email"><br>
-						<ul></ul><br>
+						Email: <input type="text" class= "ptButton" name="email" placeholder="please enter a valid email" value="{{ session "param" "email" }}"><br>
+						Zip Code: <input type="text" class= "ptButton" name="zip" placeholder="00000" value="{{ session "param" "zip" }}"><br>
+						<ul>
+							{{range session "item" "familyData"}}
+								{{ if .Parent }}
+									<li class="ptListItem">{{.Name}}, {{.Sex}}</li>
+								{{ else }}
+									<li class="ptListItem">{{.Name}}, {{.MOB}}, {{.Sex}}</li>
+								{{end}}
+							{{end}}
+						</ul><br>
 						<input type="submit" class="ptButton" id="submitFamily" value="Apply" style="display: none;">
 						<a href="#clearModal" class= "ptButton">Cancel</a>
 						<input type="hidden" name="postProcessingHandler" value="apply">
 						<input type="hidden" name="redirect" value="main#checkEmail">
 						<input type="button" class="ptButton" onclick="showHide('newKid')" value="Add Child"/>
 						<input type="button" class="ptButton" onclick="showHide('newParent')" value="Add Parent"/>
+							{{range $index, $elem := session "item" "parentData"}}
+								<input type="hidden" name="parent{{$index}}" value="{{.Name}}|{{.Sex}}">
+							{{end}}
+							{{range $index, $elem := session "item" "childData"}}
+								<input type="hidden" name="child{{$index}}" value="{{.Name}}|{{ .MOB }}|{{.Sex}}">
+							{{end}}
 					</form>
 					<div id="newKid" class="container" style="display: none;">
 						<h4>Add a Child</h4>
@@ -117,7 +134,7 @@
 							Name: <input type="text" class= "ptButton" id="newKid" name="name" placeholder="full name">
 							Boy: <input type="radio" class= "ptButton" id="boy" name="gender" value="Boy"/>
 							Girl: <input type="radio" class= "ptButton" id="girl" name="gender" value="Girl"/><br>
-							Age: <input type="number" class= "ptButton" id="age" min="1" max="6" value="1"/>
+							Birth Month: <input id="dob" class="datepicker" data-date-format="mm/dd/yyyy"></br>
 							<input type="button" class="ptButton" onclick="addKid()" value="Add"/>
 						</form>
 					</div>
@@ -140,6 +157,19 @@
 				<h3>The story</h3>
 				<p>One day, I was pondering how shy my little boy is and how will I get him to open up to other children.  We didn't know very many families with small kids and thought about how easy it was to meet people on the internet.  I asked my wife about what she thought of a 'dating' site for babies.</p>
 				<p>At first she scoffed, but in a moment the whole idea came to her as id did for me.  Of course if would be a tool for parents to set up playdates for their kids.  We could match up kids too young to make their own friends with similar developmental abilities and interest.</p>
+				<a href="#sponcerModal" title="sponcers" class="ptButton">Sponcers</a>
+			</div>
+		</div>
+		<div id="sponcerModal" class="modalDialog">
+			<div>
+				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<h2>Welcome sponcers</h2>
+				<p>We would like to offer advertising services and to tell you how this forum is a great value.  Our pricing
+				structure is on a per view basis and can be targetted to specific demographics and regions as specific as individual
+				zip codes. 
+				</p>
+				<p>Create a sponcer account and allow us to show you how this could be the most affective way to reach
+				the kind of people who will want your business.</p>
 			</div>
 		</div>
 		<div id="adminModal" class="modalDialog">
@@ -170,6 +200,14 @@
 				<a href="#closeModal" title="Close" class="closeModal">X</a>
 				<h2>Your application was successful</h2>
 				<p>Check you email for a secure link to set up you account.</p>
+			</div>
+		</div>
+		<div id="errorModal" class="modalDialog">
+			<div style="text-align: center;">
+				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<h2>There was a problem</h2>
+				<p>{{session "param" "error"}}</p></br>
+				<a href='{{session "param" "retry"}}' title="Back" class="ptButton">Try again</a>
 			</div>
 		</div>
 	</body>

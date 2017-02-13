@@ -6,6 +6,8 @@ func addScripts() {
 		function () {$(this).animate({backgroundColor: '#b2d2d2'})},
 		function () {$(this).animate({backgroundColor: '#d3ede8'})}  );`)
 	weePlayDate.AddScript("init-script", `$('div.categoryBox').hover(over, out); `)
+	weePlayDate.AddScript("init-script", `$('.datepicker').datepicker({ dateFormat: 'mm/yyyy' }); `)
+
 	weePlayDate.AddScript("init-script", `function over() {
 		var span = this.getElementsByTagName('span');
 		$(span[0]).animate({opacity: 0.3});
@@ -54,7 +56,7 @@ func addScripts() {
 				}
 			});
 		}, 500);	`)
-	weePlayDate.AddScript("init-script",`$('.letter').draggable({
+	weePlayDate.AddScript("init-script", `$('.letter').draggable({
 			containment:'#board',
 			cursor:'move',
 			zIndex:3,
@@ -72,12 +74,12 @@ func addScripts() {
 			} else {
 				e.style.display = 'block';
 			}
-		}`)		
+		}`)
 	weePlayDate.AddScript("main-script", `var child = 0; function addKid() {
 			var kid = $('#newKid');
 			var form = $('#family');
-			form.append("<input type='hidden' name='child"+child+"' value='"+kid.find('#newKid').val()+"|"+$('input[name=gender]:checked','#kid').val()+"|"+kid.find('#age').val()+"'/>");
-			form.find('ul').append("<li class='ptListItem'>"+kid.find('#newKid').val()+", "+kid.find('#age').val()+", "+$('input[name=gender]:checked','#kid').val()+"</li>");
+			form.append("<input type='hidden' name='child"+child+"' value='"+kid.find('#newKid').val()+"|"+$('input[name=gender]:checked','#kid').val()+"|"+kid.find('#dob').datepicker('getDate').getDate()+"'/>");
+			form.find('ul').append("<li class='ptListItem'>"+kid.find('#newKid').val()+", "+kid.find('#dob').datepicker('getDate').getDate()+", "+$('input[name=gender]:checked','#kid').val()+"</li>");
 			kid[0].style.display = 'none';
 			kid.find('#newKid').val('');
 			$('input[name=gender]:checked','#kid').prop("checked",false);
@@ -88,10 +90,10 @@ func addScripts() {
 	weePlayDate.AddScript("main-script", `var parent = 0; function addParent() {
 			var parentTag = $('#newParent');
 			var form = $('#family');
-			form.append("<input type='hidden' name='parent"+parent+"' value='"+parent.find('#newParent').val()+"|"+$('input[name=gender]:checked','#parent').val()+"'/>");
-			form.find('ul').append("<li class='ptListItem'>"+parent.find('#newParent').val()+", "+$('input[name=gender]:checked','#parent').val()+"</li>");
+			form.append("<input type='hidden' name='parent"+parent+"' value='"+parentTag.find('#newParent').val()+"|"+$('input[name=gender]:checked','#parent').val()+"'/>");
+			form.find('ul').append("<li class='ptListItem'>"+parentTag.find('#newParent').val()+", "+$('input[name=gender]:checked','#parent').val()+"</li>");
 			parentTag[0].style.display = 'none';
-			parentTag.find('#newKid').val('');
+			parentTag.find('#newParent').val('');
 			$('input[name=gender]:checked','#parent').prop("checked",false);
 			parent = parent + 1;
 			if (child>0) $('#submitFamily')[0].style.display = 'inline';
@@ -209,5 +211,5 @@ func addScripts() {
 				error: function(data, textStatus, jqXHR) {
 					console.log("send message fail!");
 					$("#"+room+" textarea").val('')
-	}	});	}`	)
+	}	});	}`)
 }
