@@ -218,7 +218,7 @@ func activeUser(fm *Family, mss *service.MessageService) {
 	acs.Lock.Unlock()
 	mss.Execute([]string{"addRoom", fm.Zip[0]}, &userSession, nil)
 	for i := 0; i < 100; i = rand.Intn(101) {
-		mss.Execute([]string{"post", fm.Zip[0], fm.Parent[0].FullName(), "(" + fm.Login.User + "):" + Conversation[rand.Intn(len(Conversation))]}, &userSession, nil)
+		mss.Execute([]string{"post", fm.Zip[0], fm.Login.User, Conversation[rand.Intn(len(Conversation))]}, &userSession, nil)
 		time.Sleep(time.Duration(rand.Int31n(10000)) * time.Millisecond)
 	}
 	mss.Execute([]string{"exitRoom", fm.Zip[0]}, &userSession, nil)

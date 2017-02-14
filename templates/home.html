@@ -65,12 +65,16 @@
 		<div id="images">
 			<svg width="100%" height="100%"></svg>
 		</div>
-		<div id="widgets">
-			<svg id="widgetSVG" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
+		<div id="regionAreas">
+			<svg id="regionAreasSVG" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
 				<g>
 					<circle cx="10" cy="90%" r="400" fill="#54c"/>
 					<circle cx="10" cy="90%" r="300" fill="#a48"/>
-					<circle cx="10" cy="90%" r="200" fill="#5ca"/>
+					<circle cx="10" cy="90%" r="200" fill="#5ca">
+						<foreignObject width="200" height="130" requiredExtensions="http://www.w3.org/1999/xhtml">
+							<a href="#postModal" class="ptButton">Post</a>
+						</foreignObject>
+					</circle>
 				</g>
 			</svg>
 		</div>
@@ -82,13 +86,13 @@
 					<form id="who" action="/home" method="post">
 						{{ with session "item" "family"}}
 							{{range .Parent }}
-								<label><input type="checkbox" class="ptButton" name="parent" value="{{.FullName}}">{{.FullName}}</label></br>
+								<label class="ptButton"><input type="checkbox" name="parent" value="{{.FullName}}">{{.FullName}}</label></br>
 							{{end}}
 							{{range .Child }}
-								<label><input type="checkbox" class="ptButton" name="child" value="{{.FullName}}">{{.FullName}}</label></br>
+								<label class="ptButton"><input type="checkbox" name="child" value="{{.FullName}}">{{.FullName}}</label></br>
 							{{end}}
 						{{end}}
-						<label><input type="checkbox" class= "ptButton" value="anonomous">Oops, I am not listed.</label>
+						</br>
 						<input type="hidden" name="postProcessingHandler" value="selectFamilyMember">
 						<input type="hidden" name="redirect" value="home">
 						<input type="submit" class= "ptButton" value="OK">
@@ -110,6 +114,12 @@
 				<h3>The story</h3>
 				<p>One day, I was pondering how shy my little boy is and how will I get him to open up to other children.  We didn't know very many families with small kids and thought about how easy it was to meet people on the internet.  I asked my wife about what she thought of a 'dating' site for babies.</p>
 				<p>At first she scoffed, but in a moment the whole idea came to her as id did for me.  Of course if would be a tool for parents to set up playdates for their kids.  We could match up kids too young to make their own friends with similar developmental abilities and interest.</p>
+			</div>
+		</div>
+		<div id="postModal" class="modalDialog">
+			<div>
+				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<h2>Whats on your mind</h2>
 			</div>
 		</div>
 		<div id="adminModal" class="modalDialog">

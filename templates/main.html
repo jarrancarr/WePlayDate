@@ -14,8 +14,8 @@
 			{{range script "main-script"}}
 				{{.}}
 			{{end}}
-			child = {{session "data" "numChildren"}};
-			parent = {{session "data" "numParents"}};
+			var child = {{session "item" "numChildren"}};
+			var parent = {{session "item" "numParents"}};
 		</script>
 	</head>
 	<body>
@@ -107,12 +107,11 @@
 						Email: <input type="text" class= "ptButton" name="email" placeholder="please enter a valid email" value="{{ session "param" "email" }}"><br>
 						Zip Code: <input type="text" class= "ptButton" name="zip" placeholder="00000" value="{{ session "param" "zip" }}"><br>
 						<ul>
-							{{range session "item" "familyData"}}
-								{{ if .Parent }}
-									<li class="ptListItem">{{.Name}}, {{.Sex}}</li>
-								{{ else }}
-									<li class="ptListItem">{{.Name}}, {{.MOB}}, {{.Sex}}</li>
-								{{end}}
+							{{range session "item" "parentData"}}
+								<li class="ptListItem">{{.Name}}, {{.Sex}}</li>
+							{{end}}
+							{{range session "item" "childData"}}
+								<li class="ptListItem">{{.Name}}, {{.MOB}}, {{.Sex}}</li>
 							{{end}}
 						</ul><br>
 						<input type="submit" class="ptButton" id="submitFamily" value="Apply" style="display: none;">
@@ -134,7 +133,7 @@
 							Name: <input type="text" class= "ptButton" id="newKid" name="name" placeholder="full name">
 							Boy: <input type="radio" class= "ptButton" id="boy" name="gender" value="Boy"/>
 							Girl: <input type="radio" class= "ptButton" id="girl" name="gender" value="Girl"/><br>
-							Birth Month: <input id="dob" class="datepicker" data-date-format="mm/dd/yyyy"></br>
+							Birth Month: <input type="text" id="dob" class="datepicker" data-date-format="{{param "DateFormat"}}"></br>
 							<input type="button" class="ptButton" onclick="addKid()" value="Add"/>
 						</form>
 					</div>

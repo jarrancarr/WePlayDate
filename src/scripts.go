@@ -6,8 +6,7 @@ func addScripts() {
 		function () {$(this).animate({backgroundColor: '#b2d2d2'})},
 		function () {$(this).animate({backgroundColor: '#d3ede8'})}  );`)
 	weePlayDate.AddScript("init-script", `$('div.categoryBox').hover(over, out); `)
-	weePlayDate.AddScript("init-script", `$('.datepicker').datepicker({ dateFormat: 'mm/yyyy' }); `)
-
+	weePlayDate.AddScript("init-script", `$('.datepicker').datepicker({ choose: 'dateOfBirth', dateFormat: '`+Date_Format+`' }); $('.ui-widget').addClass('ptButton');`)
 	weePlayDate.AddScript("init-script", `function over() {
 		var span = this.getElementsByTagName('span');
 		$(span[0]).animate({opacity: 0.3});
@@ -75,11 +74,11 @@ func addScripts() {
 				e.style.display = 'block';
 			}
 		}`)
-	weePlayDate.AddScript("main-script", `var child = 0; function addKid() {
+	weePlayDate.AddScript("main-script", `function addKid() {
 			var kid = $('#newKid');
 			var form = $('#family');
-			form.append("<input type='hidden' name='child"+child+"' value='"+kid.find('#newKid').val()+"|"+$('input[name=gender]:checked','#kid').val()+"|"+kid.find('#dob').datepicker('getDate').getDate()+"'/>");
-			form.find('ul').append("<li class='ptListItem'>"+kid.find('#newKid').val()+", "+kid.find('#dob').datepicker('getDate').getDate()+", "+$('input[name=gender]:checked','#kid').val()+"</li>");
+			form.append("<input type='hidden' name='child"+child+"' value='"+kid.find('#newKid').val()+"|"+$.datepicker.formatDate("`+Date_Format+`", kid.find('#dob').datepicker('getDate'))+"|"+$('input[name=gender]:checked','#kid').val()+"'/>");
+			form.find('ul').append("<li class='ptListItem'>"+kid.find('#newKid').val()+", "+$.datepicker.formatDate("`+Date_Format+`", kid.find('#dob').datepicker('getDate'))+", "+$('input[name=gender]:checked','#kid').val()+"</li>");
 			kid[0].style.display = 'none';
 			kid.find('#newKid').val('');
 			$('input[name=gender]:checked','#kid').prop("checked",false);
@@ -87,7 +86,7 @@ func addScripts() {
 			child = child + 1;
 			if (parent>0) $('#submitFamily')[0].style.display = 'inline';
 		}`)
-	weePlayDate.AddScript("main-script", `var parent = 0; function addParent() {
+	weePlayDate.AddScript("main-script", `function addParent() {
 			var parentTag = $('#newParent');
 			var form = $('#family');
 			form.append("<input type='hidden' name='parent"+parent+"' value='"+parentTag.find('#newParent').val()+"|"+$('input[name=gender]:checked','#parent').val()+"'/>");
@@ -148,7 +147,7 @@ func addScripts() {
 			$('.ptFloatDialog').each(function(){ $( this ).position({my:"right bottom"}); });
 			$('#'+roomName+' a.closeModal').attr('onclick', 'exitRoom("'+roomName+'")');
 			$('#'+roomName+' a.whosHere').attr('onclick', 'whoseThere("'+roomName+'")');
-			$('#'+roomName+' a.sendMessage').attr("onclick","var li = $( '<li class=\"ptListItem push\">'+$('#"+roomName+" textarea').val()+'</li>'); $('#"+roomName+" ul').append(li); if ( $('#"+roomName+" ul li').length > 12) $('#"+roomName+" ul li:first').remove(); sendMessage('"+roomName+"',$('#"+roomName+" textarea').val());");
+			$('#'+roomName+' a.sendMessage').attr("onclick","var li = $( '<li class=\"ptListItem push\">'+$('#"+roomName+" textarea').val()+'</li>'); $('#"+roomName+" .discussion ul').append(li); sendMessage('"+roomName+"',$('#"+roomName+" textarea').val());");
 			$('#'+roomName+' a.addEmoji').attr("onclick","alert('Not yet implemented.')");
 			$('#'+roomName+' a.gesture').attr("onclick","alert('Not yet implemented.')");
 			$('#'+roomName+' a.invitePerson').attr("onclick","alert('Not yet implemented.')");
@@ -170,8 +169,11 @@ func addScripts() {
 					var obj = JSON.parse(data);
 					ul.empty();
 					$.each(obj, function(index, party) { 
-						item = $(document.createElement('li')).text( decodeURIComponent(party.replace(/\+/g, ' ')) ); 
+						user = decodeURIComponent(party[1].replace(/\+/g, ' '))
+						name = decodeURIComponent(party[0].replace(/\+/g, ' '))
+						item = $(document.createElement('li')).text(name); 
 						item.attr("class", "ptListItem"); 
+						item.attr("onclick", "initiateRoom('"+user+"')");
 						ul.append( item ); 
 					});
 				},
@@ -211,5 +213,15 @@ func addScripts() {
 				error: function(data, textStatus, jqXHR) {
 					console.log("send message fail!");
 					$("#"+room+" textarea").val('')
+	}	});	}`)
+	weePlayDate.AddScript("home-script", `function initiateRoom(roomName) {
+			$.ajax({url: '/home',type: 'AJAX',
+				headers: { 'ajaxProcessingHandler':'newRoom' },	dataType: 'html',
+				data: { 'roomName':roomName, 'roomPass':'HaHa!' },
+				success: function(data, textStatus, jqXHR) {
+					enterRoom(roomName);
+				},
+				error: function(data, textStatus, jqXHR) {
+					console.log("new room fail!");
 	}	});	}`)
 }

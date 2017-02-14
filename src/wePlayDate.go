@@ -24,6 +24,8 @@ var (
 	ecs         *ecommerse.ECommerseService
 	mss         *service.MessageService
 	logger      *website.Log
+	Date_Format = "MM/dd/yyyy"
+	Date_Format_GL = "01/02/2006"
 )
 
 func main() {
@@ -61,16 +63,70 @@ func setup() {
 }
 
 func MainInitProcessor(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	s.Data["numParents"] = "0"
-	s.Data["numchildren"] = "0"
+	logger.Trace.Println("MainInitProcessor(w http.ResponseWriter, r *http.Request, website.Session<<"+s.GetId()+">>, p *website.Page)");
+	if s.Item["numParents"] == nil {
+		s.Item["numParents"] = 0
+	}
+	if s.Item["numChildren"] == nil {
+		s.Item["numChildren"] = 0
+	} 
 	return "ok", nil
 }
 func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Debug.Println("AccountService.RegisterPostHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	logger.Trace.Println("RegisterPostHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	userName := r.Form.Get("userName")
 	email := r.Form.Get("email")
 	zip := r.Form.Get("zip")
 
+	logger.Info.Println("userName: " + userName + "   Email:" + email + "  ")
+	child := "data"
+	children := make([]*Person, 0)
+	for i := 0; child != ""; i++ {
+		child = ""
+		childSpecs := strings.Split(r.Form.Get(fmt.Sprintf("child%d", i)), "|")
+		if len(childSpecs)==3 {
+			dob, _ := time.Parse(childSpecs[1], Date_Format)
+			children = append(children, &Person{Name: []string{childSpecs[0]}, DOB: dob, Male: (childSpecs[2] == "Boy"), Admin: false})
+			child = childSpecs[0]
+			logger.Info.Println("child: " + child + ", "+children[i].DOB.Format(Date_Format_GL))
+			s.Item["numChildren"] = i+1
+		}
+	}
+	parent := "data"
+	parents := make([]*Person, 0)
+	for i := 0; parent != ""; i++ {
+		parent = ""
+		parentSpecs := strings.Split(r.Form.Get(fmt.Sprintf("parent%d", i)), "|")
+		if len(parentSpecs)==2 {			
+			parents = append(parents, &Person{Name: []string{parentSpecs[0]}, Male: (parentSpecs[1] == "Dad"), Admin: false})
+			parent = parentSpecs[0]
+			logger.Info.Println("parent: " + parent)
+			s.Item["numParents"] = i+1
+		}
+	}
+	s.Data["retry"] = "#applyModal"
+	s.Data["error"] = "A user already exists with that user name."
+	s.Data["zip"] = zip
+	s.Data["email"] = email
+	type data struct { Name, MOB, Sex string }
+	pData := []data{}
+	for _, p := range(parents) {
+		if p.Male {
+			pData = append(pData, data{p.Name[0],"","Dad"})
+		} else {
+			pData = append(pData, data{p.Name[0],"","Mom"})
+		}
+	}
+	s.Item["parentData"] = pData
+	cData := []data{}
+	for _, c := range(children) {
+		if c.Male {
+			cData = append(cData, data{c.Name[0],c.DOB.Format(Date_Format_GL),"Boy"})
+		} else {
+			cData = append(cData, data{c.Name[0],c.DOB.Format(Date_Format_GL),"Girl"})
+		}
+	}
+	s.Item["childData"] = cData
 	if email == "" {
 		s.Data["retry"] = "#applyModal"
 		s.Data["error"] = "A user account must have a valid email address"
@@ -83,44 +139,8 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 		return "#errorModal", errors.New("invalid data")
 	}
 
-	if Families[userName] != nil {
-		s.Data["retry"] = "#applyModal"
-		s.Data["error"] = "A user already exists with that user name."
-		s.Data["zip"] = zip
-		s.Data["email"] = email
-		type data struct {
-			Name, MOB, Sex string
-			Parent         bool
-		}
-		s.Data["numParents"] = "1"
-		s.Data["numchildren"] = "2"
-		s.Item["parentData"] = []data{
-			data{"Mary", "No", "Mom", true}}
-		s.Item["parentData"] = []data{
-			data{"text", "5/2012", "Boy", false},
-			data{"toto", "11/2013", "Girl", false}}
+	if Families[userName] != nil { // username is already in use
 		return "#errorModal", errors.New("user already exists")
-	}
-
-	logger.Info.Println("userName: " + userName + "   Email:" + email + "  ")
-	child := "data"
-	children := make([]*Person, 0)
-	for i := 0; child != ""; i++ {
-		childSpecs := strings.Split(r.Form.Get(fmt.Sprintf("child%d", i)), "|")
-		dob, _ := time.Parse(childSpecs[1], "2014-05")
-		children = append(children, &Person{Name: []string{childSpecs[0]}, DOB: dob, Male: (childSpecs[2] == "Boy"), Admin: false})
-		child = childSpecs[0]
-		logger.Info.Println("child: " + child)
-		s.Data["numChildren"] = fmt.Sprintf("%d", i)
-	}
-	parent := "data"
-	parents := make([]*Person, 0)
-	for i := 0; parent != ""; i++ {
-		parentSpecs := strings.Split(r.Form.Get(fmt.Sprintf("parent%d", i)), "|")
-		parents = append(parents, &Person{Name: []string{parentSpecs[0]}, Male: (parentSpecs[1] == "Dad"), Admin: false})
-		parent = parentSpecs[0]
-		logger.Info.Println("parent: " + parent)
-		s.Data["numParents"] = fmt.Sprintf("%d", i)
 	}
 
 	secret := make([]byte, 16)
@@ -169,19 +189,36 @@ func SelectFamilyMember(w http.ResponseWriter, r *http.Request, s *website.Sessi
 	for k, v := range r.Form {
 		logger.Debug.Println(k + "::" + strings.Join(v, "//"))
 	}
-	name := strings.Split(r.Form["parent"][0], " ")[0]
-	for _, nm := range r.Form["parent"][1:] {
-		name += "/" + strings.Split(nm, " ")[0]
+	name := ""
+	if r.Form["parent"]!=nil {
+		name = strings.Split(r.Form["parent"][0], " ")[0]
+		for _, nm := range r.Form["parent"][1:] {
+			name += "/" + strings.Split(nm, " ")[0]
+		}		
+	} else {
+		return r.Form.Get("redirect"), nil
 	}
-	for _, nm := range r.Form["child"] {
-		name += "/" + strings.Split(nm, " ")[0]
+	if r.Form["child"]!=nil {
+		for _, nm := range r.Form["child"] {
+			name += "/" + strings.Split(nm, " ")[0]
+		}
 	}
-	name += strings.Split(r.Form["parent"][0], " ")[1]
-	s.Data["name"] = " " + name
+	name += " " + strings.Split(r.Form["parent"][0], " ")[1]
+	s.Data["name"] = name
 
 	return r.Form.Get("redirect"), nil
 }
 func WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	w.Write([]byte(`["me", "myself", "Eye"]`))
+	httpData, _ :=ioutil.ReadAll(r.Body)
+	if (httpData == nil || len(httpData) == 0) {
+		return "", errors.New("No Data")
+	}
+	dataList := strings.Split(string(httpData),"&")
+	roomName := strings.Split(dataList[0],"=")[1]
+	room, err := mss.GetRoom(roomName)
+	if err != nil {
+		return "error", err
+	}
+	w.Write([]byte(room.WhoseThere()))
 	return "ok", nil
 }

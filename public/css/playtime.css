@@ -64,7 +64,7 @@ article {
 	height : 10%;
 	background-color: rgba(128, 128, 96, 0.0);
 }
-#widgets{
+#regionAreas{
 	z-index : 1;
 	position: fixed;
 	bottom: 0;
