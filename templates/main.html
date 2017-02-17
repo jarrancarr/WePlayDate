@@ -3,19 +3,13 @@
 	<head>
 		{{page "head"}}
 		<script>
-			$(document).ready( function () { 
-				{{range script "init-script"}}
-					{{.}}
-				{{end}}
-				{{range script "init-main-script"}}
-					{{.}}
-				{{end}}
-			} );
-			{{range script "main-script"}}
-				{{.}}
-			{{end}}
-			var child = {{session "item" "numChildren"}};
-			var parent = {{session "item" "numParents"}};
+			$(document).ready( function () { {{range script "init-script"}}
+{{.}} {{end}} {{range script "init-main-script"}}
+	{{.}} {{end}}
+} ); {{range script "main-script"}}
+	{{.}} {{end}}
+var child = {{session "item" "numChildren"}};
+var parent = {{session "item" "numParents"}};
 		</script>
 	</head>
 	<body>

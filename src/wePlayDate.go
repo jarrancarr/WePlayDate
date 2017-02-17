@@ -146,9 +146,9 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	secret := make([]byte, 16)
 	rand.Read(secret)
 
-	Families[userName] = &Family{&website.Account{[]string{""}, userName, base64.URLEncoding.EncodeToString(secret),
+	Families[userName] = &Family{Login: &website.Account{[]string{""}, userName, base64.URLEncoding.EncodeToString(secret),
 		email, []*website.Role{website.StandardRoles["basic"]}, false, time.Now().Add(time.Minute * 15)},
-		parents, children, nil, []string{zip}, nil, nil, ""}
+		Parent:parents, Child:children}
 
 	// email user the key to log in.
 	logger.Info.Println("Log in key is: " + base64.URLEncoding.EncodeToString(secret))
@@ -156,7 +156,7 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	return r.Form.Get("redirect"), nil
 }
 func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Debug.Println("WeePlayDate.LoginPostHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	logger.Trace.Println("WeePlayDate.LoginPostHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	userName := r.Form.Get("UserName")
 	password := r.Form.Get("Password")
 
@@ -185,10 +185,7 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 	return "#errorModal", errors.New("failed login")
 }
 func SelectFamilyMember(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Debug.Println("WeePlayDate.SelectFamilyMember(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
-	for k, v := range r.Form {
-		logger.Debug.Println(k + "::" + strings.Join(v, "//"))
-	}
+	logger.Trace.Println("WeePlayDate.SelectFamilyMember(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	name := ""
 	if r.Form["parent"]!=nil {
 		name = strings.Split(r.Form["parent"][0], " ")[0]
@@ -203,12 +200,16 @@ func SelectFamilyMember(w http.ResponseWriter, r *http.Request, s *website.Sessi
 			name += "/" + strings.Split(nm, " ")[0]
 		}
 	}
-	name += " " + strings.Split(r.Form["parent"][0], " ")[1]
+	fm, err := s.Item["family"].(*Family)
+	if !err {
+		name += " " + fm.Parent[0].Name[1]
+	} 
 	s.Data["name"] = name
 
 	return r.Form.Get("redirect"), nil
 }
 func WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Trace.Println("WeePlayDate.WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	httpData, _ :=ioutil.ReadAll(r.Body)
 	if (httpData == nil || len(httpData) == 0) {
 		return "", errors.New("No Data")
@@ -220,5 +221,41 @@ func WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Se
 		return "error", err
 	}
 	w.Write([]byte(room.WhoseThere()))
+	return "ok", nil
+}
+func GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("WeePlayDate.GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	httpData, _ :=ioutil.ReadAll(r.Body)
+	if (httpData == nil || len(httpData) == 0) {
+		return "", errors.New("No Data")
+	}
+	dataList := strings.Split(string(httpData),"&")
+	user := strings.Split(dataList[0],"=")[1]
+	name := strings.Split(dataList[1],"=")[1]
+	fam := Families[user]
+	var thisPerson *Person
+	for _, fm := range(fam.Parent) {
+		if fm.Name[0] == name {
+			thisPerson = fm
+	}	}
+	if thisPerson == nil {
+		for _, fm := range(fam.Child) {
+			if fm.Name[0] == name {
+				thisPerson = fm
+	}	}	}
+	w.Write([]byte(`{"age":"`+thisPerson.Age()+`", "sex":"`+thisPerson.Sex()+`", "profile":"`+thisPerson.Profile+
+		`", "likes":"`+strings.Join(thisPerson.Likes,"|")+`"}`))
+	return "ok", nil
+}
+func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("WeePlayDate.GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	httpData, _ :=ioutil.ReadAll(r.Body)
+	if (httpData == nil || len(httpData) == 0) {
+		return "", errors.New("No Data")
+	}
+	dataList := strings.Split(string(httpData),"&")
+	family := strings.Split(dataList[0],"=")[1]
+	fam := Families[family]
+	w.Write([]byte(`{"family":`+fam.Parent[0].Name[1]+`}`))
 	return "ok", nil
 }

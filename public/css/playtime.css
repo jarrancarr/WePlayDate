@@ -79,6 +79,19 @@ article {
 .block {
 	height: 30%;
 }
+.pictureFrame {
+	width: 188px;
+	height: 248px;
+	margin: 0px;
+	padding: 0px;
+	border-width: 4px;
+	border-style: inset;
+	border-color: black;
+	position: relative;
+	top: 10;
+	right: 10;
+	float: right;
+}
 #images {
 	z-index : 2;
 	position: fixed;
@@ -118,14 +131,11 @@ article {
 	background: -webkit-linear-gradient(#aaf, #599);
 	background: -o-linear-gradient(#aaf, #599);
 }
-.closeModal {
-	background: #666;
+.modalButton {
 	color: #fff;
 	line-height: 25px;
 	position: absolute;
-	right: -12px;
 	text-align: center;
-	top: -10px;
 	width: 24px;
 	text-decoration: none;
 	font-weight: bold;
@@ -136,24 +146,22 @@ article {
 	-webkit-box-shadow: 1px 1px 3px #000;
 	box-shadow: 1px 1px 3px #000;
 }
+.closeModal {
+	background: #666;
+	right: -12px;
+	top: -10px;
+}
 .closeModal:hover { background: #0df; }
+.minimizeModal {
+	background: #666;
+	right: 14px;
+	top: -10px;
+}
+.minimizeModal:hover { background: #0df; }
 .whosHere {
 	background: #666;
-	color: #fff;
-	line-height: 25px;
-	position: absolute;
-	right: 14px;
-	text-align: center;
+	right: 38px;
 	top: -10px;
-	width: 24px;
-	text-decoration: none;
-	font-weight: bold;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	-moz-box-shadow: 1px 1px 3px #000;
-	-webkit-box-shadow: 1px 1px 3px #000;
-	box-shadow: 1px 1px 3px #000;
 }
 .whosHere:hover { background: #f0d; }
 .ptButton {
@@ -248,99 +256,40 @@ article {
 }	
 .sendMessage {
 	background: rgba(0,255,0,0.2);
-	color: #fff;
-	line-height: 25px;
-	position: absolute;
 	left: 12px;
-	text-align: center;
 	bottom: 65px;
-	width: 24px;
-	text-decoration: none;
-	font-weight: bold;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	-moz-box-shadow: 1px 1px 3px #000;
-	-webkit-box-shadow: 1px 1px 3px #000;
-	box-shadow: 1px 1px 3px #000;
 }
 .sendMessage:hover { background: #2c2; }
 .addEmoji {
 	background: rgba(255,160,0,0.15);
-	color: #fff;
-	line-height: 25px;
-	position: absolute;
 	left: 42px;
-	text-align: center;
 	bottom: 65px;
-	width: 24px;
-	text-decoration: none;
-	font-weight: bold;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	-moz-box-shadow: 1px 1px 3px #000;
-	-webkit-box-shadow: 1px 1px 3px #000;
-	box-shadow: 1px 1px 3px #000;
 }
 .addEmoji:hover { background: #c82; }
 .gesture {
 	background: rgba(0,160,255,0.15);
-	color: #fff;
-	line-height: 25px;
-	position: absolute;
 	left: 66px;
-	text-align: center;
 	bottom: 65px;
-	width: 24px;
-	text-decoration: none;
-	font-weight: bold;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	-moz-box-shadow: 1px 1px 3px #000;
-	-webkit-box-shadow: 1px 1px 3px #000;
-	box-shadow: 1px 1px 3px #000;
 }
 .gesture:hover { background: #28c; }
 .invitePerson {
 	background: rgba(160,0,255,0.15);
-	color: #fff;
-	line-height: 25px;
-	position: absolute;
 	left: 90px;
-	text-align: center;
 	bottom: 65px;
-	width: 24px;
-	text-decoration: none;
-	font-weight: bold;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	-moz-box-shadow: 1px 1px 3px #000;
-	-webkit-box-shadow: 1px 1px 3px #000;
-	box-shadow: 1px 1px 3px #000;
 }
 .invitePerson:hover { background: #82c; }
 .other {
 	background: rgba(255,160,0,0.15);
-	color: #fff;
-	line-height: 25px;
-	position: absolute;
 	left: 114px;
-	text-align: center;
 	bottom: 65px;
-	width: 24px;
-	text-decoration: none;
-	font-weight: bold;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	-moz-box-shadow: 1px 1px 3px #000;
-	-webkit-box-shadow: 1px 1px 3px #000;
-	box-shadow: 1px 1px 3px #000;
 }
 .other:hover { background: #c82; }
+.edit {
+	background: #666;
+	left: -12px;
+	bottom: -10px;
+}
+.edit:hover { background: #0df; }
 .push{
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #122), color-stop(1, #143));
 	background:-moz-linear-gradient(top, #122 5%, #143 100%);
@@ -381,7 +330,7 @@ article {
 .ptFloatDialog {
 	position: relative;
 	font-family: Ariel, Helvetica, sans-serif;
-	top: calc(100% - 400px);
+	top: calc(100% - 390px);
 	float: right;
 	width: 280px;
 	height: 380px;
@@ -411,6 +360,20 @@ article {
 	margin: 2px 12px 2px 2px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #154682;
+}
+.minimizedFloatDialog {
+	text-align: left;
+	top: calc(100% - 33px);
+	height: 25px;
+	width: 150px;
+	opacity:0.2;
+}
+.minimizedFloatDialog:hover {
+	opacity:1.0;
+}
+.updated {
+	background-color:#f40;
+	opacity:0.5;
 }
 .extendFloatDialog{
 	top: calc(100% - 650px);
