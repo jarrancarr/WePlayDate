@@ -43,9 +43,10 @@ type Message struct {
 }
 
 type Post struct {
-	Author 	*Person
-	Pic		string
-	text	string
+	Author 		*Person
+	Pic			string
+	Title, Text	string
+	Blog		[]*Post
 }
 
 type Family struct {

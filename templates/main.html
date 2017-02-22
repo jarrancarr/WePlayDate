@@ -64,7 +64,7 @@ var parent = {{session "item" "numParents"}};
 		</div>
 		<div id="loginModal" class="modalDialog">
 			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				
 				<h2>Enter {{.Site.Name}}!</h2>
 				
@@ -86,14 +86,14 @@ var parent = {{session "item" "numParents"}};
 		</div>
 		<div id="aboutModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>About li'lPlayDates!</h2>
 				<p>This is what we do</p>
 			</div>
 		</div>
 		<div id="applyModal" class="modalDialog">
 			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Join us at {{.Site.Name}}!</h2>
 				<div class="container">
 					<form id="family" action="/main" method="post">
@@ -145,7 +145,7 @@ var parent = {{session "item" "numParents"}};
 		</div>
 		<div id="infoModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>What is li'lPlayDates! all about</h2>
 				<h3>The story</h3>
 				<p>One day, I was pondering how shy my little boy is and how will I get him to open up to other children.  We didn't know very many families with small kids and thought about how easy it was to meet people on the internet.  I asked my wife about what she thought of a 'dating' site for babies.</p>
@@ -155,7 +155,7 @@ var parent = {{session "item" "numParents"}};
 		</div>
 		<div id="sponcerModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Welcome sponcers</h2>
 				<p>We would like to offer advertising services and to tell you how this forum is a great value.  Our pricing
 				structure is on a per view basis and can be targetted to specific demographics and regions as specific as individual
@@ -167,7 +167,7 @@ var parent = {{session "item" "numParents"}};
 		</div>
 		<div id="adminModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Administer li'lPlayDates!</h2>
 				<p>Tell us about yourself</p>
 				<p>Who do you know?</p>
@@ -175,7 +175,7 @@ var parent = {{session "item" "numParents"}};
 		</div>
 		<div id="loungeModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Welcoome to li'lPlayDates lounge!</h2>
 				<p>Tell us about yourself</p>
 				<p>Who do you know?</p>
@@ -183,21 +183,21 @@ var parent = {{session "item" "numParents"}};
 		</div>
 		<div id="failedLogin" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Sorry, that login was not recognized.</h2>
 				<p>Please try again.</p>
 			</div>
 		</div>
 		<div id="checkEmail" class="modalDialog">
 			<div style="text-align: center;">
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Your application was successful</h2>
 				<p>Check you email for a secure link to set up you account.</p>
 			</div>
 		</div>
 		<div id="errorModal" class="modalDialog">
 			<div style="text-align: center;">
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>There was a problem</h2>
 				<p>{{session "param" "error"}}</p></br>
 				<a href='{{session "param" "retry"}}' title="Back" class="ptButton">Try again</a>

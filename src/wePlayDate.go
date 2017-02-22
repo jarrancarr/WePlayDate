@@ -14,15 +14,16 @@ import (
 	//"sync"
 
 	"github.com/jarrancarr/website"
-	"github.com/jarrancarr/website/ecommerse"
+	//"github.com/jarrancarr/website/ecommerse"
 	"github.com/jarrancarr/website/service"
 )
 
 var (
 	weePlayDate *website.Site
 	acs         *website.AccountService
-	ecs         *ecommerse.ECommerseService
+	//ecs         *ecommerse.ECommerseService
 	mss         *service.MessageService
+	cps			*ChildsPlayService
 	logger      *website.Log
 	Date_Format = "MM/dd/yyyy"
 	Date_Format_GL = "01/02/2006"
@@ -156,7 +157,7 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	return r.Form.Get("redirect"), nil
 }
 func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Trace.Println("WeePlayDate.LoginPostHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	logger.Debug.Println("WeePlayDate.LoginPostHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	userName := r.Form.Get("UserName")
 	password := r.Form.Get("Password")
 
@@ -200,10 +201,12 @@ func SelectFamilyMember(w http.ResponseWriter, r *http.Request, s *website.Sessi
 			name += "/" + strings.Split(nm, " ")[0]
 		}
 	}
-	fm, err := s.Item["family"].(*Family)
-	if !err {
+	fm, good := s.Item["family"].(*Family)
+	if good {
 		name += " " + fm.Parent[0].Name[1]
-	} 
+	} else {
+		logger.Warning.Println("Could not find family in session! ")
+	}
 	s.Data["name"] = name
 
 	return r.Form.Get("redirect"), nil
@@ -257,5 +260,18 @@ func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 	family := strings.Split(dataList[0],"=")[1]
 	fam := Families[family]
 	w.Write([]byte(`{"family":`+fam.Parent[0].Name[1]+`}`))
+	return "ok", nil
+}
+
+func GetArticleAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("WeePlayDate.GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	httpData, _ :=ioutil.ReadAll(r.Body)
+	if (httpData == nil || len(httpData) == 0) {
+		return "", errors.New("No Data")
+	}
+	dataList := strings.Split(string(httpData),"&")
+	articleName := strings.Split(dataList[0],"=")[1]
+	article := cps.Article[articleName]
+	w.Write([]byte(`{"title":"`+article.Title+`", "author":"`+article.Author.FullName()+`", "text":"`+article.Text+`", "pic":"`+article.Pic+`"}`))
 	return "ok", nil
 }

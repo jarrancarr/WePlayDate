@@ -32,14 +32,15 @@ func addPages() {
 	main.AddParam("DateFormat",Date_Format)
 
 	home := weePlayDate.AddPage("home", "home", "/home")
-	home.AddPostHandler("logout", acs.LogoutPostHandler)
 	home.AddAJAXHandler("newRoom", mss.CreateRoomAJAXHandler)
 	home.AddAJAXHandler("update", mss.GetRoomsAJAXHandler)
 	home.AddAJAXHandler("message", mss.MessageAJAXHandler)
 	home.AddAJAXHandler("exitRoom", mss.ExitRoomAJAXHandler)
 	home.AddAJAXHandler("whoseThere", WhoseThereAjaxHandler)
 	home.AddAJAXHandler("profile", GetProfileAjaxHandler)
+	home.AddAJAXHandler("article", GetArticleAjaxHandler)
 
+	home.AddPostHandler("logout", acs.LogoutPostHandler)
 	home.AddPostHandler("selectFamilyMember", SelectFamilyMember)
 
 	home.Html.Add("circleMenuItem", html.NewTag("circle id==login cx==${CX} cy==10 r==50 fill==#${FILL} stroke==#222 stroke-width==1 fill-opacity==0.8"))

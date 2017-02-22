@@ -14,29 +14,42 @@
 		{{ajax "var:newRoomName" "var:newRoomPass" "newRoomSetup" "url:home" "trigger:newRoom" "handler:newRoom" "target:roomList" "data:'newRoomName':newRoomName,'newRoomPass':newRoomPass" "newRoomSuccess"}}
 	</head>
 	<body>
-		<div style="position: fixed; top: 5%; height: 30%; width: 100%; z-index: 2;">
+		<div class="frame" style="position: fixed; top: 5%; height: 15%; width: 100%; z-index: 2;">
 			<div>
-				{{page "banner"}}
-				<div class="panel">
-					<div class="row panel-body" style="max-height: 30%; overflow-y: scroll;"> 
-						<div class="span4">
-							{{with $test := service "account" "isLoggedIn"}}
-								{{if eq "True" $test}}
-									Hello {{service "account" "session" "name"}}</br>
-								{{end}}
+				{{page "banner"}}				
+			</div>
+		</div>
+		<div id="lower" class="frame">
+			<div id="local" class="floatPanel">
+				<a title="Hide" class="hideModal modalButton">&lt</a>
+				<a class='modalButton whosHere' title='Who'>?</a>
+				<h4 class='dialogHeader ptListItem'>{{with session "item" "family"}}{{index .Zip 0}}{{end}}</h4>
+				<div class="floatFrame">
+					{{ range get "childsPlay" "localPosts" }}
+						<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}">
+							<img src="../img/{{.JPG}}" width="{{.W}}" height="{{.H}}" onclick="openArticle('{{.Link}}')">
+						</div>
+					{{ end }}
+				</div>
+			</div>
+			<div class="panel" style="position: absolute; top: 0px;">
+				<div class="row panel-body" style="height: 100%; overflow: hidden;"> 
+					<div class="span4">
+						{{with $test := service "account" "isLoggedIn"}}
+							{{if eq "True" $test}}
+								Hello {{service "account" "session" "name"}}</br>
 							{{end}}
-							{{target "roomList" "<ul class='ptListItem'></ul>"}}
-							<!--<input id="newRoom-name" type="text" class="ptButton" size="24"/></br>
-							<input id="newRoom-pass" type="password" class="ptButton" size="24"/></br>
-							<input id="newRoom-trigger" class="ptButton" type="button" value="newRoom" />-->
-							</br></br>
-						</div>
-						<div class="span8">
-							Local:
-						</div>
+						{{end}}
+						<!--<input id="newRoom-name" type="text" class="ptButton" size="24"/></br>
+						<input id="newRoom-pass" type="password" class="ptButton" size="24"/></br>
+						<input id="newRoom-trigger" class="ptButton" type="button" value="newRoom" />-->
+						</br></br>
 					</div>
-					<div class="row block"> 
+					<div class="span8">
+						Local:							
+						{{target "roomList" "<ul class='ptListItem'></ul>"}}
 					</div>
+				</div>
 				</div>
 			</div>
 		</div>
@@ -76,7 +89,7 @@
 		</div>-->
 		<div id="welcomeModal" class="modalDialog">
 			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Who will be joining us today?</h2>
 				<div class="container">
 					<form id="who" action="/home" method="post">
@@ -98,7 +111,7 @@
 		</div>
 		<div id="myProfileModal" class="modalDialog">
 			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				{{with session "item" "family"}} {{$fam := .}}
 					<h2>The {{ with index .Parent 0 }} {{ index .Name 1}} {{ end }}Family!</h2>
 					{{range .Parent }}
@@ -119,16 +132,17 @@
 		</div>
 		<div id="personModal" class="modalDialog">
 			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<div id="personProfilePic" class="pictureFrame">
 					<a title="Edit" class="modalButton edit">E</a>
 					<img src="../img/profileBlank.jpg">
 				</div>
+				<div class="info"></div>
 			</div>
 		</div>
 		<div id="infoModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>What is {{.Title}}! all about</h2>
 				<h3>The story</h3>
 				<p>One day, I was pondering how shy my little boy is and how will I get him to open up to other children.  We didn't know very many families with small kids and thought about how easy it was to meet people on the internet.  I asked my wife about what she thought of a 'dating' site for babies.</p>
@@ -137,13 +151,13 @@
 		</div>
 		<div id="postModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Whats on your mind</h2>
 			</div>
 		</div>
 		<div id="adminModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Administer  {{.Title}}</h2>
 				<p>Tell us about yourself</p>
 				<p>Who do you know?</p>
@@ -151,15 +165,26 @@
 		</div>
 		<div id="loungeModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Welcoome to li'lPlayDates lounge!</h2>
 				<p>Tell us about yourself</p>
 				<p>Who do you know?</p>
 			</div>
 		</div>
+		<div id="articleModal" class="modalDialog">
+			<div>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+				<div>
+					<h2>Title</h2>
+					<p>Author</p>
+					<img>
+					<p>Text</p>
+				</div>
+			</div>
+		</div>
 		<div id="logOutModal" class="modalDialog">
 			<div>
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Are you sure you want to exit?</h2>
 				<div class="container">
 					<form action="/home" method="post">
