@@ -19,12 +19,12 @@ import (
 )
 
 var (
-	weePlayDate *website.Site
-	acs         *website.AccountService
-	ecs         *ecommerse.ECommerseService
-	mss         *service.MessageService
-	logger      *website.Log
-	Date_Format = "MM/dd/yyyy"
+	weePlayDate    *website.Site
+	acs            *website.AccountService
+	ecs            *ecommerse.ECommerseService
+	mss            *service.MessageService
+	logger         *website.Log
+	Date_Format    = "MM/dd/yyyy"
 	Date_Format_GL = "01/02/2006"
 )
 
@@ -63,13 +63,13 @@ func setup() {
 }
 
 func MainInitProcessor(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Trace.Println("MainInitProcessor(w http.ResponseWriter, r *http.Request, website.Session<<"+s.GetId()+">>, p *website.Page)");
+	logger.Trace.Println("MainInitProcessor(w http.ResponseWriter, r *http.Request, website.Session<<" + s.GetId() + ">>, p *website.Page)")
 	if s.Item["numParents"] == nil {
 		s.Item["numParents"] = 0
 	}
 	if s.Item["numChildren"] == nil {
 		s.Item["numChildren"] = 0
-	} 
+	}
 	return "ok", nil
 }
 func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
@@ -84,12 +84,12 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	for i := 0; child != ""; i++ {
 		child = ""
 		childSpecs := strings.Split(r.Form.Get(fmt.Sprintf("child%d", i)), "|")
-		if len(childSpecs)==3 {
+		if len(childSpecs) == 3 {
 			dob, _ := time.Parse(childSpecs[1], Date_Format)
 			children = append(children, &Person{Name: []string{childSpecs[0]}, DOB: dob, Male: (childSpecs[2] == "Boy"), Admin: false})
 			child = childSpecs[0]
-			logger.Info.Println("child: " + child + ", "+children[i].DOB.Format(Date_Format_GL))
-			s.Item["numChildren"] = i+1
+			logger.Info.Println("child: " + child + ", " + children[i].DOB.Format(Date_Format_GL))
+			s.Item["numChildren"] = i + 1
 		}
 	}
 	parent := "data"
@@ -97,33 +97,33 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	for i := 0; parent != ""; i++ {
 		parent = ""
 		parentSpecs := strings.Split(r.Form.Get(fmt.Sprintf("parent%d", i)), "|")
-		if len(parentSpecs)==2 {			
+		if len(parentSpecs) == 2 {
 			parents = append(parents, &Person{Name: []string{parentSpecs[0]}, Male: (parentSpecs[1] == "Dad"), Admin: false})
 			parent = parentSpecs[0]
 			logger.Info.Println("parent: " + parent)
-			s.Item["numParents"] = i+1
+			s.Item["numParents"] = i + 1
 		}
 	}
 	s.Data["retry"] = "#applyModal"
 	s.Data["error"] = "A user already exists with that user name."
 	s.Data["zip"] = zip
 	s.Data["email"] = email
-	type data struct { Name, MOB, Sex string }
+	type data struct{ Name, MOB, Sex string }
 	pData := []data{}
-	for _, p := range(parents) {
+	for _, p := range parents {
 		if p.Male {
-			pData = append(pData, data{p.Name[0],"","Dad"})
+			pData = append(pData, data{p.Name[0], "", "Dad"})
 		} else {
-			pData = append(pData, data{p.Name[0],"","Mom"})
+			pData = append(pData, data{p.Name[0], "", "Mom"})
 		}
 	}
 	s.Item["parentData"] = pData
 	cData := []data{}
-	for _, c := range(children) {
+	for _, c := range children {
 		if c.Male {
-			cData = append(cData, data{c.Name[0],c.DOB.Format(Date_Format_GL),"Boy"})
+			cData = append(cData, data{c.Name[0], c.DOB.Format(Date_Format_GL), "Boy"})
 		} else {
-			cData = append(cData, data{c.Name[0],c.DOB.Format(Date_Format_GL),"Girl"})
+			cData = append(cData, data{c.Name[0], c.DOB.Format(Date_Format_GL), "Girl"})
 		}
 	}
 	s.Item["childData"] = cData
@@ -148,7 +148,7 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 
 	Families[userName] = &Family{Login: &website.Account{[]string{""}, userName, base64.URLEncoding.EncodeToString(secret),
 		email, []*website.Role{website.StandardRoles["basic"]}, false, time.Now().Add(time.Minute * 15)},
-		Parent:parents, Child:children}
+		Parent: parents, Child: children}
 
 	// email user the key to log in.
 	logger.Info.Println("Log in key is: " + base64.URLEncoding.EncodeToString(secret))
@@ -164,12 +164,19 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 
 	if fam != nil && fam.Login.Password == password {
 		logger.Debug.Println("Family: " + userName + " logging in")
-		s.Data["name"] = fam.Parent[0].Name[0]
-		if len(fam.Parent) > 1 {
-			s.Data["name"] += ", " + fam.Parent[1].Name[0]
-		}
-		for _, ch := range fam.Child {
-			s.Data["name"] += ", " + ch.Name[0]
+		if len(fam.Parent) > 0 {
+			s.Data["name"] = fam.Parent[0].Name[0]
+			if len(fam.Parent) > 1 {
+				s.Data["name"] += ", " + fam.Parent[1].Name[0]
+			}
+			for _, ch := range fam.Child {
+				s.Data["name"] += ", " + ch.Name[0]
+			}
+		} else {
+			s.Data["name"] = fam.Child[0].Name[0]
+			for _, ch := range fam.Child[1:] {
+				s.Data["name"] += ", " + ch.Name[0]
+			}
 		}
 		s.Data["name"] += " " + fam.Parent[0].Name[1]
 		s.Data["userName"] = userName
@@ -187,35 +194,32 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 func SelectFamilyMember(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("WeePlayDate.SelectFamilyMember(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	name := ""
-	if r.Form["parent"]!=nil {
-		name = strings.Split(r.Form["parent"][0], " ")[0]
-		for _, nm := range r.Form["parent"][1:] {
+	if r.Form["parent"] != nil {
+		for _, nm := range r.Form["parent"] {
 			name += "/" + strings.Split(nm, " ")[0]
-		}		
-	} else {
-		return r.Form.Get("redirect"), nil
+		}
 	}
-	if r.Form["child"]!=nil {
+	if r.Form["child"] != nil {
 		for _, nm := range r.Form["child"] {
 			name += "/" + strings.Split(nm, " ")[0]
 		}
 	}
 	fm, err := s.Item["family"].(*Family)
 	if !err {
-		name += " " + fm.Parent[0].Name[1]
-	} 
+		name = name[:len(name)-1] + " " + fm.Parent[0].Name[1]
+	}
 	s.Data["name"] = name
 
 	return r.Form.Get("redirect"), nil
 }
 func WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("WeePlayDate.WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
-	httpData, _ :=ioutil.ReadAll(r.Body)
-	if (httpData == nil || len(httpData) == 0) {
+	httpData, _ := ioutil.ReadAll(r.Body)
+	if httpData == nil || len(httpData) == 0 {
 		return "", errors.New("No Data")
 	}
-	dataList := strings.Split(string(httpData),"&")
-	roomName := strings.Split(dataList[0],"=")[1]
+	dataList := strings.Split(string(httpData), "&")
+	roomName := strings.Split(dataList[0], "=")[1]
 	room, err := mss.GetRoom(roomName)
 	if err != nil {
 		return "error", err
@@ -225,37 +229,41 @@ func WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Se
 }
 func GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Debug.Println("WeePlayDate.GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
-	httpData, _ :=ioutil.ReadAll(r.Body)
-	if (httpData == nil || len(httpData) == 0) {
+	httpData, _ := ioutil.ReadAll(r.Body)
+	if httpData == nil || len(httpData) == 0 {
 		return "", errors.New("No Data")
 	}
-	dataList := strings.Split(string(httpData),"&")
-	user := strings.Split(dataList[0],"=")[1]
-	name := strings.Split(dataList[1],"=")[1]
+	dataList := strings.Split(string(httpData), "&")
+	logger.Debug.Println("dataList: " + strings.Join(dataList, "|"))
+	user := strings.Split(dataList[0], "=")[1]
+	name := strings.Split(dataList[1], "=")[1]
 	fam := Families[user]
 	var thisPerson *Person
-	for _, fm := range(fam.Parent) {
+	for _, fm := range fam.Parent {
 		if fm.Name[0] == name {
 			thisPerson = fm
-	}	}
+		}
+	}
 	if thisPerson == nil {
-		for _, fm := range(fam.Child) {
+		for _, fm := range fam.Child {
 			if fm.Name[0] == name {
 				thisPerson = fm
-	}	}	}
-	w.Write([]byte(`{"age":"`+thisPerson.Age()+`", "sex":"`+thisPerson.Sex()+`", "profile":"`+thisPerson.Profile+
-		`", "likes":"`+strings.Join(thisPerson.Likes,"|")+`"}`))
+			}
+		}
+	}
+	w.Write([]byte(`{"name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + `", "sex":"` + thisPerson.Sex() + `", "profile":"` + thisPerson.Profile +
+		`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `"}`))
 	return "ok", nil
 }
 func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Debug.Println("WeePlayDate.GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
-	httpData, _ :=ioutil.ReadAll(r.Body)
-	if (httpData == nil || len(httpData) == 0) {
+	httpData, _ := ioutil.ReadAll(r.Body)
+	if httpData == nil || len(httpData) == 0 {
 		return "", errors.New("No Data")
 	}
-	dataList := strings.Split(string(httpData),"&")
-	family := strings.Split(dataList[0],"=")[1]
+	dataList := strings.Split(string(httpData), "&")
+	family := strings.Split(dataList[0], "=")[1]
 	fam := Families[family]
-	w.Write([]byte(`{"family":`+fam.Parent[0].Name[1]+`}`))
+	w.Write([]byte(`{"family":` + fam.Parent[0].Name[1] + `}`))
 	return "ok", nil
 }

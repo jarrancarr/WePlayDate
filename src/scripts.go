@@ -66,7 +66,7 @@ func addScripts() {
 								item.attr("class", "pull"); } 
 							ul.append( item ).append( '<br/>' ); 
 						}); 
-						$("#"+room+" dialogHeader").addClass("update");
+						$("#"+room+" .dialogHeader").addClass("update");
 					}); 
 				},
 				error: function(data, textStatus, jqXHR) { 
@@ -75,29 +75,16 @@ func addScripts() {
 			}); 
 		}, 5000);	`)
 
-	weePlayDate.AddScript("home-script", `function enterRoom(roomName) {
-		if ($('#'+roomName).length) { return; }
-		body = $('body');
-		body.append("<div id='"+roomName+"' class='ptFloatDialog'><a class='modalButton closeModal' title='Close'>X</a><a class='modalButton minimizeModal' title='Minimize'>_</a><a class='modalButton whosHere' title='Who'>?</a><h4 class='dialogHeader ptListItem'>"+roomName+"</h4><div class='whoseThere subFloatHeader hidden'><ul></ul></div><div class='discussion scroll'><ul></ul></div><div class='text'><a class='modalButton sendMessage' title='Send'>S</a><a class='modalButton addEmoji' title='Emoji'>:)</a><a class='modalButton gesture' title='Gesture'>*</a><a class='modalButton invitePerson' title='Invite'>+</a><a class='modalButton other' title='Other'>?</a><textarea class='ptExpand' cols='40' rows='4' name='message-"+roomName+"'/></div></div>");
-		$('.ptFloatDialog').each(function(){ $( this ).position({my:"right bottom"}); });
-		$('#'+roomName+' a.closeModal').attr('onclick', 'exitRoom("'+roomName+'")');
-		$('#'+roomName+' a.minimizeModal').attr('onclick', 'minimize("'+roomName+'")'); 
-		$('#'+roomName+' a.whosHere').attr('onclick', 'whoseThere("'+roomName+'")');
-		$('#'+roomName+' a.sendMessage').attr("onclick","var li = $( '<li class=\"ptListItem push\">'+$('#"+roomName+" textarea').val()+'</li>'); $('#"+roomName+" .discussion ul').append(li); sendMessage('"+roomName+"',$('#"+roomName+" textarea').val());");
-		$('#'+roomName+' a.addEmoji').attr("onclick","alert('Not yet implemented.')");
-		$('#'+roomName+' a.gesture').attr("onclick","alert('Not yet implemented.')");
-		$('#'+roomName+' a.invitePerson').attr("onclick","alert('Not yet implemented.')");
-		sendMessage(roomName, $('#'+roomName+' .text textarea').val()); 
-	}`)
+	weePlayDate.AddScript("home-script", `function enterRoom(roomName) { if ($('#'+roomName).length) { return; } body = $('body'); body.append("<div id='"+roomName+"' class='ptFloatDialog'> <a class='modalButton closeModal' title='Close'>X</a><a class='modalButton minimizeModal' title='Minimize'>_</a><a class='modalButton whosHere' title='Who'>?</a><h4 class='dialogHeader ptListItem'>"+roomName+"</h4><div class='whoseThere subFloatHeader hidden'><ul></ul></div><div class='discussion scroll'><ul></ul></div><div class='text'><a class='modalButton sendMessage' title='Send'>S</a><a class='modalButton addEmoji' title='Emoji'>:)</a><a class='modalButton gesture' title='Gesture'>*</a><a class='modalButton invitePerson' title='Invite'>+</a><a class='modalButton other' title='Other'>?</a><textarea class='ptExpand' cols='40' rows='4' name='message-"+roomName+"'/></div></div>"); $('.ptFloatDialog').each(function(){ $( this ).position({my:"right bottom"}); }); $('#'+roomName+' a.closeModal').attr('onclick', 'exitRoom("'+roomName+'")'); $('#'+roomName+' a.minimizeModal').attr('onclick', 'minimize("'+roomName+'")'); $('#'+roomName+' a.whosHere').attr('onclick', 'whoseThere("'+roomName+'")'); $('#'+roomName+' a.sendMessage').attr("onclick","var li = $( '<li class=\"ptListItem push\">'+$('#"+roomName+" textarea').val()+'</li>'); $('#"+roomName+" .discussion ul').append(li); sendMessage('"+roomName+"',$('#"+roomName+" textarea').val());"); $('#'+roomName+' a.addEmoji').attr("onclick","alert('Not yet implemented.')"); $('#'+roomName+' a.gesture').attr("onclick","alert('Not yet implemented.')"); $('#'+roomName+' a.invitePerson').attr("onclick","alert('Not yet implemented.')"); sendMessage(roomName, $('#'+roomName+' .text textarea').val()); }`)
 	weePlayDate.AddScript("home-script", `function whoseThere(room) { if ($('#'+room).hasClass('extendFloatDialog')) { $('#'+room).removeClass('extendFloatDialog'); $('#'+room+' .subFloatHeader').addClass('hidden'); } else { $('#'+room).addClass('extendFloatDialog'); $('#'+room+' .subFloatHeader').removeClass('hidden'); $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'whoseThere' }, dataType: 'html', data: { 'roomName':room }, success: function(data, textStatus, jqXHR) { var ul = $("#"+room+" .whoseThere ul"); var obj = JSON.parse(data); ul.empty(); $.each(obj, function(index, party) { user = decodeURIComponent(party[1].replace(/\+/g, ' ')); name = decodeURIComponent(party[0].replace(/\+/g, ' ')); item = $(document.createElement('li')).text(name); item.attr("class", "ptListItem"); item.attr("onclick", "openProfile('"+user+"')"); ul.append( item ); }); }, error: function(data, textStatus, jqXHR) { console.log("fail!"); } }); }	}	`)
 	weePlayDate.AddScript("home-script", `function exitRoom(roomName) { $('#'+roomName).remove(); $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'exitRoom' },	dataType: 'html', data: { 'roomName':roomName }, success: function(data, textStatus, jqXHR) {}, error: function(data, textStatus, jqXHR) { console.log("exit room fail!"); }	});	}	`)
 	weePlayDate.AddScript("home-script", `function sendMessage(room,message) { $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'message' },	dataType: 'html', data: { 'roomName':room,'message':encodeURIComponent(message) }, success: function(data, textStatus, jqXHR) { $("#"+room+" textarea").val(''); var ul = $("#"+room+" .discussion ul"); var obj = JSON.parse(data); ul.empty(); $.each(obj, function(index, message) { if (message['author']=='') { item = $(document.createElement('li')).text( decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); item.attr("class", "push"); } else { item = $(document.createElement('li')).text( message['author']+':'+decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); item.attr("class", "pull"); } ul.append( item ).append( '<br/>' ); }); ul.parent().scrollTop(ul.parent()[0].scrollHeight - ul.parent().height()); }, error: function(data, textStatus, jqXHR) { console.log("send message fail!"); $("#"+room+" textarea").val('') } }); }`)
 	weePlayDate.AddScript("home-script", `function initiateRoom(roomName) { $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'newRoom' },	dataType: 'html', data: { 'roomName':roomName, 'roomPass':'HaHa!' }, success: function(data, textStatus, jqXHR) { enterRoom(roomName); }, error: function(data, textStatus, jqXHR) { console.log("new room fail!"); }	});	}`)
-	weePlayDate.AddScript("home-script", `function openProfile(user) { 
+	weePlayDate.AddScript("home-script", `function openProfile(user, familyName) { 
 		$.ajax({url: '/home',type: 'AJAX', 
 		headers: { 'ajaxProcessingHandler':'profile' },	
 		dataType: 'html', 
-		data: { 'user':user }, 
+		data: { 'user':user, 'name':familyName }, 
 		success: function(data, textStatus, jqXHR) { 
 			alert('open Profile'); 
 		}, 
@@ -111,8 +98,10 @@ func addScripts() {
 			data: { 'user':user, 'name':name }, 
 			success: function(data, textStatus, jqXHR) { 
 				var obj = JSON.parse(data); 
-				$("#personModal div").append("<p>Age:"+obj["age"]+", "+obj["sex"]+"</p>");
-				$("#personModal div").append("<ul>Likes:</ul>");
+				$("#personModal div .info").empty();
+				$("#personModal div .info").append("<p>Age:"+obj["age"]+", "+obj["sex"]+"</p>");
+				$("#personModal div .info").append("<ul>Likes:</ul>");
+				$("#personModal div .personProfilePic").attr('img','../img/test.jpg');
 				$.each(obj["likes"].split("|"), function(like) { $("#personModal div ul").append("<li>"+like+"</li>"); });
 			}, 
 			error: function(data, textStatus, jqXHR) { console.log("onShowProfileModal fail!"); } }); }`)
@@ -122,6 +111,7 @@ func addScripts() {
 			$('#'+room+' .text').removeClass('hidden');  } 
 		else { $('#'+room).addClass('minimizedFloatDialog'); 
 			$('#'+room+' .text').addClass('hidden');
+			$('#'+room).removeClass('extendFloatDialog');
 			$('#'+room+' .subFloatHeader').addClass('hidden');
 		} }`)
 	weePlayDate.AddScript("main-script", `function addKid() { var kid = $('#newKid'); var form = $('#family'); form.append("<input type='hidden' name='child"+child+"' value='"+kid.find('#newKid').val()+"|"+$.datepicker.formatDate("`+Date_Format+`", kid.find('#dob').datepicker('getDate'))+"|"+$('input[name=gender]:checked','#kid').val()+"'/>");
