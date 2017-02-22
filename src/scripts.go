@@ -66,7 +66,7 @@ func addScripts() {
 								item.attr("class", "pull"); } 
 							ul.append( item ).append( '<br/>' ); 
 						}); 
-						$("#"+room+" dialogHeader").addClass("update");
+						$("#"+room+" .dialogHeader").addClass("update");
 					}); 
 				},
 				error: function(data, textStatus, jqXHR) { 
@@ -93,11 +93,11 @@ func addScripts() {
 	weePlayDate.AddScript("home-script", `function exitRoom(roomName) { $('#'+roomName).remove(); $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'exitRoom' },	dataType: 'html', data: { 'roomName':roomName }, success: function(data, textStatus, jqXHR) {}, error: function(data, textStatus, jqXHR) { console.log("exit room fail!"); }	});	}	`)
 	weePlayDate.AddScript("home-script", `function sendMessage(room,message) { $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'message' },	dataType: 'html', data: { 'roomName':room,'message':encodeURIComponent(message) }, success: function(data, textStatus, jqXHR) { $("#"+room+" textarea").val(''); var ul = $("#"+room+" .discussion ul"); var obj = JSON.parse(data); ul.empty(); $.each(obj, function(index, message) { if (message['author']=='') { item = $(document.createElement('li')).text( decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); item.attr("class", "push"); } else { item = $(document.createElement('li')).text( message['author']+':'+decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); item.attr("class", "pull"); } ul.append( item ).append( '<br/>' ); }); ul.parent().scrollTop(ul.parent()[0].scrollHeight - ul.parent().height()); }, error: function(data, textStatus, jqXHR) { console.log("send message fail!"); $("#"+room+" textarea").val('') } }); }`)
 	weePlayDate.AddScript("home-script", `function initiateRoom(roomName) { $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'newRoom' },	dataType: 'html', data: { 'roomName':roomName, 'roomPass':'HaHa!' }, success: function(data, textStatus, jqXHR) { enterRoom(roomName); }, error: function(data, textStatus, jqXHR) { console.log("new room fail!"); }	});	}`)
-	weePlayDate.AddScript("home-script", `function openProfile(user) { 
+	weePlayDate.AddScript("home-script", `function openProfile(user, familyName) { 
 		$.ajax({url: '/home',type: 'AJAX', 
 		headers: { 'ajaxProcessingHandler':'profile' },	
 		dataType: 'html', 
-		data: { 'user':user }, 
+		data: { 'user':user, 'name':familyName }, 
 		success: function(data, textStatus, jqXHR) { 
 			alert('open Profile'); 
 		}, 
@@ -111,8 +111,10 @@ func addScripts() {
 			data: { 'user':user, 'name':name }, 
 			success: function(data, textStatus, jqXHR) { 
 				var obj = JSON.parse(data); 
-				$("#personModal div").append("<p>Age:"+obj["age"]+", "+obj["sex"]+"</p>");
-				$("#personModal div").append("<ul>Likes:</ul>");
+				$("#personModal div .info").empty();
+				$("#personModal div .info").append("<p>Age:"+obj["age"]+", "+obj["sex"]+"</p>");
+				$("#personModal div .info").append("<ul>Likes:</ul>");
+				$("#personModal div .personProfilePic").attr('img','../img/test.jpg');
 				$.each(obj["likes"].split("|"), function(like) { $("#personModal div ul").append("<li>"+like+"</li>"); });
 			}, 
 			error: function(data, textStatus, jqXHR) { console.log("onShowProfileModal fail!"); } }); }`)
@@ -122,6 +124,7 @@ func addScripts() {
 			$('#'+room+' .text').removeClass('hidden');  } 
 		else { $('#'+room).addClass('minimizedFloatDialog'); 
 			$('#'+room+' .text').addClass('hidden');
+			$('#'+room).removeClass('extendFloatDialog');
 			$('#'+room+' .subFloatHeader').addClass('hidden');
 			$('#'+room).removeClass('extendFloatDialog');
 		} }`)

@@ -11,19 +11,19 @@ import (
 )
 
 type Person struct {
-	Name      	[]string
-	DOB       	time.Time
-	Male      	bool
-	Email     	string
-	Admin     	bool
-	Questions 	[]Challenge
-	ICan      	map[*Skill]int8
-	IDo       	map[*Activity]int8
-	Likes		[]string
-	Dislikes	[]string
-	Profile   	string
-	ProfilePic 	string
-	Picture		[]string
+	Name       []string
+	DOB        time.Time
+	Male       bool
+	Email      string
+	Admin      bool
+	Questions  []Challenge
+	ICan       map[*Skill]int8
+	IDo        map[*Activity]int8
+	Likes      []string
+	Dislikes   []string
+	Profile    string
+	ProfilePic string
+	Picture    []string
 }
 
 type Group struct {
@@ -50,12 +50,12 @@ type Post struct {
 }
 
 type Family struct {
-	Login    							*website.Account
-	Parent,Child   						[]*Person
-	Outer    							*Group
-	Zip, Buzzword, Turnoff, Picture   	[]string
-	Profile, ProfilePic 				string
-	MailBox  							map[string]*Message
+	Login                           *website.Account
+	Parent, Child                   []*Person
+	Outer                           *Group
+	Zip, Buzzword, Turnoff, Picture []string
+	Profile, ProfilePic             string
+	MailBox                         map[string]*Message
 }
 
 type Region struct {
@@ -77,20 +77,24 @@ type Skill struct {
 
 func (p *Person) Sex() string {
 	age := time.Since(p.DOB)
-	if age.Hours() > float64(24*365*12*18) {
-		if p.Male { return "Dad" }
+	if age.Hours() > float64(24*365*18) {
+		if p.Male {
+			return "Dad"
+		}
 		return "Mom"
 	}
-	if p.Male { return "Boy" }
-		return "Girl"
+	if p.Male {
+		return "Boy"
+	}
+	return "Girl"
 }
 
 func (p *Person) Age() string {
 	age := time.Since(p.DOB)
 	if age.Hours() > float64(24*365*36) {
-		return fmt.Sprintf("%d",int(age.Hours()/(24*365)))
+		return fmt.Sprintf("%d", int(age.Hours()/(24*365)))
 	}
-	return fmt.Sprintf("%d months",int(age.Hours()/(24*30)))
+	return fmt.Sprintf("%d months", int(age.Hours()/(24*30)))
 }
 
 func (p *Person) FullName() string {
@@ -99,14 +103,14 @@ func (p *Person) FullName() string {
 
 func (f *Family) Name() string {
 	name := f.Parent[0].Name[0]
-	for _, p := range(f.Parent[1:]) {
+	for _, p := range f.Parent[1:] {
 		name += ", " + p.Name[0]
 	}
-	for _, c := range(f.Child) {
+	for _, c := range f.Child {
 		name += ", " + c.Name[0]
 	}
 	name += " " + f.Parent[0].Name[1]
-	return name	
+	return name
 }
 
 var (
@@ -133,27 +137,27 @@ var (
 		4: map[*Skill]int{&Run: 16, &Kick: 16, &BallHandle: 9, &Attack: 4, &Sprint: 4}}}
 	Soccer = Activity{"Soccer", []*Activity{&Goalie, &Striker, &Fullback, &Halfback}, nil}
 
-	Jarran      = Person{Name:[]string{"Jarran", "Carr"}, DOB:time.Date(1971, 8, 4, 0, 0, 0, 0, time.UTC), Male:true, 
-						Email:"jarran.carr@gmail.com", Admin:true}
-	Jamie       = Person{Name:[]string{"Jamie", "Carr"}, DOB:time.Date(1972, 2, 12, 0, 0, 0, 0, time.UTC), Male:false, 
-						Email:"jamiesgems@bellsouth.com"}
-	Logan       = Person{Name:[]string{"Logan", "Carr"}, DOB:time.Date(2015, 5, 19, 0, 0, 0, 0, time.UTC), Male:true, 
-						Email:""}
-	Andy        = Person{Name:[]string{"Andy", "Knight"}, DOB:time.Date(1972, 3, 26, 0, 0, 0, 0, time.UTC), Male:true,
-						Email:""}
-	Deanna      = Person{Name:[]string{"Deanna", "Knight"}, DOB:time.Date(1963, 3, 24, 0, 0, 0, 0, time.UTC), Male:false,
-						Email:""}
-	AJ          = Person{Name:[]string{"Andy", "Knight", "Jr."}, DOB:time.Date(2000, 11, 24, 0, 0, 0, 0, time.UTC), Male:true,  
-						Email:""}
+	Jarran = Person{Name: []string{"Jarran", "Carr"}, DOB: time.Date(1971, 8, 4, 0, 0, 0, 0, time.UTC), Male: true,
+		Email: "jarran.carr@gmail.com", Admin: true}
+	Jamie = Person{Name: []string{"Jamie", "Carr"}, DOB: time.Date(1972, 2, 12, 0, 0, 0, 0, time.UTC), Male: false,
+		Email: "jamiesgems@bellsouth.com"}
+	Logan = Person{Name: []string{"Logan", "Carr"}, DOB: time.Date(2015, 5, 19, 0, 0, 0, 0, time.UTC), Male: true,
+		Email: ""}
+	Andy = Person{Name: []string{"Andy", "Knight"}, DOB: time.Date(1972, 3, 26, 0, 0, 0, 0, time.UTC), Male: true,
+		Email: ""}
+	Deanna = Person{Name: []string{"Deanna", "Knight"}, DOB: time.Date(1963, 3, 24, 0, 0, 0, 0, time.UTC), Male: false,
+		Email: ""}
+	AJ = Person{Name: []string{"Andy", "Knight", "Jr."}, DOB: time.Date(2000, 11, 24, 0, 0, 0, 0, time.UTC), Male: true,
+		Email: ""}
 	maleNames   = []string{"Alexader", "Andrew", "Anthony", "Adam", "Aaron", "Brian", "Bill", "Brandon", "Benjamin", "Cameron", "Charles", "Christopher", "Corwin", "Debra", "Damon", "Donald", "Daniel", "David", "Dennis", "Douglas", "Edward", "Eric", "Frank", "Fred", "Greggory", "Gary", "George", "Henry", "Hank", "Ivan", "Jacob", "Jack", "Jason", "Jerry", "Jeffery", "Joseph", "Joshua", "James", "John", "Jose", "Kyle", "Kevin", "Larry", "Luke", "Mark", "Michael", "Matthew", "Ned", "Nicholas", "Oliver", "Oscar", "Patrick", "Peter", "Paul", "Phillip", "Quinn", "Raymond", "Richard", "Ronald", "Robbert", "Roman", "Ryan", "Steven", "Sean", "Samuel", "Scott", "Theodore", "Todd", "Thad", "Thomas", "Timothy", "Tyler", "Udel", "Victor", "William", "Walter", "Y", "Zachary", "Zed"}
 	femaleNames = []string{"Alice", "Anne", "Ashley", "Amanda", "Amy", "Anna", "Angela", "Barbara", "Brenda", "Betty", "Carolyn", "Cheryl", "Catherine", "Christine", "Doris", "Cynthia", "Deborah", "Donna", "Edith", "Emma", "Evelyn", "Elizabeth", "Emily", "Fay", "Gloria", "Helen", "Janet", "Jean", "Jessica", "Joyce", "Julie", "Joan", "Judith", "Jennifer", "Kimberly", "Karen", "Kathleen", "Kelly", "Lauren", "Laura", "Lisa", "Linda", "Laura", "Margaret", "Michelle", "Maria", "Melissa", "Mary", "Megan", "Nancy", "Olivia", "Patricia", "Pamela", "Rachel", "Rebecca", "Ruth", "Samantha", "Sandra", "Susan", "Sarah", "Stephenie", "Sharon", "Shirley", "Theresa", "Tammy", "Tiffany", "Virgina", "Vallery", "Vivian", "Victoria", "Venus", "Wendy", "Wanda", "Yvette"}
 	familyNames = []string{"Smith", "Murphy", "Lam", "Martin", "Brown", "Roy", "Tremblay", "Lee", "Johnson", "Williams", "Jones", "Miller", "Davis", "Garcia", "Rodriguez", "Wilson", "Martinez", "Anderson", "Taylor", "Thomas", "Hernandez", "Moore", "Jackson", "Thompson", "White", "Lopez", "Gonzolez", "Harris", "Clark", "Lewis", "Robinson", "Walker", "Perez", "Hall", "Young", "Allen", "Sanchez", "Write", "King", "Scott", "Green", "Baker", "Adams", "Nelson", "Hill", "Ramirez", "Campbell", "Mitchell", "Roberts", "Carter", "Phillips", "Evans", "Turner", "Torres", "Parker", "Collins", "Edwards", "Stewart", "Florez", "Morris", "Nguyen", "Rivera", "Cook", "Rodgers", "Morgan", "Peterson", "Cooper", "Reed", "Bailey", "Bell", "Gomez", "Kelly", "Howard", "Ward", "Cox", "Diaz", "Richardson", "Wood", "Watson", "Brooks", "Bennett", "Gray", "James", "Reyes", "Cruz", "Hughes", "Price", "Myers", "Long", "Foster", "Sanders", "Ross", "Morales", "Powell", "Sullivan", "Russell", "Ortiz", "Jenkins", "Gutierrez", "Perry", "Butler", "Barnes", "Fisher", "Saim", "Chan"}
 
 	Families = map[string]*Family{
-		"jjlcarr": &Family{Login:&website.Account{[]string{"Carr"}, "jjlcarr", "jcarr48", "jcarr@novetta.com", []*website.Role{website.StandardRoles["basic"]},
-			false, time.Now()}, Parent:[]*Person{&Jarran, &Jamie}, Child:[]*Person{&Logan}, Zip:[]string{"20720"}, Buzzword:[]string{"hi", "help"}, Turnoff:[]string{"hate"}},
-		"adaknight": &Family{Login:&website.Account{[]string{"Knight"}, "adaknight", "aknight96", "", []*website.Role{website.StandardRoles["basic"]},
-			false, time.Now()}, Parent:[]*Person{&Andy, &Deanna}, Child:[]*Person{&AJ}, Zip:[]string{"20720"}, Buzzword:[]string{"Hi", "Help"}, Turnoff:[]string{"hate"}},
+		"jjlcarr": &Family{Login: &website.Account{[]string{"Carr"}, "jjlcarr", "jcarr48", "jcarr@novetta.com", []*website.Role{website.StandardRoles["basic"]},
+			false, time.Now()}, Parent: []*Person{&Jarran, &Jamie}, Child: []*Person{&Logan}, Zip: []string{"20720"}, Buzzword: []string{"hi", "help"}, Turnoff: []string{"hate"}},
+		"adaknight": &Family{Login: &website.Account{[]string{"Knight"}, "adaknight", "aknight96", "", []*website.Role{website.StandardRoles["basic"]},
+			false, time.Now()}, Parent: []*Person{&Andy, &Deanna}, Child: []*Person{&AJ}, Zip: []string{"20720"}, Buzzword: []string{"Hi", "Help"}, Turnoff: []string{"hate"}},
 	}
 
 	Conversation = []string{"Hello", "Nice kids", "Be right back", "see you later", "what time", "the park was nice",
@@ -176,61 +180,61 @@ var (
 func initData() {
 	for i := 0; i < 1000; i++ {
 		familyName := familyNames[rand.Intn(len(familyNames))]
-		mom := Person{Name:[]string{femaleNames[rand.Intn(len(femaleNames))], familyName}, DOB:time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
-			Male:false, Email:"test@email.com"}
-		dad := Person{Name:[]string{maleNames[rand.Intn(len(maleNames))], familyName}, DOB:time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC), 
-			Male:true, Email:"test@email.com"}
+		mom := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName}, DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
+			Male: false, Email: "test@email.com"}
+		dad := Person{Name: []string{maleNames[rand.Intn(len(maleNames))], familyName}, DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
+			Male: true, Email: "test@email.com"}
 		var children []*Person
 		for i := 0; i < 2; i = rand.Intn(3) {
-			children = append(children, &Person{Name:[]string{maleNames[rand.Intn(len(maleNames))], familyName},
-				DOB:time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
-				Male:i%2 == 0, Email:"test@email.com"})
+			children = append(children, &Person{Name: []string{maleNames[rand.Intn(len(maleNames))], familyName},
+				DOB:  time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
+				Male: i%2 == 0, Email: "test@email.com"})
 		}
 		userName := strings.ToLower(dad.Name[0][:1] + mom.Name[0][:1] + familyName)
 		if Families[userName] != nil {
 			userName += fmt.Sprintf("%d", rand.Intn(10000))
 		}
-		Families[userName] = &Family{Login:&website.Account{[]string{familyName}, userName, "password", userName + "@childsplay.com",
-			[]*website.Role{website.StandardRoles["basic"]}, false, time.Now()}, Parent:[]*Person{&dad, &mom}, Child:children,
-			Zip:[]string{fmt.Sprintf("%d", 20710+rand.Intn(20))}, Buzzword:[]string{"love"}, Turnoff:[]string{"hate"}}
+		Families[userName] = &Family{Login: &website.Account{[]string{familyName}, userName, "password", userName + "@childsplay.com",
+			[]*website.Role{website.StandardRoles["basic"]}, false, time.Now()}, Parent: []*Person{&dad, &mom}, Child: children,
+			Zip: []string{fmt.Sprintf("%d", 20710+rand.Intn(20))}, Buzzword: []string{"love"}, Turnoff: []string{"hate"}}
 		website.Users = append(website.Users, *Families[userName].Login)
 	}
 	for i := 0; i < 400; i++ { // single moms
 		familyName := familyNames[rand.Intn(len(familyNames))]
-		mom := Person{Name:[]string{femaleNames[rand.Intn(len(femaleNames))], familyName},
-			DOB:time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC), Male:false, Email:"test@email.com"}
+		mom := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName},
+			DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC), Male: false, Email: "test@email.com"}
 		var children []*Person
 		for i := 0; i < 2; i = rand.Intn(3) {
-			children = append(children, &Person{Name:[]string{maleNames[rand.Intn(len(maleNames))], familyName},
-				DOB:time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
-				Male:i%2 == 0, Email:"test@email.com"})
+			children = append(children, &Person{Name: []string{maleNames[rand.Intn(len(maleNames))], familyName},
+				DOB:  time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
+				Male: i%2 == 0, Email: "test@email.com"})
 		}
 		userName := strings.ToLower(mom.Name[0][:2] + familyName)
 		if Families[userName] != nil {
 			userName += fmt.Sprintf("%d", rand.Intn(10000))
 		}
-		Families[userName] = &Family{Login:&website.Account{[]string{familyName}, userName, "password", userName + "@childsplay.com",
-			[]*website.Role{website.StandardRoles["basic"]}, false, time.Now()}, Parent:[]*Person{&mom}, Child:children,
-			Zip:[]string{fmt.Sprintf("%d", 20710+rand.Intn(20))}, Buzzword:[]string{"love"}, Turnoff:[]string{"hate"}}
+		Families[userName] = &Family{Login: &website.Account{[]string{familyName}, userName, "password", userName + "@childsplay.com",
+			[]*website.Role{website.StandardRoles["basic"]}, false, time.Now()}, Parent: []*Person{&mom}, Child: children,
+			Zip: []string{fmt.Sprintf("%d", 20710+rand.Intn(20))}, Buzzword: []string{"love"}, Turnoff: []string{"hate"}}
 		website.Users = append(website.Users, *Families[userName].Login)
 	}
 	for i := 0; i < 200; i++ { // single dads
 		familyName := familyNames[rand.Intn(len(familyNames))]
-		dad := Person{Name:[]string{femaleNames[rand.Intn(len(femaleNames))], familyName},
-			DOB:time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC), Male:false, Email:"test@email.com"}
+		dad := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName},
+			DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC), Male: false, Email: "test@email.com"}
 		var children []*Person
 		for i := 0; i < 2; i = rand.Intn(3) {
-			children = append(children, &Person{Name:[]string{maleNames[rand.Intn(len(maleNames))], familyName},
-				DOB:time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
-				Male:i%2 == 0, Email:"test@email.com"})
+			children = append(children, &Person{Name: []string{maleNames[rand.Intn(len(maleNames))], familyName},
+				DOB:  time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
+				Male: i%2 == 0, Email: "test@email.com"})
 		}
 		userName := strings.ToLower(dad.Name[0][:2] + familyName)
 		if Families[userName] != nil {
 			userName += fmt.Sprintf("%d", rand.Intn(10000))
 		}
-		Families[userName] = &Family{Login:&website.Account{[]string{familyName}, userName, "password", userName + "@childsplay.com",
-			[]*website.Role{website.StandardRoles["basic"]}, false, time.Now()}, Parent:[]*Person{&dad}, Child:children,
-			Zip:[]string{fmt.Sprintf("%d", 20710+rand.Intn(20))}, Buzzword:[]string{"love"}, Turnoff:[]string{"hate"}}
+		Families[userName] = &Family{Login: &website.Account{[]string{familyName}, userName, "password", userName + "@childsplay.com",
+			[]*website.Role{website.StandardRoles["basic"]}, false, time.Now()}, Parent: []*Person{&dad}, Child: children,
+			Zip: []string{fmt.Sprintf("%d", 20710+rand.Intn(20))}, Buzzword: []string{"love"}, Turnoff: []string{"hate"}}
 		website.Users = append(website.Users, *Families[userName].Login)
 	}
 }
