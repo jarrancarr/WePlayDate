@@ -22,10 +22,10 @@ var (
 	weePlayDate *website.Site
 	acs         *website.AccountService
 	//ecs         *ecommerse.ECommerseService
-	mss         *service.MessageService
-	cps			*ChildsPlayService
-	logger      *website.Log
-	Date_Format = "MM/dd/yyyy"
+	mss            *service.MessageService
+	cps            *ChildsPlayService
+	logger         *website.Log
+	Date_Format    = "MM/dd/yyyy"
 	Date_Format_GL = "01/02/2006"
 )
 
@@ -230,26 +230,40 @@ func WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Se
 	w.Write([]byte(room.WhoseThere()))
 	return "ok", nil
 }
-func GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Debug.Println("WeePlayDate.GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
-	httpData, _ := ioutil.ReadAll(r.Body)
-	if httpData == nil || len(httpData) == 0 {
-		return "", errors.New("No Data")
-	}
-	dataList := strings.Split(string(httpData), "&")
-	logger.Debug.Println("dataList: " + strings.Join(dataList, "|"))
-	user := strings.Split(dataList[0], "=")[1]
-	name := strings.Split(dataList[1], "=")[1]
-	fam := Families[user]
+func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("WeePlayDate.GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	data := pullData(r)
+	fam := Families[data["user"]]
 	var thisPerson *Person
 	for _, fm := range fam.Parent {
-		if fm.Name[0] == name {
+		if fm.Name[0] == data["name"] {
 			thisPerson = fm
 		}
 	}
 	if thisPerson == nil {
 		for _, fm := range fam.Child {
-			if fm.Name[0] == name {
+			if fm.Name[0] == data["name"] {
+				thisPerson = fm
+			}
+		}
+	}
+	w.Write([]byte(`{"name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + `", "sex":"` + thisPerson.Sex() + `", "profile":"` + thisPerson.Profile +
+		`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `", "user":"` + data["user"] + `"}`))
+	return "ok", nil
+}
+func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("WeePlayDate.GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	data := pullData(r)
+	family := Families[data["user"]]
+	var thisPerson *Person
+	for _, fm := range family.Parent {
+		if fm.FullName() == data["name"] {
+			thisPerson = fm
+		}
+	}
+	if thisPerson == nil {
+		for _, fm := range family.Child {
+			if fm.Name[0] == data["name"] {
 				thisPerson = fm
 			}
 		}
@@ -258,28 +272,25 @@ func GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Se
 		`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `"}`))
 	return "ok", nil
 }
-func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Debug.Println("WeePlayDate.GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
-	httpData, _ := ioutil.ReadAll(r.Body)
-	if httpData == nil || len(httpData) == 0 {
-		return "", errors.New("No Data")
-	}
-	dataList := strings.Split(string(httpData), "&")
-	family := strings.Split(dataList[0], "=")[1]
-	fam := Families[family]
-	w.Write([]byte(`{"family":` + fam.Parent[0].Name[1] + `}`))
-	return "ok", nil
-}
 
 func GetArticleAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Debug.Println("WeePlayDate.GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
-	httpData, _ :=ioutil.ReadAll(r.Body)
-	if (httpData == nil || len(httpData) == 0) {
-		return "", errors.New("No Data")
-	}
-	dataList := strings.Split(string(httpData),"&")
-	articleName := strings.Split(dataList[0],"=")[1]
-	article := cps.Article[articleName]
-	w.Write([]byte(`{"title":"`+article.Title+`", "author":"`+article.Author.FullName()+`", "text":"`+article.Text+`", "pic":"`+article.Pic+`"}`))
+	info := pullData(r)
+	article := cps.Article[info["articleName"]]
+	w.Write([]byte(`{"title":"` + article.Title + `", "author":"` + article.Author.FullName() + `", "text":"` + article.Text + `", "pic":"` + article.Pic + `", "user":"` + article.User + `"}`))
 	return "ok", nil
+}
+
+func pullData(r *http.Request) map[string]string {
+	httpData, _ := ioutil.ReadAll(r.Body)
+	if httpData == nil || len(httpData) == 0 {
+		return nil
+	}
+	dataList := strings.Split(string(httpData), "&")
+	mapData := make(map[string]string)
+	for _, item := range dataList {
+		kv := strings.Split(item, "=")
+		mapData[kv[0]] = kv[1]
+	}
+	return mapData
 }

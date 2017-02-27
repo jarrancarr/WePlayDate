@@ -100,6 +100,11 @@ func addScripts() {
 		data: { 'user':user, 'name':familyName }, 
 		success: function(data, textStatus, jqXHR) { 
 			alert('open Profile'); 
+				var info = JSON.parse(data);
+				var proModal = $('#profileModal div div');
+				proModal.empty();
+				proModal.append();
+				$(location).attr('href','#profileModal');
 		}, 
 		error: function(data, textStatus, jqXHR) { console.log("open Profile fail: "+textStatus); }	});	}`)
 	weePlayDate.AddScript("home-script", `function onShowProfileModal(user, name) { 
@@ -132,13 +137,14 @@ func addScripts() {
 		$.ajax({url: '/home',type: 'AJAX', 
 			headers: { 'ajaxProcessingHandler':'article' },	
 			dataType: 'html', 
-			data: { 'article':articleId }, 
+			data: { 'articleName':articleId }, 
 			success: function(data, textStatus, jqXHR) { 
 				var info = JSON.parse(data);
 				var aModal = $('#articleModal div div');
 				aModal.empty();
-				aModal.append("<h2>"+info["title"]+"</h2><p>"+info["author"]+"</p><img src='../img/"+info["pic"]+"'><p>"+info["text"]+"</p>");
+				aModal.append("<h2>"+info["title"]+"</h2><a class='ptButton'>"+info["author"]+"</a><img src='../img/"+info["pic"]+"'><p>"+info["text"]+"</p><input type='hidden' value='"+info["user"]+"'/>");
 				$(location).attr('href','#articleModal');
+				aModal.find("a").on("click",function() {alert('hi');});
 			}, 
 			error: function(data, textStatus, jqXHR) { console.log("open article fail: "+textStatus); }	
 		});

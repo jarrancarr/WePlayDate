@@ -43,10 +43,11 @@ type Message struct {
 }
 
 type Post struct {
-	Author 		*Person
-	Pic			string
-	Title, Text	string
-	Blog		[]*Post
+	Author      *Person
+	User        string
+	Pic         string
+	Title, Text string
+	Blog        []*Post
 }
 
 type Family struct {
@@ -159,7 +160,7 @@ var (
 		"adaknight": &Family{Login: &website.Account{[]string{"Knight"}, "adaknight", "aknight96", "", []*website.Role{website.StandardRoles["basic"]},
 			false, time.Now()}, Parent: []*Person{&Andy, &Deanna}, Child: []*Person{&AJ}, Zip: []string{"20720"}, Buzzword: []string{"Hi", "Help"}, Turnoff: []string{"hate"}},
 	}
-
+	famKeys      []string
 	Conversation = []string{"Hello", "Nice kids", "Be right back", "see you later", "what time", "the park was nice",
 		"tomorrow is better", "I don't know", "Wait till I call you", "there are more at home", "what did you find there",
 		"how was surfing", "were sailing tomorrow", "taking the dogs for a walk", "playing with the cat", "shopping for a dress",
@@ -237,16 +238,17 @@ func initData() {
 			Zip: []string{fmt.Sprintf("%d", 20710+rand.Intn(20))}, Buzzword: []string{"love"}, Turnoff: []string{"hate"}}
 		website.Users = append(website.Users, *Families[userName].Login)
 	}
-}
 
-func simulateCommunity(mss *service.MessageService) {
-	logger.Trace.Println()
-	famKeys := make([]string, len(Families))
+	famKeys = make([]string, len(Families))
 	i := 0
 	for k := range Families {
 		famKeys[i] = k
 		i++
 	}
+}
+
+func simulateCommunity(mss *service.MessageService) {
+	logger.Trace.Println()
 	for i := 0; i < 10; i++ {
 		go activeUser(Families[famKeys[rand.Intn(len(Families))]], mss)
 	}

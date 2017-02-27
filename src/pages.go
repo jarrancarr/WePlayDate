@@ -29,7 +29,7 @@ func addPages() {
 			html.NewTag("image x==${XX} y==${YY} height==${HEIGHT} width==${WIDTH} xlink:href==/img/${ID}.jpg"))))
 	main.Html.Add("pictures", html.NewTag("circle id==${ID}-circle cx==${CX}% cy==${CY}% r==${R} fill==url(#${ID}) stroke==#39e stoke-width==16px stroke-opacity==0.5").AppendChild(
 		html.NewTag("animate id==fadein-${ID} attributeName==opacity values==${FADE} dur==${DUR}s begin==${ITERATOR}s repeatCount=indefinite")))
-	main.AddParam("DateFormat",Date_Format)
+	main.AddParam("DateFormat", Date_Format)
 
 	home := weePlayDate.AddPage("home", "home", "/home")
 	home.AddAJAXHandler("newRoom", mss.CreateRoomAJAXHandler)
@@ -37,7 +37,7 @@ func addPages() {
 	home.AddAJAXHandler("message", mss.MessageAJAXHandler)
 	home.AddAJAXHandler("exitRoom", mss.ExitRoomAJAXHandler)
 	home.AddAJAXHandler("whoseThere", WhoseThereAjaxHandler)
-	home.AddAJAXHandler("profile", GetProfileAjaxHandler)
+	home.AddAJAXHandler("profile", GetFamilyProfileAjaxHandler)
 	home.AddAJAXHandler("article", GetArticleAjaxHandler)
 
 	home.AddPostHandler("logout", acs.LogoutPostHandler)
