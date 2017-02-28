@@ -114,6 +114,10 @@ func (f *Family) Name() string {
 	return name
 }
 
+func (f *Family) String() string {
+	return f.Name()+": "+f.Login.User
+}
+
 var (
 	Run        = Skill{"Runner", map[int8]string{4: "Jogger", 9: "Runner", 16: "5k", 25: "13.1", 49: "26.2"}}
 	Jump       = Skill{"Jump", map[int8]string{1: "hop", 4: "leap", 9: "dive", 25: "expert", 49: "pro"}}

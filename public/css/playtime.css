@@ -179,7 +179,13 @@ article {
 	right: 38px;
 	top: -10px;
 }
-.whosHere:hover { background: #f0d; }
+.whosHere:hover { background: #af0; }
+.closeBy {
+	background: #666;
+	right: 13px;
+	top: -10px;
+}
+.closeBy:hover { background: #0f6; }
 .ptButton {
 	-moz-box-shadow:inset 0px 1px 0px 0px #641ce8;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #641ce8;
@@ -308,9 +314,10 @@ article {
 .edit:hover { background: #0df; }
 .hideModal {
 	background: #666;
-	right: 0px;
+	right: -12px;
 	top: -10px;
 }
+.hideModal:hover { background: #0df; }
 #local {	
 	position: relative;
 	font-family: Ariel, Helvetica, sans-serif;

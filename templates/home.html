@@ -24,7 +24,9 @@
 				<a title="Hide" class="hideModal modalButton">&lt</a>
 				<a class='modalButton whosHere' title='Who'>?</a>
 				<a class='modalButton closeBy' title='Map'>*</a>
-				<h4 class='dialogHeader ptListItem'>{{with session "item" "family"}}{{index .Zip 0}}{{end}}</h4>
+				{{with session "item" "family"}}
+					<h4 class='dialogHeader ptListItem' onclick='enterRoom("{{index .Zip 0}}")'>{{index .Zip 0}}</h4>
+				{{end}}
 				<div class="floatFrame">
 					{{ range get "childsPlay" "localPosts" }}
 						<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}">

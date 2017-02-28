@@ -234,19 +234,23 @@ func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 	logger.Debug.Println("WeePlayDate.GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	data := pullData(r)
 	fam := Families[data["user"]]
+	logger.Debug.Println("family: "+data["user"]+"  name:"+data["name"]);
+	if fam == nil { return "", errors.New("No faminly found") }
+	logger.Debug.Println("family: "+fam.String());
 	var thisPerson *Person
 	for _, fm := range fam.Parent {
-		if fm.Name[0] == data["name"] {
+		if fm.Name[0] == strings.Split(data["name"],"+")[0] {
 			thisPerson = fm
 		}
 	}
 	if thisPerson == nil {
 		for _, fm := range fam.Child {
-			if fm.Name[0] == data["name"] {
+			if fm.Name[0] == strings.Split(data["name"],"+")[0] {
 				thisPerson = fm
 			}
 		}
 	}
+	if thisPerson == nil { return "", errors.New("No Family by that name") }
 	w.Write([]byte(`{"name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + `", "sex":"` + thisPerson.Sex() + `", "profile":"` + thisPerson.Profile +
 		`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `", "user":"` + data["user"] + `"}`))
 	return "ok", nil
