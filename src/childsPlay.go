@@ -34,19 +34,13 @@ func (cps *ChildsPlayService) Get(p *website.Page, s *website.Session, data []st
 	logger.Debug.Println("ChildsPlayService.Get(page<" + p.Title + ">, session<" + s.GetUserName() + ">, " + data[0] + ")")
 	switch data[0] {
 	case "localPosts":
-		return []website.Item{
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Big Dog", "Check out this huge dog", "10", "10", "90", "120", "bigDog.jpg", "bd", "0"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Cute Kitten", "Super Awe....", "10", "30", "130", "90", "cuteCat.jpg", "ck", "1"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Ice Cream", "Making ice cream, easy", "10", "50", "130", "90", "iceCream.jpg", "ic", "1"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Black Horse", "This is a beautiful horse", "10", "70", "110", "110", "blackHorse.jpg", "bh", "1"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Funny Kid", "Kid trips over pillow", "30", "70", "140", "80", "funnyKid.jpg", "fk", "2"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Drone Spying", "Using drones to spy on neighbors", "50", "70", "100", "80", "Drone.jpg", "ds", "2"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Night Bridge", "Beautiful pics of bridges at night", "70", "70", "100", "80", "Bridge.jpg", "nb", "2"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Ice Sculpting", "There will be a class on ice sculpting in Monroe park", "70", "50", "100", "80", "IceSculpt.jpg", "is", "2"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Butterfly", "The butterfly park in Bowie has opened", "70", "30", "100", "80", "Butterfly.jpg", "bf", "2"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Dance", "Salsa Dance club", "70", "10", "100", "80", "Dance.png", "sd", "2"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Playhouse", "Playhouse givaway", "50", "10", "100", "80", "Playhouse.jpg", "ph", "2"},
-			struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{"Petting Zoo", "Friendship gardens are hosting a petting zoo.", "30", "10", "100", "80", "PettingZoo.jpg", "pz", "2"}}
+		pos := []string{"10", "20", "30", "40", "50", "60", "70"}
+		articles := []website.Item{}
+		for n, art := range(cps.Article) {
+			articles = append(articles, struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{
+				art.Title, art.Text, pos[rand.Intn(len(pos))], pos[rand.Intn(len(pos))], "100", "100", art.Pic, n, "0"}) 
+		}
+		return articles
 	}
 	return nil
 }

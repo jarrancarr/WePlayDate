@@ -103,10 +103,15 @@ func addScripts() {
 			success: function(data, textStatus, jqXHR) { 
 				var obj = JSON.parse(data); 
 				$("#personModal div .info").empty();
+				$("#personModal div .info").append("<p>Name:"+obj["name"]+"</p>");
 				$("#personModal div .info").append("<p>Age:"+obj["age"]+", "+obj["sex"]+"</p>");
-				$("#personModal div .info").append("<ul>Likes:</ul>");
-				$("#personModal div .personProfilePic").attr('img','../img/test.jpg');
-				$.each(obj["likes"].split("|"), function(like) { $("#personModal div ul").append("<li>"+like+"</li>"); });
+				$("#personModal div .info").append("<p>"+obj["profile"]+"</p>");
+				$("#personModal div #personProfilePic").attr('img','../img/test.jpg');
+				var likes = obj["likes"].split("|");
+				if (likes.length>0) {
+					$("#personModal div .info").append("<ul>Likes:</ul>");
+					$.each(likes, function(index, like) { $("#personModal div ul").append("<li>"+like+"</li>"); });
+				}
 			}, 
 			error: function(data, textStatus, jqXHR) { console.log("onShowProfileModal fail!"); } }); }`)
 	weePlayDate.AddScript("home-script", `function minimize(room) { 

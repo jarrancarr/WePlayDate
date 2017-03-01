@@ -231,12 +231,10 @@ func WhoseThereAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Se
 	return "ok", nil
 }
 func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Debug.Println("WeePlayDate.GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	logger.Trace.Println("WeePlayDate.GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	data := pullData(r)
 	fam := Families[data["user"]]
-	logger.Debug.Println("family: "+data["user"]+"  name:"+data["name"]);
 	if fam == nil { return "", errors.New("No faminly found") }
-	logger.Debug.Println("family: "+fam.String());
 	var thisPerson *Person
 	for _, fm := range fam.Parent {
 		if fm.Name[0] == strings.Split(data["name"],"+")[0] {
@@ -261,22 +259,18 @@ func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 	family := Families[data["user"]]
 	var thisPerson *Person
 	for _, fm := range family.Parent {
-		if fm.FullName() == data["name"] {
-			thisPerson = fm
-		}
+		if fm.FullName() == data["name"] { thisPerson = fm }
 	}
 	if thisPerson == nil {
 		for _, fm := range family.Child {
-			if fm.Name[0] == data["name"] {
-				thisPerson = fm
-			}
+			if fm.Name[0] == data["name"] { thisPerson = fm }
 		}
 	}
-	w.Write([]byte(`{"name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + `", "sex":"` + thisPerson.Sex() + `", "profile":"` + thisPerson.Profile +
-		`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `"}`))
+	w.Write([]byte(	`{"name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + 
+					`", "sex":"` + thisPerson.Sex() + `", "profile":"` + thisPerson.Profile +
+					`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `"}`))
 	return "ok", nil
 }
-
 func GetArticleAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Debug.Println("WeePlayDate.GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	info := pullData(r)
@@ -284,7 +278,6 @@ func GetArticleAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Se
 	w.Write([]byte(`{"title":"` + article.Title + `", "author":"` + article.Author.FullName() + `", "text":"` + article.Text + `", "pic":"` + article.Pic + `", "user":"` + article.User + `"}`))
 	return "ok", nil
 }
-
 func pullData(r *http.Request) map[string]string {
 	httpData, _ := ioutil.ReadAll(r.Body)
 	if httpData == nil || len(httpData) == 0 {

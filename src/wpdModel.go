@@ -92,7 +92,7 @@ func (p *Person) Sex() string {
 
 func (p *Person) Age() string {
 	age := time.Since(p.DOB)
-	if age.Hours() > float64(24*365*36) {
+	if age.Hours() > float64(365*36) {
 		return fmt.Sprintf("%d", int(age.Hours()/(24*365)))
 	}
 	return fmt.Sprintf("%d months", int(age.Hours()/(24*30)))
@@ -180,6 +180,36 @@ var (
 		"were having family night", "We had a lot of fun at your house", "The kids have all of those toys", "He is taking a potter class",
 		"If the weather is nice, we'll have a picnic.", "make sure you bring a jacket", "hiking the trails", "bicycling to the hills",
 		"what about a roller skate party?", "The movie was too scary", "brb... baby crying."}
+	likes = []string{"Horseback riding", "Mountain bikes", "Sports cars", "Ecological farming", "Urban farming", "Cross country skiing",
+		"Roller blading", "Archery", "Hunting/Fishing", "Romance books", "Science fiction", "Historical fiction", "Theatre arts", "Painting", 
+		"Home maintainance", "Woodworking", "Cabinatery", "Astronomy", "Hot rods and muscle cars", "Photograhy", "Computer games", "Hiking",
+		"Bowling", "Beaches", "Fine dining", "Cooking", "Cross-fit", "Chess", "Jousting", "Renessaince festival", "Running", "Dogs and cats", 
+		"Diving and swimming", "Brewing and winemaking", "Science experiments", "Model trains", "RC planes/heli", "Surfing/water sports", 
+		"Fantasy Role playing", "Decorating", "Knitting", "Arts and crafts", "Hot air ballooning", "Motorcycles", "Camping", "Boating", 
+		"Acting", "Amateur radio", "Baton twirling", "Board games", "Book restoration", "Cabaret", "Calligraphy", "Candle making", 
+		"Coffee roasting", "Coloring", "Computer programming", "Cooking", "Cosplaying", "Couponing", "Creative writing", "Crocheting", 
+		"Cross-stitch", "Crossword puzzles", "Cryptography", "Dance", "Deep web", "Digital arts", "Do it yourself", "Drama", "Drawing", 
+		"Electronics", "Embroidery", "Fantasy Sports", "Fashion", "Fishkeeping", "Flower arranging", "Foreign language learning", "Gaming", 
+		"Genealogy", "Glassblowing", "Gunsmithing", "Homebrewing", "Ice skating", "Jewelry making", "Jigsaw puzzles", "Juggling", "Knapping", 
+		"Knife making", "Knitting", "Kombucha Brewing", "Lacemaking", "Lapidary", "Leather crafting", "Lego building", "Listening to music", 
+		"Lockpicking", "Machining", "Macrame", "Magic", "Metalworking", "Model building", "Origami", "Painting", "Pet", "Philately", 
+		"Plastic embedding", "Playing musical instruments", "Poi", "Pottery", "Puzzles", "Quilling", "Quilting", "Reading", "Scrapbooking", 
+		"Sculpting", "Sewing", "Singing", "Sketching", "Soapmaking", "Stand-up comedy", "Table tennis", "Tatting", "Taxidermy", "Video gaming", 
+		"Watching movies", "Watching television", "Web surfing", "Whittling", "Wikipedia editing", "Worldbuilding", "Writing", "Yo-yoing", 
+		"Air sports", "BASE jumping", "Baseball", "Basketball", "Beekeeping", "Bird watching", "Blacksmithing", "Board sports", "Bodybuilding", 
+		"Brazilian jiu-jitsu", "Dowsing", "Driving", "Flag football", "Flying", "Flying disc", "Foraging", "Freestyle football", "Gardening", 
+		"Geocaching", "Handball", "High-Powered Rocketry", "Hooping", "Inline skating", "Kayaking", "Kite flying", "Kitesurfing", "Letterboxing", 
+		"Metal detecting", "Mountaineering", "Mushroom hunting/Mycology", "Netball", "Orienteering", "Paintball", "Parkour", "Polo", "Rafting", 
+		"Rappelling", "Rock climbing", "Rugby", "Sailing", "Sand art", "Scouting", "Sculling or Rowing", "Topiary", "Skateboarding", 
+		"Skimboarding", "Skydiving", "Slacklining", "Snowboarding", "Soccer", "Stone skipping", "Taekwondo", "Urban exploration", 
+		"Vehicle restoration", "Walking", "Action figure", "Antiquing", "Art collecting", "Book collecting", "Coin collecting", 
+		"Comic book collecting", "Deltiology", "Die-cast toy", "Element collecting", "Movie and movie memorabilia collecting", "Record collecting", 
+		"Flower collecting and pressing", "Fossil hunting", "Insect collecting", "Metal detecting", "Stone collecting", "Rock balancing", 
+		"Sea glass collecting", "Seashell collecting", "Badminton", "Billiards", "Boxing", "Bridge", "Cheerleading", "Color guard", "Curling", 
+		"Darts", "Debate", "Fencing", "Gymnastics", "Kabaddi", "Marbles", "Martial arts", "Mahjong", "Poker", "Slot car racing", "Table football", 
+		"Volleyball", "Weightlifting", "Airsoft", "Beach Volleyball", "Breakdancing", "Cricket", "Disc golf", "Exhibition drill", "Field hockey", 
+		"Figure skating", "Footbag", "Golfing", "Handball", "Judo", "Kart racing", "Knife throwing", "Lacrosse"}
+
 )
 
 func initData() {
@@ -245,9 +275,17 @@ func initData() {
 
 	famKeys = make([]string, len(Families))
 	i := 0
-	for k := range Families {
+	for k,f := range Families {
+		for _, p := range(f.Parent) { addLikes(p) }
+		for _, p := range(f.Child) { addLikes(p) }
 		famKeys[i] = k
 		i++
+	}
+}
+
+func addLikes(p *Person) {
+	for i := 0; i < 4; i = rand.Intn(5) {
+		p.Likes = append(p.Likes, likes[rand.Intn(len(likes))])
 	}
 }
 
