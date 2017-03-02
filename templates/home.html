@@ -100,44 +100,43 @@
 			</div>
 		</div>
 		<div id="myProfileModal" class="modalDialog">
-			<div style="text-align: center; width: 600px;">
+			<div style="text-align: center; width: 700px;">
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+				<div id="familyProfilePic" class="pictureFrame" style="width: 320px;">
+					<a title="Edit" class="modalButton edit">E</a>
+					<img src="../img/familyProfileBlank.jpg">
+				</div>
 				{{with session "item" "family"}} {{$fam := .}}
-					<h2>The {{ with index .Parent 0 }} {{ index .Name 1}} {{ end }}Family!</h2>
-					{{range .Parent }}
-						<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}})">{{index .Name 0}} {{index .Name 1}}</a></br>
-					{{ end }}
-					{{range .Child }}
-						<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}})">{{index .Name 0}} {{index .Name 1}}, {{.Sex}}, Age {{.Age}}</a></br>
-					{{ end }}
-					<p>{{.Profile}}</p>
+					<div class="personProfileInfo" style="width: 320px;">
+						<h2>The {{ with index .Parent 0 }} {{ index .Name 1}} {{ end }}Family!</h2>
+						{{range .Parent }}
+							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}})">{{index .Name 0}} {{index .Name 1}}</a></br>
+						{{ end }}
+						{{range .Child }}
+							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}})">{{index .Name 0}} {{index .Name 1}}, {{.Sex}}, Age {{.Age}}</a></br>
+						{{ end }}
+					</div>
+					<div class="personProfileEdit">
+						<a href="#editModal" title="Edit Family profile" class="modalButton edit" onclick="configEdit('{{$fam.Login.User}}', 'familyProfile', 'myProfileModal')">E</a>
+						<p>{{.Profile}}</p>
+					</div>
 				{{end}}
 			</div>
 		</div>
-		<div id="profileModal" class="modalDialog">
-			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal">X</a>
-				<div>
-					<h2>Profile</h2>
-					<img>
-					<p>Text</p>
-				</div>
-			</div>
-		</div>
 		<div id="personModal" class="modalDialog">
-			<div style="text-align: center; width: 600px; height: 400px;">
+			<div style="text-align: center; width: 600px;">
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<div id="personProfilePic" class="pictureFrame">
 					<a title="Edit" class="modalButton edit">E</a>
 					<img src="../img/profileBlank.jpg">
 				</div>
-				<div class="info"></div>
-				<div class="edit">
-					<input class="ptButton" value="Edit Like/Dislikes"/>
-					<input class="ptButton" value="Edit Buzzwords"/>
-					<input class="ptButton" value="Edit Turnoffs"/>
-					<input class="ptButton" value="Manage Pictures"/>
-					<input class="ptButton" value="Manage Questions"/>
+				<div class="personProfileInfo"></div>
+				<div class="personProfileEdit">
+					<input class="ptButton" value="Edit Like/Dislikes" style="width: 100px;"/>
+					<input class="ptButton" value="Edit Buzzwords" style="width: 100px;"/>
+					<input class="ptButton" value="Edit Turnoffs" style="width: 100px;"/>
+					<input class="ptButton" value="Manage Pictures" style="width: 100px;"/>
+					<input class="ptButton" value="Manage Questions" style="width: 100px;"/>
 				</div>
 			</div>
 		</div>
@@ -148,6 +147,12 @@
 				<h3>The story</h3>
 				<p>One day, I was pondering how shy my little boy is and how will I get him to open up to other children.  We didn't know very many families with small kids and thought about how easy it was to meet people on the internet.  I asked my wife about what she thought of a 'dating' site for babies.</p>
 				<p>At first she scoffed, but in a moment the whole idea came to her as id did for me.  Of course if would be a tool for parents to set up playdates for their kids.  We could match up kids too young to make their own friends with similar developmental abilities and interest.</p>
+			</div>
+		</div>
+		<div id="editModal" class="modalDialog">
+			<div>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+				<h2>Edit</h2>
 			</div>
 		</div>
 		<div id="postModal" class="modalDialog">

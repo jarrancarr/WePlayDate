@@ -94,26 +94,19 @@ func addScripts() {
 	weePlayDate.AddScript("home-script", `function sendMessage(room,message) { $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'message' },	dataType: 'html', data: { 'roomName':room,'message':encodeURIComponent(message) }, success: function(data, textStatus, jqXHR) { $("#"+room+" textarea").val(''); var ul = $("#"+room+" .discussion ul"); var obj = JSON.parse(data); ul.empty(); $.each(obj, function(index, message) { if (message['author']=='') { item = $(document.createElement('li')).text( decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); item.attr("class", "push"); } else { item = $(document.createElement('li')).text( message['author']+':'+decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); item.attr("class", "pull"); } ul.append( item ).append( '<br/>' ); }); ul.parent().scrollTop(ul.parent()[0].scrollHeight - ul.parent().height()); }, error: function(data, textStatus, jqXHR) { console.log("send message fail!"); $("#"+room+" textarea").val('') } }); }`)
 	weePlayDate.AddScript("home-script", `function initiateRoom(roomName) { $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'newRoom' },	dataType: 'html', data: { 'roomName':roomName, 'roomPass':'HaHa!' }, success: function(data, textStatus, jqXHR) { enterRoom(roomName); }, error: function(data, textStatus, jqXHR) { console.log("new room fail!"); }	});	}`)
 	weePlayDate.AddScript("home-script", `function onShowProfileModal(user, name) { 
-		$.ajax({
-			url: '/home',
-			type: 'AJAX', 
-			headers: { 'ajaxProcessingHandler':'profile' },	
-			dataType: 'html', 
-			data: { 'user':user, 'name':name }, 
-			success: function(data, textStatus, jqXHR) { 
-				var obj = JSON.parse(data); 
-				$("#personModal div .info").empty();
-				$("#personModal div .info").append("<p>Name:"+obj["name"]+"</p>");
-				$("#personModal div .info").append("<p>Age:"+obj["age"]+", "+obj["sex"]+"</p>");
-				$("#personModal div .info").append("<p>"+obj["profile"]+"</p>");
-				$("#personModal div #personProfilePic").attr('img','../img/test.jpg');
+		$.ajax({ url: '/home', type: 'AJAX', headers: { 'ajaxProcessingHandler':'personProfile' }, dataType: 'html', data: { 'user':user, 'name':name }, 
+			success: function(data, textStatus, jqXHR) { var obj = JSON.parse(data); 
+				$('#personModal div a').attr('href','#myProfileModal');
+				$("#personModal div .personProfileInfo").empty().append("<p>Name:"+obj["name"]+"</p><p>Age:"+obj["age"]+", "+obj["sex"]+"</p><p>"+obj["profile"]+"</p>");
+				$("#personModal div #personProfilePic img").attr('src','../img/'+obj["pic"]);
+				$("#personModal div #personProfilePic a").attr('onclick', 'alert("do this");');
 				var likes = obj["likes"].split("|");
 				if (likes.length>0) {
-					$("#personModal div .info").append("<ul>Likes:</ul>");
+					$("#personModal div .personProfileInfo").append("<ul>Likes:</ul>");
 					$.each(likes, function(index, like) { $("#personModal div ul").append("<li>"+like+"</li>"); });
 				}
 			}, 
-			error: function(data, textStatus, jqXHR) { console.log("onShowProfileModal fail!"); } }); }`)
+			error: function(data, textStatus, jqXHR) { console.log("onShowProfileModal fail: "+textStatus); } }); }`)
 	weePlayDate.AddScript("home-script", `function minimize(room) { 
 		if ($('#'+room).hasClass('minimizedFloatDialog')) { 
 			$('#'+room).removeClass('minimizedFloatDialog'); 
@@ -124,6 +117,9 @@ func addScripts() {
 			$('#'+room+' .subFloatHeader').addClass('hidden');
 			$('#'+room).removeClass('extendFloatDialog');
 		} }`)
+	weePlayDate.AddScript("home-script", `function configEdit(id, field, url) { $('#editModal div').empty().append("<form action='/home' method='post'><h2>Edit</h2>`+
+		`<input type='text' name='edit'/><input type='hidden' name='field' value='"+field+"'/><input type='hidden' name='user' value='"+id+"'/>`+
+		`<input type='hidden' name='postProcessingHandler' value='edit'><input type='hidden' name='redirect' value='home#"+url+"'><input type='submit'/></form>"); }`)
 	weePlayDate.AddScript("home-script", `function openArticle(articleId) { 
 		$.ajax({url: '/home',type: 'AJAX', 
 			headers: { 'ajaxProcessingHandler':'article' },	
@@ -133,7 +129,7 @@ func addScripts() {
 				var info = JSON.parse(data);
 				var aModal = $('#articleModal div div');
 				aModal.empty();
-				aModal.append("<h2>"+info["title"]+"</h2><a class='ptButton' onclick=\"onShowProfileModal('"+info["user"]+"', '"+info["author"]+"'); $(location).attr('href','#personModal');\">"+info["author"]+"</a><img src='../img/"+info["pic"]+"'><p>"+info["text"]+"</p>");
+				aModal.append("<h2>"+info["title"]+"</h2><a class='ptButton' onclick=\"$('#personModal div a').attr('href','#articleModal'); onShowProfileModal('"+info["user"]+"', '"+info["author"]+"'); $(location).attr('href','#personModal');\">"+info["author"]+"</a><img src='../img/"+info["pic"]+"'><p>"+info["text"]+"</p>");
 				$(location).attr('href','#articleModal');
 			}, 
 			error: function(data, textStatus, jqXHR) { console.log("open article fail: "+textStatus); }	

@@ -92,7 +92,7 @@ func (p *Person) Sex() string {
 
 func (p *Person) Age() string {
 	age := time.Since(p.DOB)
-	if age.Hours() > float64(365*36) {
+	if age.Hours() > float64(24*365*3) {
 		return fmt.Sprintf("%d", int(age.Hours()/(24*365)))
 	}
 	return fmt.Sprintf("%d months", int(age.Hours()/(24*30)))
@@ -276,8 +276,15 @@ func initData() {
 	famKeys = make([]string, len(Families))
 	i := 0
 	for k,f := range Families {
-		for _, p := range(f.Parent) { addLikes(p) }
-		for _, p := range(f.Child) { addLikes(p) }
+		f.ProfilePic = "familyBlank.jpg"
+		for _, p := range(f.Parent) { 
+			addLikes(p) 
+			p.ProfilePic = "blank.jpg"
+		}
+		for _, p := range(f.Child) { 
+			addLikes(p) 
+			p.ProfilePic = "blank.jpg" 
+		}
 		famKeys[i] = k
 		i++
 	}
