@@ -54,9 +54,10 @@ type Family struct {
 	Login                           *website.Account
 	Parent, Child                   []*Person
 	Outer                           *Group
-	Zip, Buzzword, Turnoff, Picture []string
+	Zip, Buzzword, Turnoff			[]string
 	Profile, ProfilePic             string
 	MailBox                         map[string]*Message
+	Album							map[string]string
 }
 
 type Region struct {

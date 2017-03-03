@@ -1,0 +1,5 @@
+admin page
+side minimize region page
+messages
+mail
+comments

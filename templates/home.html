@@ -20,21 +20,27 @@
 			</div>
 		</div>
 		<div id="lower" class="frame">
-			<div id="local" class="floatPanel">
-				<a title="Hide" class="hideModal modalButton">&lt</a>
-				<a class='modalButton whosHere' title='Who'>?</a>
-				<a class='modalButton closeBy' title='Map'>*</a>
-				{{with session "item" "family"}}
-					<h4 class='dialogHeader ptListItem' onclick='enterRoom("{{index .Zip 0}}")'>{{index .Zip 0}}</h4>
-				{{end}}
-				<div class="floatFrame">
-					{{ range get "childsPlay" "localPosts" }}
-						<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}">
-							<img src="../img/{{.JPG}}" width="{{.W}}" height="{{.H}}" onclick="openArticle('{{.Link}}')">
+			{{with session "item" "family"}}
+				{{range .Zip }}
+					<div id="local-{{ . }}" class="floatPanel local">
+						<a title="Hide" class="hideModal modalButton" onclick="sidebar('local-{{ . }}');">&lt</a>
+						<a class='modalButton whosHere' title='Who'>?</a>
+						<a class='modalButton closeBy' title='Map' onclick="regionsNear('local-{{ . }}');">*</a>
+							<h4 class='dialogHeader ptListItem' onclick='enterRoom("{{ . }}")'>{{ . }}</h4>
+						<div class="floatFrame">
+							{{ range get "childsPlay" "localPosts" . }}
+								<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}">
+									<img src="../img/{{.JPG}}" width="{{.W}}" height="{{.H}}" onclick="openArticle('{{.Link}}')">
+								</div>
+							{{ end }}
 						</div>
-					{{ end }}
-				</div>
-			</div>
+					</div>
+					<div id="local-{{ . }}-Min" class="minButton" style="display: none;">
+						<a title="Hide" class="hideModal modalButton" onclick="sidebar('local-{{ . }}');">&gt</a>
+						<a class='vertical' style='height: 75px;' onclick='enterRoom("{{ . }}")'>{{ . }}</a>					
+					</div>
+				{{end}}
+			{{end}}
 			<div class="panel" style="position: absolute; top: 0px;">
 				<div class="row panel-body" style="height: 100%; overflow: hidden;"> 
 					<div class="span4">
@@ -102,23 +108,33 @@
 		<div id="myProfileModal" class="modalDialog">
 			<div style="text-align: center; width: 700px;">
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+				<a title="Edit Mode" class="modalButton editmode" onclick="toggleEditMode('myProfileModal')">E</a>
 				<div id="familyProfilePic" class="pictureFrame" style="width: 320px;">
 					<a title="Edit" class="modalButton edit">E</a>
 					<img src="../img/familyProfileBlank.jpg">
 				</div>
 				{{with session "item" "family"}} {{$fam := .}}
 					<div class="personProfileInfo" style="width: 320px;">
-						<h2>The {{ with index .Parent 0 }} {{ index .Name 1}} {{ end }}Family!</h2>
+						<h3>The {{ with index .Parent 0 }} {{ index .Name 1}} {{ end }}Family!</h3>
+						<div class="frame">
+							Home area codes: <a title="Add Zip" class="closeModal modalButton side" onclick="configEdit('{{$fam.Login.User}}', 'addAreaCode', 'myProfileModal')">+</a>
+							{{range .Zip }}<a>{{ . }}</a><a title="Remove Zip" class="closeModal modalButton side" onclick="removeItem('{{$fam.Login.User}}', 'deleteAreaCode', 'myProfileModal')">-</a>
+							{{ end }}
+						</div>
 						{{range .Parent }}
-							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}})">{{index .Name 0}} {{index .Name 1}}</a></br>
+							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myProfileModal')">{{index .Name 0}} {{index .Name 1}}</a></br>
 						{{ end }}
 						{{range .Child }}
-							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}})">{{index .Name 0}} {{index .Name 1}}, {{.Sex}}, Age {{.Age}}</a></br>
+							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myProfileModal')">{{index .Name 0}} {{index .Name 1}}, {{.Sex}}, Age {{.Age}}</a></br>
 						{{ end }}
 					</div>
-					<div class="personProfileEdit">
+					<div class="personProfileEdit" style="width: 670px;">
 						<a href="#editModal" title="Edit Family profile" class="modalButton edit" onclick="configEdit('{{$fam.Login.User}}', 'familyProfile', 'myProfileModal')">E</a>
 						<p>{{.Profile}}</p>
+					</div>
+					<div class="personProfileEdit" style="width: 670px; border: 0px;">
+						<input class="ptButton" value="Manage albums" style="width: 100px;"/>
+						<input class="ptButton" value="Manage family" style="width: 100px;"/>
 					</div>
 				{{end}}
 			</div>
@@ -126,12 +142,16 @@
 		<div id="personModal" class="modalDialog">
 			<div style="text-align: center; width: 600px;">
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+				<a title="Edit Mode" class="modalButton editmode" onclick="toggleEditMode('personModal')">E</a>
 				<div id="personProfilePic" class="pictureFrame">
 					<a title="Edit" class="modalButton edit">E</a>
 					<img src="../img/profileBlank.jpg">
 				</div>
 				<div class="personProfileInfo"></div>
-				<div class="personProfileEdit">
+				<div id="personProfile" class="personProfileEdit">
+					<p>Profile</p>
+				</div>
+				<div class="personProfileEdit" style="border: 0px;">
 					<input class="ptButton" value="Edit Like/Dislikes" style="width: 100px;"/>
 					<input class="ptButton" value="Edit Buzzwords" style="width: 100px;"/>
 					<input class="ptButton" value="Edit Turnoffs" style="width: 100px;"/>
