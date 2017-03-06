@@ -62,4 +62,7 @@ func addPages() {
 			ul.append( '<br/>' ); 
 		});
 	`)
+
+	admin := weePlayDate.AddPage("", "admin", "/admin")
+	admin.AddBypassSiteProcessor("secure")
 }

@@ -19,12 +19,12 @@ import (
 )
 
 var (
-	weePlayDate *website.Site
-	acs         *website.AccountService
-	//ecs         *ecommerse.ECommerseService
-	mss            *service.MessageService
-	cps            *ChildsPlayService
-	logger         *website.Log
+	weePlayDate 	*website.Site
+	acs         	*website.AccountService
+	//ecs         	*ecommerse.ECommerseService
+	mss				*service.MessageService
+	cps				*ChildsPlayService
+	logger			*website.Log
 	Date_Format    = "MM/dd/yyyy"
 	Date_Format_GL = "01/02/2006"
 )
@@ -40,6 +40,7 @@ func main() {
 	setup()
 
 	go simulateCommunity(mss)
+	go collectMetrics(cps, mss, acs, weePlayDate)
 
 	http.HandleFunc("/js/", website.ServeResource)
 	http.HandleFunc("/css/", website.ServeResource)

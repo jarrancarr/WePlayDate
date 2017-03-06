@@ -32,6 +32,23 @@ type Group struct {
 	Permission map[string]bool
 }
 
+type Event struct {
+	Title, Details			string
+	Attendees				[]*Family
+	Host					*Family
+	Time					time.Time
+	Duration				time.Duration
+	Where					string
+}
+
+type Region struct {
+	Name      	string
+	Lat, Long 	float32
+	Lounge     	*service.Room
+	Article		[]Post
+	Activities	[]Event
+}
+
 type Challenge struct {
 	Phrase, Reply string
 }
@@ -64,12 +81,6 @@ type Family struct {
 	MailBox                map[string]*Message
 	Album                  map[string]string
 	Comments               map[string][]Comment
-}
-
-type Region struct {
-	Name      string
-	Lat, Long float32
-	room      *service.Room
 }
 
 type Activity struct {
@@ -345,4 +356,12 @@ func activeUser(fm *Family, mss *service.MessageService) {
 	acs.Lock.Lock()
 	acs.Active[fm.Login.User] = nil
 	acs.Lock.Unlock()
+}
+
+func collectMetrics(cps *ChildsPlayService, mss *service.MessageService, acs *website.AccountService, wpd *website.Site) {
+	for {
+		cps.Metrics["rooms"] = append(cps.Metrics["rooms"], mss.Metrics("rooms"))
+		// cps.Metrics[""] = append(cps.Metrics[""], )
+		time.Sleep(time.Millisecond * 5000)
+	}
 }

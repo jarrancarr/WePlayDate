@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		{{page "head"}}
+		<script>
+		</script>
+	</head>
+	<body>
+		<div class="accordianPanel">
+			<h2 onclick="$(this).next().toggle()">Logged in users: {{ service "account" "#activeSessions" }}</h2>
+			<div style="display:none;">
+				{{ range get "account" "getAllSessions" }}
+					{{ .GetId }}: {{ .GetUserName }}: {{ .GetFullName }} </br>
+				{{ end }}
+			</div>
+		</div>
+		<div class="accordianPanel">
+			<h2 onclick="$(this).next().toggle()">Rooms: {{ service "message" "#activeRooms" }}</h2>
+			<div style="display:none;">
+				{{ range get "message" "getAllRooms" }}
+					Room:{{ .Name }}  Number Messages:{{ .Messages }}  Number Occupance:{{ .Occupance }}</br>
+				{{ end }}
+			</div>
+		</div>
+		<div class="accordianPanel">
+			<h2 onclick="$(this).next().toggle()">Families: {{ service "childsPlay" "#families" }}</h2>
+			<div style="display:none;">
+				<table>
+					<tr>
+						<th>User</th>
+						<th>Family Name</th>
+						<th>Dad</th>
+						<th>Mom</th>
+						<th>Children</th>
+					</tr>
+					{{ range get "childsPlay" "getFamilies" }}
+						<tr>
+							<td>{{.UName}}</td>
+							<td>{{.SirName}}</td>
+							<td>{{.Dad}}</td>
+							<td>{{.Mom}}</td>
+							<td>{{.Children}}</td>
+						</tr>
+					{{ end }}
+				</table>
+			</div>
+		</div>
+		<div class="accordianPanel">
+			<h2 onclick="$(this).next().toggle()">title</h2>
+			<div style="display:none;">
+			</div>
+		</div>
+	</body>
+</html>

@@ -749,3 +749,17 @@ article {
 	left: -26px;
 	display:block;
 }
+.accordianPanel {
+	width: 95%;
+    border: 1px solid black;
+	background: #bbb;
+	margin: 10px auto;
+	padding: 10px;
+}
+.accordianPanel h2 {
+	margin: 0px;
+}
+.accordianPanel div {
+	background: #ddf;
+	margin: 0px;
+}

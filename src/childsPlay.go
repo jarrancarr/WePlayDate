@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	//"net/http"
 	//"errors"
 	//"time"
@@ -14,6 +14,7 @@ import (
 
 type ChildsPlayService struct {
 	Article map[string]*Post
+	Metrics map[string][]int
 	Lock    sync.Mutex
 }
 
@@ -24,8 +25,8 @@ func (cps *ChildsPlayService) Status() string {
 func (cps *ChildsPlayService) Execute(data []string, s *website.Session, p *website.Page) string {
 	logger.Trace.Println("ChildsPlayService.Execute(" + data[0] + ", page<" + p.Title + ">)")
 	switch data[0] {
-	case "localPosts":
-		return "hi"
+	case "#families":
+		return fmt.Sprintf("%d",len(Families))
 	}
 	return ""
 }
@@ -33,21 +34,46 @@ func (cps *ChildsPlayService) Execute(data []string, s *website.Session, p *webs
 func (cps *ChildsPlayService) Get(p *website.Page, s *website.Session, data []string) website.Item {
 	logger.Debug.Println("ChildsPlayService.Get(page<" + p.Title + ">, session<" + s.GetUserName() + ">, " + data[0] + ")")
 	switch data[0] {
-	case "localPosts":
-		pos := []string{"10", "20", "30", "40", "50", "60", "70"}
-		articles := []website.Item{}
-		for n, art := range(cps.Article) {
-			articles = append(articles, struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{
-				art.Title, art.Text, pos[rand.Intn(len(pos))], pos[rand.Intn(len(pos))], "100", "100", art.Pic, n, "0"}) 
-		}
-		return articles
+		case "localPosts":
+			pos := []string{"10", "20", "30", "40", "50", "60", "70", "80"}
+			articles := []website.Item{}
+			for n, art := range(cps.Article) {
+				articles = append(articles, struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{
+					art.Title, art.Text, pos[rand.Intn(len(pos))], pos[rand.Intn(len(pos))], "100", "100", art.Pic, n, "0"}) 
+			}
+			return articles
+		case "getFamilies":
+			var answ []interface{}
+			for name, family := range(Families) {
+				fam := struct { 
+					UName, SirName, Dad, Mom string
+					Children int
+				}{
+					name, family.Login.Name[0], "X", "X",
+					len(family.Child),
+				}
+				if family.Parent[0].Male {
+					fam.Dad = family.Parent[0].Name[0]
+				} else {
+					fam.Mom = family.Parent[0].Name[0]
+				}
+				if len(family.Parent) == 2 {
+					if family.Parent[1].Male {
+						fam.Dad = family.Parent[1].Name[0]
+					} else {
+						fam.Mom = family.Parent[1].Name[0]
+					}
+				}
+				answ = append(answ,fam)
+			}
+			return answ
 	}
 	return nil
 }
 
 func CreateChildsPlayService() *ChildsPlayService {
 	logger.Debug.Println("CreateChildsPlayService()")
-	cps := ChildsPlayService{Lock: sync.Mutex{}, Article: make(map[string]*Post)}
+	cps := ChildsPlayService{Lock: sync.Mutex{}, Article: make(map[string]*Post), Metrics: make(map[string][]int)}
 	keys := make([]string, len(Families))
 	i := 0
 	for k, _ := range Families {
