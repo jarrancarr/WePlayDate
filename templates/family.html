@@ -1,0 +1,24 @@
+<div id="familyTalk" class="ptFloatDialog">
+	<a class="modalButton minimizeModal" title="Minimize" onclick="minimize(&quot;familyTalk&quot;)">_</a>
+	<a class="modalButton present" title="Jarran">JJC</a>
+	<a class="modalButton absent" title="Jarran">JNC</a>
+	<a class="modalButton present" title="Jarran">LJC</a>
+	<h4 class="dialogHeader ptListItem update">The Carr Family</h4>
+	<div class="discussion scroll" style="height: 275px;">
+		<ul>
+			<li class="pull">pmfoster:I don't know</li><br>
+			<li class="pull">dptremblay3158:Were going camping</li><br>
+			<li class="pull">tasanders:teaching my kids about life</li><br>
+			<li class="pull">pmfoster:tomorrow is better</li><br>
+			<li class="pull">tasanders:the park was nice</li><br>
+		</ul>
+	</div>
+	<div class="text">
+		<a class="modalButton sendMessage" title="Send" onclick="var li = $( '<li class=&quot;ptListItem push&quot;>'+$('#20720 textarea').val()+'</li>'); $('#20720 .discussion ul').append(li); sendMessage('20720',$('#20720 textarea').val());">S</a>
+		<a class="modalButton addEmoji" title="Emoji" onclick="alert('Not yet implemented.')">:)</a>
+		<a class="modalButton gesture" title="Gesture" onclick="alert('Not yet implemented.')">*</a>
+		<a class="modalButton invitePerson" title="Invite" onclick="alert('Not yet implemented.')">+</a>
+		<a class="modalButton other" title="Other">?</a>
+		<textarea class="ptExpand" cols="40" rows="4" name="message-familyTalk"></textarea>
+	</div>
+</div>

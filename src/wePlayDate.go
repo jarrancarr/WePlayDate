@@ -60,7 +60,7 @@ func setup() {
 	addPages()
 	addTemplatePages()
 
-	website.Users = []website.Account{*(Families["jjlcarr"].Login), *(Families["adaknight"].Login)}
+	//website.Users = []website.Account{*(Families["jjlcarr"].Login), *(Families["adaknight"].Login)}
 }
 
 func MainInitProcessor(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
@@ -195,14 +195,25 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 func SelectFamilyMember(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("WeePlayDate.SelectFamilyMember(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	name := ""
+	first := true
 	if r.Form["parent"] != nil {
 		for _, nm := range r.Form["parent"] {
-			name += "/" + strings.Split(nm, " ")[0]
+			if first {
+				first = false
+			} else {
+				name += "/"
+			}
+			name += strings.Split(nm, " ")[0]
 		}
 	}
 	if r.Form["child"] != nil {
 		for _, nm := range r.Form["child"] {
-			name += "/" + strings.Split(nm, " ")[0]
+			if first {
+				first = false
+			} else {
+				name += "/"
+			}
+			name += strings.Split(nm, " ")[0]
 		}
 	}
 	fm, good := s.Item["family"].(*Family)
@@ -234,21 +245,25 @@ func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 	logger.Trace.Println("WeePlayDate.GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	data := pullData(r)
 	fam := Families[data["user"]]
-	if fam == nil { return "", errors.New("No faminly found") }
+	if fam == nil {
+		return "", errors.New("No faminly found")
+	}
 	var thisPerson *Person
 	for _, fm := range fam.Parent {
-		if fm.Name[0] == strings.Split(data["name"],"+")[0] {
+		if fm.Name[0] == strings.Split(data["name"], "+")[0] {
 			thisPerson = fm
 		}
 	}
 	if thisPerson == nil {
 		for _, fm := range fam.Child {
-			if fm.Name[0] == strings.Split(data["name"],"+")[0] {
+			if fm.Name[0] == strings.Split(data["name"], "+")[0] {
 				thisPerson = fm
 			}
 		}
 	}
-	if thisPerson == nil { return "", errors.New("No Family by that name") }
+	if thisPerson == nil {
+		return "", errors.New("No Family by that name")
+	}
 	w.Write([]byte(`{"name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + `", "sex":"` + thisPerson.Sex() + `", "profile":"` + thisPerson.Profile +
 		`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `", "user":"` + data["user"] + `"}`))
 	return "ok", nil
@@ -256,23 +271,31 @@ func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Debug.Println("WeePlayDate.GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	data := pullData(r)
-	logger.Debug.Println(data["user"]+" "+data["name"])
+	logger.Debug.Println(data["user"] + " " + data["name"])
 	family := Families[data["user"]]
-	name := strings.Split(data["name"],"+")[0]
-	if family == nil { return "", errors.New("No such user family in system") }
+	name := strings.Split(data["name"], "+")[0]
+	if family == nil {
+		return "", errors.New("No such user family in system")
+	}
 	var thisPerson *Person
 	for _, fm := range family.Parent {
-		if fm.Name[0] == name { thisPerson = fm }
+		if fm.Name[0] == name {
+			thisPerson = fm
+		}
 	}
 	if thisPerson == nil {
 		for _, fm := range family.Child {
-			if fm.Name[0] == name { thisPerson = fm }
+			if fm.Name[0] == name {
+				thisPerson = fm
+			}
 		}
 	}
-	if thisPerson == nil { return "", errors.New("No such person") }
-	w.Write([]byte(	`{"name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + `", "pic":"` + thisPerson.ProfilePic + 
-					`", "sex":"` + thisPerson.Sex() + `", "profile":"` + thisPerson.Profile +
-					`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `"}`))
+	if thisPerson == nil {
+		return "", errors.New("No such person")
+	}
+	w.Write([]byte(`{"name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + `", "pic":"` + thisPerson.ProfilePic +
+		`", "sex":"` + thisPerson.Sex() + `", "profile":"` + thisPerson.Profile +
+		`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `"}`))
 	return "ok", nil
 }
 func GetArticleAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
@@ -291,9 +314,10 @@ func EditDataPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	if fam == nil {
 		return "", errors.New("No family by that user id")
 	}
-	switch(field) {
-		case "familyProfile": fam.Profile = text
-		break;
+	switch field {
+	case "familyProfile":
+		fam.Profile = text
+		break
 	}
 	//logger.Debug.Println(userName+"  "+field+"  "+text+"  ")
 	return r.Form.Get("redirect"), nil

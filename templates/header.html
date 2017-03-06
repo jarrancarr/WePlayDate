@@ -1,5 +1,11 @@
 <div id="header">
 	<div id="widgetBar">
-		widget bar
+		<div style="float:left;">
+			{{with $test := service "account" "isLoggedIn"}}
+				{{if eq "True" $test}}
+					Hello {{service "account" "session" "name"}}
+				{{end}}
+			{{end}}
+		</div>
 	</div>
 </div>

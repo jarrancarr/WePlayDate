@@ -15,18 +15,20 @@
 	</head>
 	<body>
 		<div class="frame" style="position: fixed; top: 5%; height: 15%; width: 100%; z-index: 2;">
-			<div>
-				{{page "banner"}}				
-			</div>
+			{{page "header"}}
+			{{page "banner"}}
+			{{page "dashboard"}}
 		</div>
 		<div id="lower" class="frame">
 			{{with session "item" "family"}}
 				{{range .Zip }}
-					<div id="local-{{ . }}" class="floatPanel local">
+					<div id="local-{{ . }}" class="floatPanel local" onclick="$('.floatPanel').css('z-index','2'); $(this).css('z-index','3');" style="position:fixed;">
 						<a title="Hide" class="hideModal modalButton" onclick="sidebar('local-{{ . }}');">&lt</a>
 						<a class='modalButton whosHere' title='Who'>?</a>
 						<a class='modalButton closeBy' title='Map' onclick="regionsNear('local-{{ . }}');">*</a>
-							<h4 class='dialogHeader ptListItem' onclick='enterRoom("{{ . }}")'>{{ . }}</h4>
+							<h4 class='dialogHeader ptListItem'>
+								<a onclick='enterRoom("{{ . }}")'>{{ . }}</a>
+							</h4>
 						<div class="floatFrame">
 							{{ range get "childsPlay" "localPosts" . }}
 								<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}">
@@ -44,19 +46,17 @@
 			<div class="panel" style="position: absolute; top: 0px;">
 				<div class="row panel-body" style="height: 100%; overflow: hidden;"> 
 					<div class="span4">
-						{{with $test := service "account" "isLoggedIn"}}
+						<!--{{with $test := service "account" "isLoggedIn"}}
 							{{if eq "True" $test}}
 								Hello {{service "account" "session" "name"}}</br>
 							{{end}}
 						{{end}}
-						<!--<input id="newRoom-name" type="text" class="ptButton" size="24"/></br>
+						<input id="newRoom-name" type="text" class="ptButton" size="24"/></br>
 						<input id="newRoom-pass" type="password" class="ptButton" size="24"/></br>
 						<input id="newRoom-trigger" class="ptButton" type="button" value="newRoom" />-->
-						</br></br>
 					</div>
-					<div class="span8">
-						Local:							
-						{{target "roomList" "<ul class='ptListItem'></ul>"}}
+					<div class="span8">				
+<!--						{{target "roomList" "<ul class='ptListItem'  style='display:none;'></ul>"}}-->
 					</div>
 				</div>
 				</div>
@@ -109,16 +109,22 @@
 			<div style="text-align: center; width: 700px;">
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<a title="Edit Mode" class="modalButton editmode" onclick="toggleEditMode('myProfileModal')">E</a>
-				<div id="familyProfilePic" class="pictureFrame" style="width: 320px;">
-					<a title="Edit" class="modalButton edit">E</a>
-					<img src="../img/familyProfileBlank.jpg">
-				</div>
 				{{with session "item" "family"}} {{$fam := .}}
+					<div id="familyProfilePic" class="pictureFrame" style="width: 320px;">
+						<a title="Edit" class="modalButton edit" style="display:none;">E</a>
+						{{ with index .Comments "ProfilePic" }}
+							{{ $length := len . }}
+							{{if not eq $length 0}}
+								<a title="Comments" class="modalButton comment" style="display:none;">C</a>
+							{{end}}
+						{{end}}
+						<img src="../img/family/{{ .ProfilePic }}" width="320" height="248" style="height:248px;">
+					</div>
 					<div class="personProfileInfo" style="width: 320px;">
 						<h3>The {{ with index .Parent 0 }} {{ index .Name 1}} {{ end }}Family!</h3>
 						<div class="frame">
-							Home area codes: <a title="Add Zip" class="closeModal modalButton side" onclick="configEdit('{{$fam.Login.User}}', 'addAreaCode', 'myProfileModal')">+</a>
-							{{range .Zip }}<a>{{ . }}</a><a title="Remove Zip" class="closeModal modalButton side" onclick="removeItem('{{$fam.Login.User}}', 'deleteAreaCode', 'myProfileModal')">-</a>
+							Home area codes: <a title="Add Zip" class="modalButton side" style="display:none;" onclick="configEdit('{{$fam.Login.User}}', 'addAreaCode', 'myProfileModal')">+</a>
+							{{range .Zip }}<a>{{ . }}</a><a title="Remove Zip" class="modalButton side" style="display:none;" onclick="removeItem('{{$fam.Login.User}}', 'deleteAreaCode', 'myProfileModal')">-</a>
 							{{ end }}
 						</div>
 						{{range .Parent }}
@@ -129,7 +135,7 @@
 						{{ end }}
 					</div>
 					<div class="personProfileEdit" style="width: 670px;">
-						<a href="#editModal" title="Edit Family profile" class="modalButton edit" onclick="configEdit('{{$fam.Login.User}}', 'familyProfile', 'myProfileModal')">E</a>
+						<a href="#editModal" title="Edit Family profile" class="modalButton edit" style="display:none;" onclick="configEdit('{{$fam.Login.User}}', 'familyProfile', 'myProfileModal')">E</a>
 						<p>{{.Profile}}</p>
 					</div>
 					<div class="personProfileEdit" style="width: 670px; border: 0px;">
@@ -179,22 +185,6 @@
 			<div>
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Whats on your mind</h2>
-			</div>
-		</div>
-		<div id="adminModal" class="modalDialog">
-			<div>
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<h2>Administer  {{.Title}}</h2>
-				<p>Tell us about yourself</p>
-				<p>Who do you know?</p>
-			</div>
-		</div>
-		<div id="loungeModal" class="modalDialog">
-			<div>
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<h2>Welcoome to li'lPlayDates lounge!</h2>
-				<p>Tell us about yourself</p>
-				<p>Who do you know?</p>
 			</div>
 		</div>
 		<div id="articleModal" class="modalDialog">

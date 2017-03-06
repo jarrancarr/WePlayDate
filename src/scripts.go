@@ -99,13 +99,13 @@ func addScripts() {
 				$('#personModal div a.closeModal').attr('href','#'+retUrl);
 				$("#personModal div .personProfileInfo").empty().append("<p>Name:"+obj["name"]+"</p><p>Age:"+obj["age"]+", "+obj["sex"]+"</p><p>"+obj["profile"]+"</p>");
 				$("#personModal div #personProfilePic img").attr('src','../img/'+obj["pic"]);
-				$("#personModal div #personProfilePic a").attr('onclick', 'alert("do this");');
+				$("#personModal div #personProfilePic a").attr('onclick', 'alert("do this");').css('display','none');
 				var likes = obj["likes"].split("|");
 				if (likes.length>0) {
 					$("#personModal div .personProfileInfo").append("<ul>Likes:</ul>");
 					$.each(likes, function(index, like) { $("#personModal div ul").append("<li>"+like+"</li>"); });
 				}
-				$("#personModal div #personProfile").empty().append('<a title="Edit" class="modalButton edit"  onclick="configEdit(\"+user+"\', \'personProfile\', \'personModal\');">E</a><p>Test Dynamic Profile</p>');
+				$("#personModal div #personProfile").empty().append('<a href="#editModal" title="Edit" class="modalButton edit" style="display:none;" onclick="configEdit(\"+user+"\', \'personProfile\', \'personModal\');">E</a><p>Test Dynamic Profile</p>');
 			}, 
 			error: function(data, textStatus, jqXHR) { console.log("onShowProfileModal fail: "+textStatus); } }); }`)
 	weePlayDate.AddScript("home-script", `function minimize(room) { 
