@@ -9,4 +9,9 @@ func addTemplatePages() {
 	weePlayDate.AddPage("", "family", "")
 	weePlayDate.AddPage("", "dashboard", "")
 	weePlayDate.AddPage("", "wallchart", "")
+	weePlayDate.AddPage("", "modal/person", "")
+	weePlayDate.AddPage("", "modal/family", "")
+	weePlayDate.AddPage("", "modal/welcome", "")
+	weePlayDate.AddPage("", "modal/info", "")
+	weePlayDate.AddPage("", "wallpaper", "")
 }

@@ -190,7 +190,7 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 		return r.Form.Get("redirect"), nil
 	}
 	s.Data["retry"] = "#loginModal"
-	s.Data["error"] = "We do not recognized that user name and password"
+	s.Data["error"] = "We do not recognized that user name and password" 
 	return "#errorModal", errors.New("failed login")
 }
 func SelectFamilyMember(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
@@ -270,9 +270,9 @@ func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 	return "ok", nil
 }
 func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Debug.Println("WeePlayDate.GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	logger.Trace.Println("WeePlayDate.GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	data := pullData(r)
-	logger.Debug.Println(data["user"] + " " + data["name"])
+	logger.Trace.Println(data["user"] + " " + data["name"])
 	family := Families[data["user"]]
 	name := strings.Split(data["name"], "+")[0]
 	if family == nil {
@@ -302,7 +302,9 @@ func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 func GetArticleAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("WeePlayDate.GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	info := pullData(r)
-	article := cps.Article[info["articleName"]]
+	if cps.Places[info["place"]] == nil { return "",errors.New("No such place as "+info["place"]) }
+	if cps.Places[info["place"]].Article[info["articleName"]] == nil { return "",errors.New("No article by name "+info["articleName"]+" in this place")}
+	article := cps.Places[info["place"]].Article[info["articleName"]]
 	w.Write([]byte(`{"title":"` + article.Title + `", "author":"` + article.Author.FullName() + `", "text":"` + article.Text + `", "pic":"` + article.Pic + `", "user":"` + article.User + `"}`))
 	return "ok", nil
 }
@@ -311,6 +313,7 @@ func EditDataPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	userName := r.Form.Get("user")
 	text := r.Form.Get("edit")
 	field := r.Form.Get("field")
+	logger.Debug.Printf("inputs: %s,%s,%s",userName, field, text)
 	fam := Families[userName]
 	if fam == nil {
 		return "", errors.New("No family by that user id")
@@ -320,7 +323,6 @@ func EditDataPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 		fam.Profile = text
 		break
 	}
-	//logger.Debug.Println(userName+"  "+field+"  "+text+"  ")
 	return r.Form.Get("redirect"), nil
 }
 func pullData(r *http.Request) map[string]string {

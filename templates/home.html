@@ -11,7 +11,6 @@
 {{range script "home-script"}} 
 	{{.}} {{end}}
 		</script>
-		{{ajax "var:newRoomName" "var:newRoomPass" "newRoomSetup" "url:home" "trigger:newRoom" "handler:newRoom" "target:roomList" "data:'newRoomName':newRoomName,'newRoomPass':newRoomPass" "newRoomSuccess"}}
 	</head>
 	<body>
 		<div class="frame" style="position: fixed; top: 5%; height: 15%; width: 100%; z-index: 2;">
@@ -21,7 +20,7 @@
 		</div>
 		<div id="lower" class="frame">
 			{{with session "item" "family"}}
-				{{range .Zip }}
+				{{range .Zip }} {{ $place := . }}
 					<div id="local-{{ . }}" class="floatPanel local" onclick="$('.floatPanel').css('z-index','2'); $(this).css('z-index','3');" style="position:fixed;">
 						<a title="Hide" class="hideModal modalButton" onclick="sidebar('local-{{ . }}');">&lt</a>
 						<a class='modalButton whosHere' title='Who'>?</a>
@@ -30,9 +29,9 @@
 								<a onclick='enterRoom("{{ . }}")'>{{ . }}</a>
 							</h4>
 						<div class="floatFrame">
-							{{ range get "childsPlay" "localPosts" . }}
+							{{ range get "childsPlay" "posts" . }}
 								<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}">
-									<img src="../img/{{.JPG}}" width="{{.W}}" height="{{.H}}" onclick="openArticle('{{.Link}}')">
+									<img src="../img/{{.JPG}}" width="{{.W}}" height="{{.H}}" onclick="openArticle('{{ $place }}','{{.Link}}')">
 								</div>
 							{{ end }}
 						</div>
@@ -45,70 +44,24 @@
 			{{end}}
 			<div class="panel" style="position: absolute; top: 0px;">
 				<div class="row panel-body" style="height: 100%; overflow: hidden;"> 
-					<div class="span4">
-						<!--{{with $test := service "account" "isLoggedIn"}}
-							{{if eq "True" $test}}
-								Hello {{service "account" "session" "name"}}</br>
-							{{end}}
-						{{end}}
-						<input id="newRoom-name" type="text" class="ptButton" size="24"/></br>
-						<input id="newRoom-pass" type="password" class="ptButton" size="24"/></br>
-						<input id="newRoom-trigger" class="ptButton" type="button" value="newRoom" />-->
-					</div>
-					<div class="span8">				
-<!--						{{target "roomList" "<ul class='ptListItem'  style='display:none;'></ul>"}}-->
-					</div>
-				</div>
+					<div class="span4"></div>	<div class="span8"></div>
 				</div>
 			</div>
 		</div>
-		<div id="wallpaper">
-			<svg id="mySVG" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
-				<script>
-					var popSound = new Audio('/audio/bubblepop.mp3');
-					function pop(cir) {
-						cir.parentNode.removeChild(cir);
-						popSound.play();
-					}
-				</script>
-			</svg>
-		</div>
+		{{ page "wallpaper" }}
 		<div id="nav-menu">
 			<svg id="menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
-				{{range htmls "circleMenuItem" "MODAL>>logOutModal,myProfileModal,infoModal,adminModal,loungeModal" "TX>>50,130,210,290,370,450" "FILL>>93e,3e9,9e3,e93,39e,e39"	"LABEL>>Bye-Bye,Profile,Info,Admin,Lounge" "CX>>90,170,250,330,410,490"}}
+				{{range htmls "circleMenuItem" "MODAL>>logOutModal,myFamilyProfileModal,infoModal,adminModal,loungeModal" "TX>>50,130,210,290,370,450" "FILL>>93e,3e9,9e3,e93,39e,e39"	"LABEL>>Bye-Bye,Profile,Info,Admin,Lounge" "CX>>90,170,250,330,410,490"}}
 					{{.}}
 				{{end}}
 			</svg>
 		</div>
-		<div id="images">
-			<svg width="100%" height="100%"></svg>
-		</div>
-		<div id="welcomeModal" class="modalDialog">
-			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<h2>Who will be joining us today?</h2>
-				<div class="container">
-					<form id="who" action="/home" method="post">
-						{{ with session "item" "family"}}
-							{{range .Parent }}
-								<label class="ptButton"><input type="checkbox" name="parent" value="{{index .Name 0}}">{{index .Name 0}}</label></br>
-							{{end}}
-							{{range .Child }}
-								<label class="ptButton"><input type="checkbox" name="child" value="{{index .Name 0}}">{{index .Name 0}}</label></br>
-							{{end}}
-						{{end}}
-						</br>
-						<input type="hidden" name="postProcessingHandler" value="selectFamilyMember">
-						<input type="hidden" name="redirect" value="home">
-						<input type="submit" class= "ptButton" value="OK">
-					</form>
-				</div>
-			</div>
-		</div>
-		<div id="myProfileModal" class="modalDialog">
+		<div id="images"><svg width="100%" height="100%"></svg></div>
+		{{ page "modal/welcome" }}
+		<div id="myFamilyProfileModal" class="modalDialog">
 			<div style="text-align: center; width: 700px;">
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<a title="Edit Mode" class="modalButton editmode" onclick="toggleEditMode('myProfileModal')">E</a>
+				<a title="Edit Mode" class="modalButton editmode" onclick="toggleEditMode('myFamilyProfileModal')">E</a>
 				{{with session "item" "family"}} {{$fam := .}}
 					<div id="familyProfilePic" class="pictureFrame" style="width: 320px;">
 						<a title="Edit" class="modalButton edit" style="display:none;">E</a>
@@ -123,19 +76,19 @@
 					<div class="personProfileInfo" style="width: 320px;">
 						<h3>The {{ with index .Parent 0 }} {{ index .Name 1}} {{ end }}Family!</h3>
 						<div class="frame">
-							Home area codes: <a title="Add Zip" class="modalButton side" style="display:none;" onclick="configEdit('{{$fam.Login.User}}', 'addAreaCode', 'myProfileModal')">+</a>
-							{{range .Zip }}<a>{{ . }}</a><a title="Remove Zip" class="modalButton side" style="display:none;" onclick="removeItem('{{$fam.Login.User}}', 'deleteAreaCode', 'myProfileModal')">-</a>
+							Home area codes: <a title="Add Zip" class="modalButton side" style="display:none;" onclick="configEdit('{{$fam.Login.User}}', 'addAreaCode', 'myFamilyProfileModal')">+</a>
+							{{range .Zip }}<a>{{ . }}</a><a title="Remove Zip" class="modalButton side" style="display:none;" onclick="removeItem('{{$fam.Login.User}}', 'deleteAreaCode', 'myFamilyProfileModal')">-</a>
 							{{ end }}
 						</div>
 						{{range .Parent }}
-							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myProfileModal')">{{index .Name 0}} {{index .Name 1}}</a></br>
+							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myFamilyProfileModal')">{{index .Name 0}} {{index .Name 1}}</a></br>
 						{{ end }}
 						{{range .Child }}
-							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myProfileModal')">{{index .Name 0}} {{index .Name 1}}, {{.Sex}}, Age {{.Age}}</a></br>
+							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myFamilyProfileModal')">{{index .Name 0}} {{index .Name 1}}, {{.Sex}}, Age {{.Age}}</a></br>
 						{{ end }}
 					</div>
 					<div class="personProfileEdit" style="width: 670px;">
-						<a href="#editModal" title="Edit Family profile" class="modalButton edit" style="display:none;" onclick="configEdit('{{$fam.Login.User}}', 'familyProfile', 'myProfileModal')">E</a>
+						<a href="#editModal" title="Edit Family profile" class="modalButton edit" style="display:none;" onclick="configEdit('{{$fam.Login.User}}', 'familyProfile', 'myFamilyProfileModal')">E</a>
 						<p>{{.Profile}}</p>
 					</div>
 					<div class="personProfileEdit" style="width: 670px; border: 0px;">
@@ -145,81 +98,19 @@
 				{{end}}
 			</div>
 		</div>
-		<div id="familyProfileModal" class="modalDialog">
-			<div style="text-align: center; width: 700px;">
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<div id="familyProfilePic" class="pictureFrame" style="width: 320px;">
-					<a title="Comment" class="modalButton comment">C</a>
-					<img src="../img/family/xxx" width="320" height="248" style="height:248px;">
-				</div>
-				<div class="personProfileInfo" style="width: 320px;">
-					<h3>The ? Family!</h3>
-					<div class="frame">
-						Home area codes:
-					</div>
-						<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('', , 'familyProfileModal')"></a></br>
-						<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('',, 'familyProfileModal')"></a></br>
-					</div>
-					<div class="personProfileEdit" style="width: 670px;">
-						<p></p>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div id="personModal" class="modalDialog">
-			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<a title="Edit Mode" class="modalButton editmode" onclick="toggleEditMode('personModal')">E</a>
-				<div id="personProfilePic" class="pictureFrame">
-					<a title="Edit" class="modalButton edit">E</a>
-					<img src="../img/profileBlank.jpg">
-				</div>
-				<div class="personProfileInfo"></div>
-				<div id="personProfile" class="personProfileEdit">
-					<p>Profile</p>
-				</div>
-				<div id="personProfileControl" class="personProfileEdit" style="border: 0px;">
-					<input class="ptButton" value="Edit Like/Dislikes" style="width: 100px;"/>
-					<input class="ptButton" value="Edit Buzzwords" style="width: 100px;"/>
-					<input class="ptButton" value="Edit Turnoffs" style="width: 100px;"/>
-					<input class="ptButton" value="Manage Pictures" style="width: 100px;"/>
-					<input class="ptButton" value="Manage Questions" style="width: 100px;"/>
-				</div>
-				<div id="familyLink" class="personProfileEdit" style="border: 0px;">
-					<input class="ptButton" value="See Family" style="width: 100px;"/>
-				</div>
-			</div>
-		</div>
-		<div id="infoModal" class="modalDialog">
-			<div>
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<h2>What is {{.Title}}! all about</h2>
-				<h3>The story</h3>
-				<p>One day, I was pondering how shy my little boy is and how will I get him to open up to other children.  We didn't know very many families with small kids and thought about how easy it was to meet people on the internet.  I asked my wife about what she thought of a 'dating' site for babies.</p>
-				<p>At first she scoffed, but in a moment the whole idea came to her as id did for me.  Of course if would be a tool for parents to set up playdates for their kids.  We could match up kids too young to make their own friends with similar developmental abilities and interest.</p>
-			</div>
-		</div>
+		XX{{ page "modal/family" }}XX
+		YY{{ page "modal/person" }}YY
+		ZZ{{ page "modal/info" }}ZZ
 		<div id="editModal" class="modalDialog">
 			<div>
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Edit</h2>
 			</div>
 		</div>
-		<div id="postModal" class="modalDialog">
-			<div>
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<h2>Whats on your mind</h2>
-			</div>
-		</div>
 		<div id="articleModal" class="modalDialog">
 			<div style="text-align: center; width: 600px;">
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<div>
-					<h2>Title</h2>
-					<p>Author</p>
-					<img>
-					<p>Text</p>
-				</div>
+				<div><h2>Title</h2><p>Author</p><img><p>Text</p></div>
 			</div>
 		</div>
 		<div id="logOutModal" class="modalDialog">

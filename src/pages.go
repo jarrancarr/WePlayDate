@@ -1,12 +1,13 @@
 package main
 
 import (
-	//"net/http"
+	"net/http"
 	//"io/ioutil"
 	//"errors"
 	//"strings"
+	"fmt"
 
-	//"github.com/jarrancarr/website"
+	"github.com/jarrancarr/website"
 	"github.com/jarrancarr/website/html"
 )
 
@@ -65,4 +66,13 @@ func addPages() {
 
 	admin := weePlayDate.AddPage("", "admin", "/admin")
 	admin.AddBypassSiteProcessor("secure")
+	admin.AddInitProcessor(InitAdminPage)
+}
+
+func InitAdminPage(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	if s.Data["metrics"] == "" {
+		s.Data["metrics"] = "{'famPage'=0,'roomPage'=0,'userPage'=0}"
+	}
+	p.Param["#families"] = fmt.Sprintf("%d",len(Families))
+	return "ok", nil
 }

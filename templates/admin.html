@@ -3,43 +3,142 @@
 	<head>
 		{{page "head"}}
 		<script>
+{{range script "admin-script"}} 
+	{{.}} {{end}}
+			//metrics = {{ session "param" "metrics" }};
+			famCount = {{ metrics "childsPlay" "#families" }};
 		</script>
+		<style>
+		.box {
+			border : 1px solid #222;
+			border-color : #666;
+			margin : 2px 4px 2px 4px;
+			padding : 4px 12px 4px 12px;
+		}
+		.stamp {
+			background : #aea;
+			margin : 2px 4px 2px 4px;
+			padding : 4px;
+			border : 1px solid #222;
+		}
+		</style>
 	</head>
 	<body>
 		<div class="accordianPanel">
-			<h2 onclick="$(this).next().toggle()">Logged in users: {{ service "account" "#activeSessions" }}</h2>
-			<div style="display:none;">
+			<h2 onclick="$(this).next().toggle(); urlRewrite('users',$(this).next().css('display'));">Logged in users: {{ service "account" "#activeSessions" }}</h2>
+			{{ $users := param "users" }}
+			<div id="users" style='display:{{if eq "open" $users}}block{{else}}none{{end}}; height: 600px; overflow-y: scroll;'>
 				{{ range get "account" "getAllSessions" }}
 					{{ .GetId }}: {{ .GetUserName }}: {{ .GetFullName }} </br>
 				{{ end }}
 			</div>
 		</div>
-		<div class="accordianPanel">
-			<h2 onclick="$(this).next().toggle()">Rooms: {{ service "message" "#activeRooms" }}</h2>
-			<div style="display:none;">
-				{{ range get "message" "getAllRooms" }}
-					Room:{{ .Name }}  Number Messages:{{ .Messages }}  Number Occupance:{{ .Occupance }}</br>
-				{{ end }}
+		<div id="rooms" class="accordianPanel">
+			<div style="float: right; background: red;"> hi </div>
+			<h2 onclick="$(this).next().toggle(); urlRewrite('rooms',$(this).next().css('display'));">Rooms: {{ service "message" "#activeRooms" }}</h2>
+			{{ $room := param "rooms" }}
+			<div style='display:{{if eq "open" $room}}block{{else}}none{{end}}; height: 600px; overflow-y: scroll;'>
+				<table>
+					<tr style="background: #ddd;">
+						<th>Room</th>
+						<th>Messages</th>
+						<th>Occupance</th>
+					</tr>
+					{{ range get "message" "getAllRooms" }}
+					<tr>
+						<td>{{ .Name }}</td>
+						<td><a onclick="$(this).next().toggle()">{{ .Messages }}</a>
+							<div style="display:none;">
+								<table style="padding: 1px; background: #dfd;">
+									<tr style="background: #ddd;"><th>Time</th><th>Author</th><th>Message</th></tr>
+									{{ range get "message" "getMessages" .Name }}
+										<tr><td>{{ .TimeStamp }}</td><td>{{ .Author }}</td><td>{{ .Message }}</td></tr>
+									{{ end }}
+								</table>
+							</div>
+						</td>
+						<td><a onclick="$(this).next().toggle()">{{ .Occupance }}</a>
+							<div style="display:none;">
+								<table style="padding: 1px; background: #dfd;">
+									<tr style="background: #ddd;"><th>UserName</th><th>Name</th></tr>
+									{{ range get "message" "occupance" .Name }}
+										<tr><td>{{ .UserName }}</td><td>{{ .Name }}</td></tr>
+									{{ end }}
+								</table>
+							</div>
+						</td>
+					</tr>
+					{{ end }}
+				</table>
 			</div>
 		</div>
-		<div class="accordianPanel">
-			<h2 onclick="$(this).next().toggle()">Families: {{ service "childsPlay" "#families" }}</h2>
-			<div style="display:none;">
+		<div id="families" class="accordianPanel">
+			{{ $famPage := paramInt "famPage" }} {{ $families := param "families" }} {{ $numFamilies := paramInt "#families" }} 
+			{{ $famPerPage := max (paramInt "famPerPage") 10 }}
+			<div class="box" style="float: right;"> 
+				{{ if ge $famPage 2 }}<a class="stamp" onclick="urlRedirect('famPage','1')">top</a>{{ end }}
+				{{ if ge $famPage 51 }}<a class="stamp" onclick="urlRedirect('famPage','{{ minus $famPage 50 }}')">&lt&lt&lt</a>{{ end }}
+				{{ if ge $famPage 11 }}<a class="stamp" onclick="urlRedirect('famPage','{{ minus $famPage 10 }}')">&lt&lt</a>{{ end }}
+				{{ if ge $famPage 5 }}<a class="stamp" onclick="urlRedirect('famPage','{{ minus $famPage 3 }}')">{{ minus $famPage 3 }}</a>{{ end }}
+				{{ if ge $famPage 4 }}<a class="stamp" onclick="urlRedirect('famPage','{{ minus $famPage 2 }}')">{{ minus $famPage 2 }}</a>{{ end }}
+				{{ if ge $famPage 3 }}<a class="stamp" onclick="urlRedirect('famPage','{{ minus $famPage 1 }}')">{{ minus $famPage 1 }}</a>{{ end }}
+				<a class="badge" style="background:#ebb;">X</a>
+				{{ if le $famPage (minus (over $numFamilies $famPerPage) 3) }}<a class="stamp" onclick="urlRedirect('famPage','{{ add $famPage 1 }}')">{{ add $famPage 1 }}</a>{{ end }}
+				{{ if le $famPage (minus (over $numFamilies $famPerPage) 4) }}<a class="stamp" onclick="urlRedirect('famPage','{{ add $famPage 2 }}')">{{ add $famPage 2 }}</a>{{ end }}
+				{{ if le $famPage (minus (over $numFamilies $famPerPage) 5) }}<a class="stamp" onclick="urlRedirect('famPage','{{ add $famPage 3 }}')">{{ add $famPage 3 }}</a>{{ end }}
+				{{ if le $famPage (minus (over $numFamilies $famPerPage) 11) }}<a class="stamp" onclick="urlRedirect('famPage','{{ add $famPage 10 }}')">&gt&gt</a>{{ end }}
+				{{ if le $famPage (minus (over $numFamilies $famPerPage) 51) }}<a class="stamp" onclick="urlRedirect('famPage','{{ add $famPage 50 }}')">&gt&gt&gt</a>{{ end }}
+				{{ if le $famPage (minus (over $numFamilies $famPerPage) 1) }}<a class="stamp" onclick="urlRedirect('famPage','{{ add (over $numFamilies $famPerPage) 1 }}')">last</a>{{ end }}
+			</div>
+			<div class="box" style="float: right;"> 
+				<a class="stamp" onclick="urlRedirect('famPerPage','10')">10</a>
+				<a class="stamp" onclick="urlRedirect('famPerPage','30')">30</a>
+				<a class="stamp" onclick="urlRedirect('famPerPage','100')">100</a>
+			</div>
+			<h2 onclick="$(this).next().toggle(); urlRewrite('families',$(this).next().css('display'));">Families: {{ service "childsPlay" "#families" }}</h2>
+			<div style='display:{{if eq "open" $families}}block{{else}}none{{end}}; height: 600px; overflow-y: scroll;'>
 				<table>
-					<tr>
+					<tr style="background: #ddd;">
 						<th>User</th>
 						<th>Family Name</th>
 						<th>Dad</th>
 						<th>Mom</th>
 						<th>Children</th>
+						<th>Locale</th>
+						<th>Profile</th>
+						<th>PrifilePic</th>
+						<th>Details</th>
 					</tr>
-					{{ range get "childsPlay" "getFamilies" }}
+					{{ range get "childsPlay" "getFamilies" }} {{ $fam := . }}
 						<tr>
 							<td>{{.UName}}</td>
 							<td>{{.SirName}}</td>
 							<td>{{.Dad}}</td>
 							<td>{{.Mom}}</td>
 							<td>{{.Children}}</td>
+							<td>{{.Home}}</td>
+							<td>{{.Profile}}</td>
+							<td>{{.Pic}}</td>
+							<td><h5 onclick="$(this).next().toggle()">Family Member details</h5>
+								<div style="display:none;">
+									<table style="padding: 1px; background: #dfd;">
+										<tr style="background: #ddd;"><th>Name</th><th>Age</th><th>Email</th><th>Admin</th><th>Profile</th><th>ProfilePic</th></tr>
+										{{ with get "childsPlay" "getFamily" .UName }}
+											{{ with index .Parent 0 }}
+												<tr> <td>{{ .FullName }}</td> <td>{{ .Age }}</td> <td>{{ .Email }}</td> <td>{{ .Admin }}</td> <td>{{ .Profile }}</td> <td>{{ .ProfilePic }}</td> </tr>
+											{{ end }}
+											{{ if ne $fam.Dad "X" }}{{ if ne $fam.Mom "X" }}
+												{{ with index .Parent 1 }}
+													<tr> <td>{{ .FullName }}</td> <td>{{ .Age }}</td> <td>{{ .Email }}</td> <td>{{ .Admin }}</td> <td>{{ .Profile }}</td> <td>{{ .ProfilePic }}</td> </tr>
+												{{ end }}
+											{{ end }}{{ end }}
+											{{ range .Child }}
+												<tr> <td>{{ .FullName }}</td> <td>{{ .Age }}</td> <td>{{ .Email }}</td> <td>{{ .Admin }}</td> <td>{{ .Profile }}</td> <td>{{ .ProfilePic }}</td> </tr>
+											{{ end }}
+										{{ end }}
+									</table>
+								</div>
+							</td>
 						</tr>
 					{{ end }}
 				</table>

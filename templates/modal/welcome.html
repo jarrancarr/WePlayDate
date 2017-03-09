@@ -1,0 +1,22 @@
+<div id="welcomeModal" class="modalDialog">
+	<div style="text-align: center; width: 600px;">
+		<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+		<h2>Who will be joining us today?</h2>
+		<div class="container">
+			<form id="who" action="/home" method="post">
+				{{ with session "item" "family"}}
+					{{range .Parent }}
+						<label class="ptButton"><input type="checkbox" name="parent" value="{{index .Name 0}}">{{index .Name 0}}</label></br>
+					{{end}}
+					{{range .Child }}
+						<label class="ptButton"><input type="checkbox" name="child" value="{{index .Name 0}}">{{index .Name 0}}</label></br>
+					{{end}}
+				{{end}}
+				</br>
+				<input type="hidden" name="postProcessingHandler" value="selectFamilyMember">
+				<input type="hidden" name="redirect" value="home">
+				<input type="submit" class= "ptButton" value="OK">
+			</form>
+		</div>
+	</div>
+</div>

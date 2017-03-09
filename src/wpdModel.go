@@ -45,7 +45,7 @@ type Region struct {
 	Name      	string
 	Lat, Long 	float32
 	Lounge     	*service.Room
-	Article		[]Post
+	Article		map[string]*Post
 	Activities	[]Event
 }
 
@@ -78,7 +78,7 @@ type Family struct {
 	Outer                  *Group
 	Zip, Buzzword, Turnoff []string
 	Profile, ProfilePic    string
-	MailBox                map[string]*Message
+	MailBox                map[string][]Message
 	Album                  map[string]string
 	Comments               map[string][]Comment
 }
@@ -230,7 +230,8 @@ var (
 )
 
 func initData() {
-	for i := 0; i < 1000; i++ {
+	factor := 10;
+	for i := 0; i < 10*factor; i++ {
 		familyName := familyNames[rand.Intn(len(familyNames))]
 		mom := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName}, DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
 			Male: false, Email: "test@email.com"}
@@ -239,7 +240,7 @@ func initData() {
 		var children []*Person
 		for i := 0; i < 2; i = rand.Intn(3) {
 			children = append(children, &Person{Name: []string{maleNames[rand.Intn(len(maleNames))], familyName},
-				DOB:  time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
+				DOB:  time.Date(2010+rand.Intn(6), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
 				Male: i%2 == 0, Email: "test@email.com"})
 		}
 		userName := strings.ToLower(dad.Name[0][:1] + mom.Name[0][:1] + familyName)
@@ -251,14 +252,14 @@ func initData() {
 			Zip: []string{fmt.Sprintf("%d", 20710+rand.Intn(20))}, Buzzword: []string{"love"}, Turnoff: []string{"hate"}}
 		website.Users = append(website.Users, *Families[userName].Login)
 	}
-	for i := 0; i < 400; i++ { // single moms
+	for i := 0; i < 4*factor; i++ { // single moms
 		familyName := familyNames[rand.Intn(len(familyNames))]
 		mom := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName},
 			DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC), Male: false, Email: "test@email.com"}
 		var children []*Person
 		for i := 0; i < 2; i = rand.Intn(3) {
 			children = append(children, &Person{Name: []string{maleNames[rand.Intn(len(maleNames))], familyName},
-				DOB:  time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
+				DOB:  time.Date(2010+rand.Intn(6), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
 				Male: i%2 == 0, Email: "test@email.com"})
 		}
 		userName := strings.ToLower(mom.Name[0][:2] + familyName)
@@ -270,14 +271,14 @@ func initData() {
 			Zip: []string{fmt.Sprintf("%d", 20710+rand.Intn(20))}, Buzzword: []string{"love"}, Turnoff: []string{"hate"}}
 		website.Users = append(website.Users, *Families[userName].Login)
 	}
-	for i := 0; i < 200; i++ { // single dads
+	for i := 0; i < 2*factor; i++ { // single dads
 		familyName := familyNames[rand.Intn(len(familyNames))]
-		dad := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName},
-			DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC), Male: false, Email: "test@email.com"}
+		dad := Person{Name: []string{maleNames[rand.Intn(len(femaleNames))], familyName},
+			DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC), Male: true, Email: "test@email.com"}
 		var children []*Person
 		for i := 0; i < 2; i = rand.Intn(3) {
 			children = append(children, &Person{Name: []string{maleNames[rand.Intn(len(maleNames))], familyName},
-				DOB:  time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
+				DOB:  time.Date(2010+rand.Intn(6), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
 				Male: i%2 == 0, Email: "test@email.com"})
 		}
 		userName := strings.ToLower(dad.Name[0][:2] + familyName)
@@ -305,6 +306,7 @@ func initData() {
 		for _, p := range f.Parent {
 			addLikes(p)
 			p.ProfilePic = "blank.jpg"
+			p.Profile = story()
 		}
 		for _, p := range f.Child {
 			addLikes(p)
@@ -314,9 +316,11 @@ func initData() {
 			} else {
 				f.ProfilePic += "g"
 			}
+			p.Profile = story()
 		}
 		f.ProfilePic += fmt.Sprintf("%d.jpg", rand.Intn(10))
 		famKeys[i] = k
+		f.Profile = story()
 		i++
 	}
 }
@@ -349,12 +353,22 @@ func activeUser(fm *Family, mss *service.MessageService) {
 	acs.Lock.Unlock()
 	mss.Execute([]string{"addRoom", fm.Zip[0]}, &userSession, nil)
 	for i := 0; i < 100; i = rand.Intn(101) {
-		mss.Execute([]string{"post", fm.Zip[0], fm.Login.User, Conversation[rand.Intn(len(Conversation))]}, &userSession, nil)
+		if rand.Intn(5) == 0 {
+			mss.Execute([]string{"post", fm.Zip[0], fm.Login.User, Conversation[rand.Intn(len(Conversation))]}, &userSession, nil)
+		} else {
+			comment := ""
+			if rand.Intn(5) == 0 {
+				comment = sentense()
+			} else {
+				comment = phrase()
+			}
+			mss.Execute([]string{"post", fm.Zip[0], fm.Login.User, comment}, &userSession, nil)
+		}
 		time.Sleep(time.Duration(rand.Int31n(10000)) * time.Millisecond)
 	}
 	mss.Execute([]string{"exitRoom", fm.Zip[0]}, &userSession, nil)
 	acs.Lock.Lock()
-	acs.Active[fm.Login.User] = nil
+	delete(acs.Active, fm.Login.User)
 	acs.Lock.Unlock()
 }
 
@@ -364,4 +378,75 @@ func collectMetrics(cps *ChildsPlayService, mss *service.MessageService, acs *we
 		// cps.Metrics[""] = append(cps.Metrics[""], )
 		time.Sleep(time.Millisecond * 5000)
 	}
+}
+
+func word() string {
+	precons := "bcdfghlmnprstwjkvwyz"
+	postcons := "bdghmnprtx"
+	digraphs := "thchshwhquckph"
+	ccons := "bcdfghlmnprstwbcdfghlmnprstwbcdfghlmnprstwjkvwxyz"
+	vowel := "aeiou"
+	word := ""
+	for i:=0; i<4;  {
+		i = rand.Intn(13)
+		dg := rand.Intn(7)
+		switch(rand.Intn(25)) {
+			case 0: word += string(vowel[rand.Intn(5)])
+			case 1: word += string(vowel[rand.Intn(5)]) + "?"
+			case 2: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?" 
+			case 3: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)])
+			case 4: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?" 
+			case 5: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(vowel[rand.Intn(5)]) + "?"  
+			case 6: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?"  
+			case 7: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(ccons[rand.Intn(49)]) + "?" 
+			case 8: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(precons[rand.Intn(20)]) + "e"
+			case 9: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + "?" 
+			case 10: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)])
+			case 11: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + "?" 
+			case 12: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + string(vowel[rand.Intn(5)]) + "?"  
+			case 13: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + "?"  
+			case 14: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + string(ccons[rand.Intn(49)]) + "?" 
+			case 15: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + string(precons[rand.Intn(20)]) + "e"
+			case 16: word += string(vowel[rand.Intn(5)])
+			case 17: word += string(vowel[rand.Intn(5)]) + "?"
+			case 18: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?" 
+			case 19: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)])
+			case 20: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?" 
+			case 21: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(vowel[rand.Intn(5)]) + "?"  
+			case 22: word += string(precons[rand.Intn(20)]) + string(ccons[rand.Intn(49)]) + string(vowel[rand.Intn(5)]) + "?"  
+			case 23: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(ccons[rand.Intn(49)]) + "?" 
+			case 24: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(precons[rand.Intn(20)]) + "e"
+		}	
+		if i<4 && word[len(word)-1:] == "?" {
+			word = word[:len(word)-1] + string(ccons[rand.Intn(49)])
+		} else {
+			word = word[:len(word)-1] + string(postcons[rand.Intn(10)])
+		}
+	}
+	return word
+}
+
+func phrase() string {
+	phrase := ""
+	for i:=0; i<10; i += rand.Intn(9) {
+		phrase += word() + " "
+	}
+	return phrase[:len(phrase)-1]
+}
+
+func sentense() string {
+	sentense := ""
+	for i:=0; i<30; i += rand.Intn(9) {
+		sentense += word() + " "
+	}
+	sentense = strings.ToUpper(sentense[:1]) + sentense[1:]
+	return sentense[:len(sentense)-1]+"."
+}
+
+func story() string {
+	story := ""
+	for i:=0; i<20; i += rand.Intn(12) {
+		story += sentense() + "  "
+	}
+	return story[:len(story)-2]
 }
