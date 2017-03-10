@@ -3,27 +3,14 @@ package main
 func addScripts() {
 	logger.Trace.Println("addScripts()")
 	weePlayDate.AddScript("post-script", `function createCircles(){ for(i=0;i<100;i++) {
-		var myCircle = document.createElementNS(svgNS,"circle"); var color = getRandomColor(); var height = rand(margin,screen.height*2);
-		myCircle.setAttributeNS(null,"id","mycircle");
-		myCircle.setAttributeNS(null,"cx",rand(margin,screen.width-margin));
-		myCircle.setAttributeNS(null,"cy",height);
-		myCircle.setAttributeNS(null,"r",rand(20,100-i/10));
-		myCircle.setAttributeNS(null,"fill",color);
-		myCircle.setAttributeNS(null,"stroke",color);
-		myCircle.setAttributeNS(null,"stroke-width","1");
-		myCircle.setAttributeNS(null,"fill-opacity","0.4");
-		myCircle.setAttributeNS(null,"onclick","pop(this)");
-		var animate = document.createElementNS(svgNS,"animate");
-		animate.setAttributeNS(null,"attributeName","cy");
-		animate.setAttributeNS(null,"from",height);
-		animate.setAttributeNS(null,"to",height-screen.height-rand(margin,screen.height));
-		animate.setAttributeNS(null,"dur","180s");
-		animate.setAttributeNS(null,"begin","0s");
-		animate.setAttributeNS(null,"repeatCount","indefinite");
-		myCircle.appendChild(animate); document.getElementById("mySVG").appendChild(myCircle); } }   
-		var svgNS = "http://www.w3.org/2000/svg"; var margin = 30;
-		function rand(min, max) { min = Math.ceil(min); max = Math.floor(max); return Math.floor(Math.random() * (max - min)) + min; }
-		function getRandomColor() { var letters = 'CDEF'; var color = '#'; for (var i = 0; i < 3; i++ ) { color += letters[Math.floor(Math.random() * 4)]; } return color; }`)
+var myCircle = document.createElementNS(svgNS,"circle"); var color = getRandomColor(); var height = rand(margin,screen.height*2);		myCircle.setAttributeNS(null,"id","mycircle");					myCircle.setAttributeNS(null,"cx",rand(margin,screen.width-margin));
+myCircle.setAttributeNS(null,"cy",height);						myCircle.setAttributeNS(null,"r",rand(20,100-i/10));					myCircle.setAttributeNS(null,"fill",color);						myCircle.setAttributeNS(null,"stroke",color);
+myCircle.setAttributeNS(null,"stroke-width","1");				myCircle.setAttributeNS(null,"fill-opacity","0.4");						myCircle.setAttributeNS(null,"onclick","pop(this)");			var animate = document.createElementNS(svgNS,"animate");
+animate.setAttributeNS(null,"attributeName","cy");				animate.setAttributeNS(null,"from",height);								animate.setAttributeNS(null,"to",height-screen.height-rand(margin,screen.height));
+animate.setAttributeNS(null,"dur","180s");						animate.setAttributeNS(null,"begin","0s");								animate.setAttributeNS(null,"repeatCount","indefinite");
+myCircle.appendChild(animate); document.getElementById("mySVG").appendChild(myCircle); } }   											var svgNS = "http://www.w3.org/2000/svg"; var margin = 30;
+function rand(min, max) { min = Math.ceil(min); max = Math.floor(max); return Math.floor(Math.random() * (max - min)) + min; }
+function getRandomColor() { var letters = 'CDEF'; var color = '#'; for (var i = 0; i < 3; i++ ) { color += letters[Math.floor(Math.random() * 4)]; } return color; }`)
 	weePlayDate.AddScript("post-script", `function showHide(id) { var e = $('#'+id)[0]; if (e.style.display == 'block' || e.style.display == '' || !e.style.display) { e.style.display = 'none'; } else { e.style.display = 'block'; } }`)
 
 	weePlayDate.AddScript("init-script", `$('a.categoryButton').hover(function () {$(this).animate({backgroundColor: '#b2d2d2'})},function () {$(this).animate({backgroundColor: '#d3ede8'})}  );`)
@@ -82,7 +69,7 @@ func addScripts() {
 		$.ajax({ url: '/home', type: 'AJAX', headers: { 'ajaxProcessingHandler':'personProfile' }, dataType: 'html', data: { 'user':user, 'name':name }, 
 			success: function(data, textStatus, jqXHR) { var obj = JSON.parse(data); 
 				$('#personModal div a.closeModal').attr('href','#'+retUrl);
-				if (retUrl == 'myProfileModal') {
+				if (retUrl == 'myFamilyProfileModal') {
 					$('#personModal div a.editmode').show();
 					$('#personModal div div#personProfileControl').show();
 					$('#personModal div div#familyLink').hide();
@@ -100,7 +87,7 @@ func addScripts() {
 					$("#personModal div .personProfileInfo").append("<ul>Likes:</ul>");
 					$.each(likes, function(index, like) { $("#personModal div ul").append("<li>"+like+"</li>"); });
 				}
-				$("#personModal div #personProfile").empty().append('<a href="#editModal" title="Edit" class="modalButton edit" style="display:none;" onclick="configEdit(\'user\', \'personProfile\', \'#personModal\');">E</a><p>Test Dynamic Profile</p>');
+				$("#personModal div #personProfile").empty().append('<a href="#editModal" title="Edit" class="modalButton edit" style="display:none;" onclick="configEdit(\''+user+'\', \'#personModal\', \'?fid='+user+'&name='+name+'#personModal\');">E</a><p>'+obj["profile"]+'</p>');
 			}, 
 			error: function(data, textStatus, jqXHR) { console.log("onShowProfileModal fail: "+textStatus); } }); }`)
 	weePlayDate.AddScript("home-script", `function minimize(room) { if ($('#'+room).hasClass('minimizedFloatDialog')) { $('#'+room).removeClass('minimizedFloatDialog'); $('#'+room+' .text').removeClass('hidden');  } 
@@ -111,7 +98,8 @@ func addScripts() {
 	weePlayDate.AddScript("home-script", `function openArticle(place, articleId) { 
 		$.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'article' }, dataType: 'html', data: { 'place':place,'articleName':articleId }, 
 			success: function(data, textStatus, jqXHR) { var info = JSON.parse(data); var aModal = $('#articleModal div div');
-				aModal.empty().append("<h2>"+info["title"]+"</h2><a class='ptButton' onclick=\"onShowProfileModal('"+info["user"]+"', '"+info["author"]+"', 'articleModal'); $(location).attr('href','#personModal');\">"+info["author"]+"</a><img src='../img/"+info["pic"]+"'><p>"+info["text"]+"</p>");
+				$('#personModal div a.closeModal').attr('href','#articleModal');
+				aModal.empty().append("<h2>"+info["title"]+"</h2><a class='ptButton' href='?fid="+info["user"]+"&name="+info["author"]+"#personModal'>"+info["author"]+"</a><img src='../img/"+info["pic"]+"'><p>"+info["text"]+"</p>");
 				$(location).attr('href','#articleModal'); }, 
 			error: function(data, textStatus, jqXHR) { console.log("open article fail: "+textStatus); }	}); }`)
 	weePlayDate.AddScript("main-script", `function addKid() { var kid = $('#newKid'); var form = $('#family'); form.append("<input type='hidden' name='child"+child+"' value='"+kid.find('#newKid').val()+"|"+$.datepicker.formatDate("`+Date_Format+`", kid.find('#dob').datepicker('getDate'))+"|"+$('input[name=gender]:checked','#kid').val()+"'/>");

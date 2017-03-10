@@ -104,6 +104,7 @@ article {
 	margin: 0px;
 	padding: 0px;
 	border: 0px;
+	pointer-events: none;
 }
 .floatFrame {
 	overflow: hidden;
@@ -586,6 +587,7 @@ article {
 	margin: 2px 12px 2px 2px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #154682;
+	pointer-events: auto;
 }
 .minimizedFloatDialog {
 	text-align: left;
@@ -737,6 +739,7 @@ article {
 	text-decoration:none;
 	text-shadow:0px 1px 0px #154682;
 	clear: both;
+	pointer-events: auto;
 }
 .vertical{
 	-webkit-transform: rotate(90deg);

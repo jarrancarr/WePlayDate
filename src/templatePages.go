@@ -13,5 +13,6 @@ func addTemplatePages() {
 	weePlayDate.AddPage("", "modal/family", "")
 	weePlayDate.AddPage("", "modal/welcome", "")
 	weePlayDate.AddPage("", "modal/info", "")
+	weePlayDate.AddPage("", "modal/article", "")
 	weePlayDate.AddPage("", "wallpaper", "")
 }

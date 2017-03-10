@@ -3,13 +3,8 @@
 	<head>
 		{{page "head"}}
 		<script>
-			$(document).ready( function () { {{range script "init-script"}} 
-	{{.}} {{end}} 
-{{range script "init-home-script"}} 
-	{{.}} {{end}}
-			} ); 
-{{range script "home-script"}} 
-	{{.}} {{end}}
+			$(document).ready( function () { {{range script "init-script"}} {{.}} {{end}} {{range script "init-home-script"}} {{.}} {{end}} } ); 
+			{{range script "home-script"}} {{.}} {{end}}
 		</script>
 	</head>
 	<body>
@@ -81,14 +76,14 @@
 							{{ end }}
 						</div>
 						{{range .Parent }}
-							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myFamilyProfileModal')">{{index .Name 0}} {{index .Name 1}}</a></br>
+							<a href="?fid={{ $fam.Login.User }}&name={{ index .Name 0 }}#personModal" class="ptButton showModalTrigger" >{{index .Name 0}} {{index .Name 1}}</a></br>
 						{{ end }}
 						{{range .Child }}
 							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myFamilyProfileModal')">{{index .Name 0}} {{index .Name 1}}, {{.Sex}}, Age {{.Age}}</a></br>
 						{{ end }}
 					</div>
 					<div class="personProfileEdit" style="width: 670px;">
-						<a href="#editModal" title="Edit Family profile" class="modalButton edit" style="display:none;" onclick="configEdit('{{$fam.Login.User}}', 'familyProfile', 'myFamilyProfileModal')">E</a>
+						<a href="#editModal" title="Edit Family profile" class="modalButton edit" style="display:none;" onclick="configEdit('{{$fam.Login.User}}', 'familyProfile', '#myFamilyProfileModal')">E</a>
 						<p>{{.Profile}}</p>
 					</div>
 					<div class="personProfileEdit" style="width: 670px; border: 0px;">
@@ -98,21 +93,16 @@
 				{{end}}
 			</div>
 		</div>
-		XX{{ page "modal/family" }}XX
-		YY{{ page "modal/person" }}YY
-		ZZ{{ page "modal/info" }}ZZ
+		{{ page "modal/family" }}
+		l{{ page "modal/person" }}
+		{{ page "modal/info" }}
 		<div id="editModal" class="modalDialog">
 			<div>
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Edit</h2>
 			</div>
 		</div>
-		<div id="articleModal" class="modalDialog">
-			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<div><h2>Title</h2><p>Author</p><img><p>Text</p></div>
-			</div>
-		</div>
+		{{ page "modal/article" }}
 		<div id="logOutModal" class="modalDialog">
 			<div>
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>

@@ -1,3 +1,5 @@
+{{ $family := session "param" "fid" }} {{ $name :=  session "param" "name" }} {{ $user := session "param" "userName" }}
+{{ with get "childsPlay" "getPerson" $family $name }}
 <div id="personModal" class="modalDialog">
 	<div style="text-align: center; width: 600px;">
 		<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
@@ -5,23 +7,29 @@
 		<div id="personProfilePic" class="pictureFrame">
 			<a title="Edit" class="modalButton edit">E</a>
 			<a href="#editModal" title="Comment" class="modalButton comment" >C</a>
-			<img src="../img/blank.jpg">
+			<img src="../img/{{ .Pic }}">
 		</div>
 		<div class="personProfileInfo"></div>
 		<div id="personProfile" class="personProfileEdit">
-			<p></p>
+			<a href="#editModal" title="Edit" class="modalButton edit" onclick="configEdit('{{ $family }}', '#personModal', '?fid={{ $family }}&name={{ $name }}#personModal');">E</a>
+			<p>{{ .Profile }}</p>
+			<p>fid = {{ $family }}   name = {{ $name }}  userName = {{ $user }}</p>
 		</div>
-		<div id="personProfileControl" class="personProfileEdit" style="border: 0px;">
-			<input class="ptButton" value="Edit Like/Dislikes" style="width: 100px;"/>
-			<input class="ptButton" value="Edit Buzzwords" style="width: 100px;"/>
-			<input class="ptButton" value="Edit Turnoffs" style="width: 100px;"/>
-			<input class="ptButton" value="Manage Pictures" style="width: 100px;"/>
-			<input class="ptButton" value="Manage Questions" style="width: 100px;"/>
-		</div>
-		<div id="familyLink" class="personProfileEdit" style="border: 0px;">
-			<input class="ptButton" value="See Family" style="width: 100px;"/>
-			<input class="ptButton" value="Chat" style="width: 100px;"/>
-			<input class="ptButton" value="Message" style="width: 100px;"/>
-		</div>
+		{{ if eq $family $user }}
+			<div id="personProfileControl" class="personProfileEdit" style="border: 0px;">
+				<input class="ptButton" value="Edit Like/Dislikes" style="width: 100px;"/>
+				<input class="ptButton" value="Edit Buzzwords" style="width: 100px;"/>
+				<input class="ptButton" value="Edit Turnoffs" style="width: 100px;"/>
+				<input class="ptButton" value="Manage Pictures" style="width: 100px;"/>
+				<input class="ptButton" value="Manage Questions" style="width: 100px;"/>
+			</div>
+		{{ else }}
+			<div id="familyLink" class="personProfileEdit" style="border: 0px;">
+				<input class="ptButton" value="See Family" style="width: 100px;"/>
+				<input class="ptButton" value="Chat" style="width: 100px;"/>
+				<input class="ptButton" value="Message" style="width: 100px;"/>
+			</div>
+		{{ end }}
 	</div>
 </div>
+{{ end }}
