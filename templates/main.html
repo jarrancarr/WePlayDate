@@ -31,17 +31,7 @@ var parent = {{session "item" "numParents"}};
 				</div>
 			</div>
 		</div>
-		<div id="wallpaper">
-			<svg id="mySVG" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
-				<script>
-					var popSound = new Audio('/audio/bubblepop.mp3');
-					function pop(cir) {
-						cir.parentNode.removeChild(cir);
-						popSound.play();
-					}
-				</script>
-			</svg>
-		</div>
+		{{ page "wallpaper" }}
 		<div id="nav-menu">
 			<svg id="menu" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
 				{{range htmls "circleMenuItem" "MODAL>>loginModal,aboutModal,applyModal,infoModal" "TX>>50,130,210,290,370,450" "FILL>>93e,3e9,9e3,e93,39e,e39" "LABEL>>Enter,About,Apply,Info,Sponcer,Lounge" "CX>>90,170,250,330,410,490"}}

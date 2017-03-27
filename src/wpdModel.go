@@ -33,20 +33,20 @@ type Group struct {
 }
 
 type Event struct {
-	Title, Details			string
-	Attendees				[]*Family
-	Host					*Family
-	Time					time.Time
-	Duration				time.Duration
-	Where					string
+	Title, Details string
+	Attendees      []*Family
+	Host           *Family
+	Time           time.Time
+	Duration       time.Duration
+	Where          string
 }
 
 type Region struct {
-	Name      	string
-	Lat, Long 	float32
-	Lounge     	*service.Room
-	Article		map[string]*Post
-	Activities	[]Event
+	Name       string
+	Lat, Long  float32
+	Lounge     *service.Room
+	Article    map[string]*Post
+	Activities []Event
 }
 
 type Challenge struct {
@@ -230,7 +230,7 @@ var (
 )
 
 func initData() {
-	factor := 10;
+	factor := 10
 	for i := 0; i < 10*factor; i++ {
 		familyName := familyNames[rand.Intn(len(familyNames))]
 		mom := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName}, DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
@@ -344,7 +344,7 @@ func simulateCommunity(mss *service.MessageService) {
 
 func activeUser(fm *Family, mss *service.MessageService) {
 	logger.Trace.Println()
-	userSession := website.Session{make(map[string]interface{}), make(map[string]string)}
+	userSession := website.Session{make(map[string]interface{}), make(map[string]string), true}
 	userSession.Data["name"] = fm.Parent[0].FullName()
 	userSession.Data["userName"] = fm.Login.User
 	userSession.Item["family"] = fm
@@ -387,37 +387,62 @@ func word() string {
 	ccons := "bcdfghlmnprstwbcdfghlmnprstwbcdfghlmnprstwjkvwxyz"
 	vowel := "aeiou"
 	word := ""
-	for i:=0; i<4;  {
+	for i := 0; i < 4; {
 		i = rand.Intn(13)
 		dg := rand.Intn(7)
-		switch(rand.Intn(25)) {
-			case 0: word += string(vowel[rand.Intn(5)])
-			case 1: word += string(vowel[rand.Intn(5)]) + "?"
-			case 2: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?" 
-			case 3: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)])
-			case 4: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?" 
-			case 5: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(vowel[rand.Intn(5)]) + "?"  
-			case 6: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?"  
-			case 7: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(ccons[rand.Intn(49)]) + "?" 
-			case 8: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(precons[rand.Intn(20)]) + "e"
-			case 9: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + "?" 
-			case 10: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)])
-			case 11: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + "?" 
-			case 12: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + string(vowel[rand.Intn(5)]) + "?"  
-			case 13: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + "?"  
-			case 14: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + string(ccons[rand.Intn(49)]) + "?" 
-			case 15: word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + string(precons[rand.Intn(20)]) + "e"
-			case 16: word += string(vowel[rand.Intn(5)])
-			case 17: word += string(vowel[rand.Intn(5)]) + "?"
-			case 18: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?" 
-			case 19: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)])
-			case 20: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?" 
-			case 21: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(vowel[rand.Intn(5)]) + "?"  
-			case 22: word += string(precons[rand.Intn(20)]) + string(ccons[rand.Intn(49)]) + string(vowel[rand.Intn(5)]) + "?"  
-			case 23: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(ccons[rand.Intn(49)]) + "?" 
-			case 24: word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(precons[rand.Intn(20)]) + "e"
-		}	
-		if i<4 && word[len(word)-1:] == "?" {
+		switch rand.Intn(25) {
+		case 0:
+			word += string(vowel[rand.Intn(5)])
+		case 1:
+			word += string(vowel[rand.Intn(5)]) + "?"
+		case 2:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?"
+		case 3:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)])
+		case 4:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?"
+		case 5:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(vowel[rand.Intn(5)]) + "?"
+		case 6:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?"
+		case 7:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(ccons[rand.Intn(49)]) + "?"
+		case 8:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(precons[rand.Intn(20)]) + "e"
+		case 9:
+			word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + "?"
+		case 10:
+			word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)])
+		case 11:
+			word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + "?"
+		case 12:
+			word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + string(vowel[rand.Intn(5)]) + "?"
+		case 13:
+			word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + "?"
+		case 14:
+			word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + string(ccons[rand.Intn(49)]) + "?"
+		case 15:
+			word += string(digraphs[dg*2:dg*2+2]) + string(vowel[rand.Intn(5)]) + string(precons[rand.Intn(20)]) + "e"
+		case 16:
+			word += string(vowel[rand.Intn(5)])
+		case 17:
+			word += string(vowel[rand.Intn(5)]) + "?"
+		case 18:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?"
+		case 19:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)])
+		case 20:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + "?"
+		case 21:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(vowel[rand.Intn(5)]) + "?"
+		case 22:
+			word += string(precons[rand.Intn(20)]) + string(ccons[rand.Intn(49)]) + string(vowel[rand.Intn(5)]) + "?"
+		case 23:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(ccons[rand.Intn(49)]) + "?"
+		case 24:
+			word += string(precons[rand.Intn(20)]) + string(vowel[rand.Intn(5)]) + string(precons[rand.Intn(20)]) + "e"
+		}
+		if i < 4 && word[len(word)-1:] == "?" {
 			word = word[:len(word)-1] + string(ccons[rand.Intn(49)])
 		} else {
 			word = word[:len(word)-1] + string(postcons[rand.Intn(10)])
@@ -428,7 +453,7 @@ func word() string {
 
 func phrase() string {
 	phrase := ""
-	for i:=0; i<10; i += rand.Intn(9) {
+	for i := 0; i < 10; i += rand.Intn(9) {
 		phrase += word() + " "
 	}
 	return phrase[:len(phrase)-1]
@@ -436,16 +461,16 @@ func phrase() string {
 
 func sentense() string {
 	sentense := ""
-	for i:=0; i<30; i += rand.Intn(9) {
+	for i := 0; i < 30; i += rand.Intn(9) {
 		sentense += word() + " "
 	}
 	sentense = strings.ToUpper(sentense[:1]) + sentense[1:]
-	return sentense[:len(sentense)-1]+"."
+	return sentense[:len(sentense)-1] + "."
 }
 
 func story() string {
 	story := ""
-	for i:=0; i<20; i += rand.Intn(12) {
+	for i := 0; i < 20; i += rand.Intn(12) {
 		story += sentense() + "  "
 	}
 	return story[:len(story)-2]
