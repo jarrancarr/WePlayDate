@@ -66,6 +66,8 @@ func setup() {
 
 func MainInitProcessor(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("MainInitProcessor(w http.ResponseWriter, r *http.Request, website.Session<<" + s.GetId() + ">>, p *website.Page)")
+	http.SetCookie(w, &http.Cookie{"testCookie", "accepted", "/", p.Site.Url, 
+		time.Now().Add(time.Minute * 2), "", 50000, false, true, "none=none", []string{"none=none"}})
 	if s.Item["numParents"] == nil {
 		s.Item["numParents"] = 0
 	}
@@ -186,6 +188,9 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 		acs.Active[userName] = s
 		for _, z := range fam.Zip {
 			mss.Execute([]string{"addRoom", z, ""}, s, p)
+		}
+		if !s.Cookie {
+			return r.Form.Get("redirect")+"?_id="+s.Data["id"], nil
 		}
 		return r.Form.Get("redirect"), nil
 	}

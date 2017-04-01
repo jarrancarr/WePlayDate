@@ -230,7 +230,7 @@ var (
 )
 
 func initData() {
-	factor := 10
+	factor := 10;
 	for i := 0; i < 10*factor; i++ {
 		familyName := familyNames[rand.Intn(len(familyNames))]
 		mom := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName}, DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
