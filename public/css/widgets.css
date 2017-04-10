@@ -1,0 +1,74 @@
+.sendMessage {
+	background: rgba(0,255,0,0.2);
+	left: 12px;
+	bottom: 65px;
+}
+.sendMessage:hover { background: #2c2; }
+.addEmoji {
+	background: rgba(255,160,0,0.15);
+	left: 42px;
+	bottom: 65px;
+}
+.addEmoji:hover { background: #c82; }
+.gesture {
+	background: rgba(0,160,255,0.15);
+	left: 66px;
+	bottom: 65px;
+}
+.gesture:hover { background: #28c; }
+.invitePerson {
+	background: rgba(160,0,255,0.15);
+	left: 90px;
+	bottom: 65px;
+}
+.invitePerson:hover { background: #82c; }
+.other {
+	background: rgba(255,160,0,0.15);
+	left: 114px;
+	bottom: 65px;
+}
+.other:hover { background: #c82; }
+.edit {
+	background:  rgba(192,255,0,0.2);
+	left: -12px;
+	bottom: -10px;
+}
+.edit:hover { background: #df0; }
+.comment {
+	background:  rgba(255,0,160,0.2);
+	right: -12px;
+	bottom: -10px;
+}
+.comment:hover { background: #f0a; }
+.side {
+	position: relative;
+	background:  rgba(192,255,0,0.2);
+	left: 0px;
+	bottom: 0px;
+}
+.side:hover { background: #df0; }
+.submit {
+	background: rgba(0,255,0,0.2);
+	right: 140px;
+	bottom: -10px;
+}
+.submit:hover { background: #2c2; }
+.cancel {
+	background: rgba(0,255,0,0.2);
+	right: 120px;
+	bottom: -10px;
+}
+.cancel:hover { background: #2c2; }
+
+.editmode {
+	background:  rgba(255,192,0,0.2);
+	left: -12px;
+	top: -10px;
+}
+.editmode:hover { background: #fd0; }
+.hideModal {
+	background: #666;
+	right: -12px;
+	top: -10px;
+}
+.hideModal:hover { background: #0df; }

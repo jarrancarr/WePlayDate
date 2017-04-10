@@ -19,12 +19,12 @@ import (
 )
 
 var (
-	weePlayDate 	*website.Site
-	acs         	*website.AccountService
+	weePlayDate *website.Site
+	acs         *website.AccountService
 	//ecs         	*ecommerse.ECommerseService
-	mss				*service.MessageService
-	cps				*ChildsPlayService
-	logger			*website.Log
+	mss            *service.MessageService
+	cps            *ChildsPlayService
+	logger         *website.Log
 	Date_Format    = "MM/dd/yyyy"
 	Date_Format_GL = "01/02/2006"
 )
@@ -66,7 +66,7 @@ func setup() {
 
 func MainInitProcessor(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("MainInitProcessor(w http.ResponseWriter, r *http.Request, website.Session<<" + s.GetId() + ">>, p *website.Page)")
-	http.SetCookie(w, &http.Cookie{"testCookie", "accepted", "/", p.Site.Url, 
+	http.SetCookie(w, &http.Cookie{"testCookie", "accepted", "/", p.Site.Url,
 		time.Now().Add(time.Minute * 2), "", 50000, false, true, "none=none", []string{"none=none"}})
 	if s.Item["numParents"] == nil {
 		s.Item["numParents"] = 0
@@ -190,12 +190,12 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 			mss.Execute([]string{"addRoom", z, ""}, s, p)
 		}
 		if !s.Cookie {
-			return r.Form.Get("redirect")+"?_id="+s.Data["id"], nil
+			return r.Form.Get("redirect") + "?_id=" + s.Data["id"], nil
 		}
 		return r.Form.Get("redirect"), nil
 	}
 	s.Data["retry"] = "#loginModal"
-	s.Data["error"] = "We do not recognized that user name and password" 
+	s.Data["error"] = "We do not recognized that user name and password"
 	return "#errorModal", errors.New("failed login")
 }
 func SelectFamilyMember(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
@@ -307,8 +307,12 @@ func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 func GetArticleAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("WeePlayDate.GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	info := pullData(r)
-	if cps.Places[info["place"]] == nil { return "",errors.New("No such place as "+info["place"]) }
-	if cps.Places[info["place"]].Article[info["articleName"]] == nil { return "",errors.New("No article by name "+info["articleName"]+" in this place")}
+	if cps.Places[info["place"]] == nil {
+		return "", errors.New("No such place as " + info["place"])
+	}
+	if cps.Places[info["place"]].Article[info["articleName"]] == nil {
+		return "", errors.New("No article by name " + info["articleName"] + " in this place")
+	}
 	article := cps.Places[info["place"]].Article[info["articleName"]]
 	w.Write([]byte(`{"title":"` + article.Title + `", "author":"` + article.Author.FullName() + `", "text":"` + article.Text + `", "pic":"` + article.Pic + `", "user":"` + article.User + `"}`))
 	return "ok", nil
@@ -318,7 +322,7 @@ func EditDataPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	userName := r.Form.Get("user")
 	text := r.Form.Get("edit")
 	field := r.Form.Get("field")
-	logger.Debug.Printf("inputs: %s,%s,%s",userName, field, text)
+	logger.Debug.Printf("inputs: %s,%s,%s", userName, field, text)
 	fam := Families[userName]
 	if fam == nil {
 		return "", errors.New("No family by that user id")
@@ -329,6 +333,18 @@ func EditDataPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 		break
 	}
 	return r.Form.Get("redirect"), nil
+}
+func UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	info := pullData(r)
+	fam := Families[s.GetUserName()]
+	if fam == nil {
+		return "", errors.New("No family by that user id")
+	}
+	for k, v := range info {
+		logger.Debug.Println("key: " + k + "= " + v)
+	}
+	return "ok", nil
 }
 func pullData(r *http.Request) map[string]string {
 	httpData, _ := ioutil.ReadAll(r.Body)
