@@ -14,22 +14,7 @@ var parent = {{session "item" "numParents"}};
 	</head>
 	<body>
 		<div style="position: fixed; top: 5%; height: 30%; width: 100%; z-index: 2;">
-			<div>
-				{{page "banner"}}
-				<div class="panel">
-					<div class="row"> 
-						<div class="col-xs-2">
-							{{with $test := service "account" "isLoggedIn"}}
-								{{if eq "True" $test}}
-									Hello, {{service "account" "session" "name"}}
-								{{end}}
-							{{end}}
-						</div>
-						<div class="col-xs-10">
-						</div>
-					</div>
-				</div>
-			</div>
+			<div> {{page "banner"}} </div>
 		</div>
 		{{ page "wallpaper" }}
 		<div id="nav-menu">
@@ -52,28 +37,7 @@ var parent = {{session "item" "numParents"}};
 				{{end}}
 			</svg>
 		</div>
-		<div id="loginModal" class="modalDialog">
-			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				
-				<h2>Enter {{.Site.Name}}!</h2>
-				
-				<div class="container">
-					<form action="/main" method="post">
-						<span>
-							User Name: <input type="text" class= "ptButton ptInput" name="UserName"><br><br>
-							Password: <input type="password" class= "ptButton ptInput" name="Password"><br><br><br>
-						</span>
-						<input type="submit" class="ptButton" value="Login">
-						<a href="#applyModal" class="ptButton">Register</a>
-						<a href="#clearModal" class="ptButton">Cancel</a>
-						<a href="#passwordModal" class= "ptButton">Forgot Password?</a>
-						<input type="hidden" name="postProcessingHandler" value="login">
-						<input type="hidden" name="redirect" value="home#welcomeModal">
-					</form>
-				</div>
-			</div>
-		</div>
+		{{ page "modal/login" }}
 		<div id="aboutModal" class="modalDialog">
 			<div>
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
@@ -81,58 +45,7 @@ var parent = {{session "item" "numParents"}};
 				<p>This is what we do</p>
 			</div>
 		</div>
-		<div id="applyModal" class="modalDialog">
-			<div style="text-align: center; width: 600px;">
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<h2>Join us at {{.Site.Name}}!</h2>
-				<div class="container">
-					<form id="family" action="/main" method="post">
-						UserName: <input type="text" class= "ptButton" name="userName" placeholder="family user name"><br>
-						Email: <input type="text" class= "ptButton" name="email" placeholder="please enter a valid email" value="{{ session "param" "email" }}"><br>
-						Zip Code: <input type="text" class= "ptButton" name="zip" placeholder="00000" value="{{ session "param" "zip" }}"><br>
-						<ul>
-							{{range session "item" "parentData"}}
-								<li class="ptListItem">{{.Name}}, {{.Sex}}</li>
-							{{end}}
-							{{range session "item" "childData"}}
-								<li class="ptListItem">{{.Name}}, {{.MOB}}, {{.Sex}}</li>
-							{{end}}
-						</ul><br>
-						<input type="submit" class="ptButton" id="submitFamily" value="Apply" style="display: none;">
-						<a href="#clearModal" class= "ptButton">Cancel</a>
-						<input type="hidden" name="postProcessingHandler" value="apply">
-						<input type="hidden" name="redirect" value="main#checkEmail">
-						<input type="button" class="ptButton" onclick="showHide('newKid')" value="Add Child"/>
-						<input type="button" class="ptButton" onclick="showHide('newParent')" value="Add Parent"/>
-							{{range $index, $elem := session "item" "parentData"}}
-								<input type="hidden" name="parent{{$index}}" value="{{.Name}}|{{.Sex}}">
-							{{end}}
-							{{range $index, $elem := session "item" "childData"}}
-								<input type="hidden" name="child{{$index}}" value="{{.Name}}|{{ .MOB }}|{{.Sex}}">
-							{{end}}
-					</form>
-					<div id="newKid" class="container" style="display: none;">
-						<h4>Add a Child</h4>
-						<form id="kid">
-							Name: <input type="text" class= "ptButton" id="newKid" name="name" placeholder="full name">
-							Boy: <input type="radio" class= "ptButton" id="boy" name="gender" value="Boy"/>
-							Girl: <input type="radio" class= "ptButton" id="girl" name="gender" value="Girl"/><br>
-							Birth Month: <input type="text" id="dob" class="datepicker" data-date-format="{{param "DateFormat"}}"></br>
-							<input type="button" class="ptButton" onclick="addKid()" value="Add"/>
-						</form>
-					</div>
-					<div id="newParent" class="container" style="display: none;">
-						<h3>Add Parent to Family</h3>
-						<form id="parent">
-							Name: <input type="text" class= "ptButton" id="newParent" name="name" placeholder="full name">
-							Mom: <input type="radio" class= "ptButton" id="mom" name="gender" value="Mom"/>
-							Dad: <input type="radio" class= "ptButton" id="dad" name="gender" value="Dad"/><br><br>
-							<input type="button" class="ptButton" onclick="addParent()" value="Add"/>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
+		{{ page "modal/apply" }}
 		<div id="infoModal" class="modalDialog">
 			<div>
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
@@ -171,27 +84,6 @@ var parent = {{session "item" "numParents"}};
 				<p>Who do you know?</p>
 			</div>
 		</div>
-		<div id="failedLogin" class="modalDialog">
-			<div>
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<h2>Sorry, that login was not recognized.</h2>
-				<p>Please try again.</p>
-			</div>
-		</div>
-		<div id="checkEmail" class="modalDialog">
-			<div style="text-align: center;">
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<h2>Your application was successful</h2>
-				<p>Check you email for a secure link to set up you account.</p>
-			</div>
-		</div>
-		<div id="errorModal" class="modalDialog">
-			<div style="text-align: center;">
-				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<h2>There was a problem</h2>
-				<p>{{session "param" "error"}}</p></br>
-				<a href='{{session "param" "retry"}}' title="Back" class="ptButton">Try again</a>
-			</div>
-		</div>
+		{{ page "modal/errors" }}
 	</body>
 </html>

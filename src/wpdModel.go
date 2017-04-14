@@ -136,6 +136,14 @@ func (f *Family) String() string {
 	return f.Name() + ": " + f.Login.User
 }
 
+func (f *Family) GetFamilyMember(name string) *Person {
+	logger.Debug.Println("GetFamilyMember('"+name+"')")
+	for _, p := range(f.Parent) { if p.Name[0] == name { return p } }
+	for _, p := range(f.Child) { if p.Name[0] == name { return p } }
+	logger.Warning.Println("No family member found.")
+	return nil
+}
+
 var (
 	Run        = Skill{"Runner", map[int8]string{4: "Jogger", 9: "Runner", 16: "5k", 25: "13.1", 49: "26.2"}}
 	Jump       = Skill{"Jump", map[int8]string{1: "hop", 4: "leap", 9: "dive", 25: "expert", 49: "pro"}}
@@ -337,7 +345,7 @@ func simulateCommunity(mss *service.MessageService) {
 		go activeUser(Families[famKeys[rand.Intn(len(Families))]], mss)
 	}
 	for {
-		go activeUser(Families[famKeys[rand.Intn(len(Families))]], mss)
+		go activeUser(Families[famKeys[rand.Intn(len(famKeys))]], mss)
 		time.Sleep(time.Millisecond * 2000)
 	}
 }

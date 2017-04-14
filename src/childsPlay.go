@@ -33,7 +33,7 @@ func (cps *ChildsPlayService) Execute(data []string, s *website.Session, p *webs
 }
 
 func (cps *ChildsPlayService) Get(p *website.Page, s *website.Session, data []string) website.Item {
-	logger.Trace.Println("ChildsPlayService.Get(page<" + p.Title + ">, session<" + s.GetUserName() + ">, " + strings.Join(data, "|") + ")")
+	logger.Debug.Println("ChildsPlayService.Get(page<" + p.Title + ">, session<" + s.GetUserName() + ">, " + strings.Join(data, "|") + ")")
 	switch data[0] {
 	case "posts":
 		pos := []string{"10", "20", "30", "40", "50", "60", "70", "80"}
@@ -97,24 +97,17 @@ func (cps *ChildsPlayService) Get(p *website.Page, s *website.Session, data []st
 		return answ
 	case "getPerson":
 		if len(data) < 3 {
+			logger.Warning.Println("length of data is less than 3")
 			return struct{ Name, Profile, Pic string }{"Noone", "I am a ghost!", "Blankeroo.jpg"}
 		}
 		family := Families[data[1]]
 		if family == nil {
+			logger.Warning.Println("no family found")
 			return struct{ Name, Profile, Pic string }{"Noone", "I am a ghost!", "Blankeroo.jpg"}
 		}
-		var person *Person
-		for _, p := range family.Parent {
-			if p.FullName() == data[2] {
-				person = p
-			}
-		}
-		for _, p := range family.Child {
-			if p.FullName() == data[2] {
-				person = p
-			}
-		}
+		person := family.GetFamilyMember(data[2])
 		if person == nil {
+			logger.Warning.Println("no person in that family found")
 			return struct{ Name, Profile, Pic string }{"Noone", "I am a ghost!", "Blankeroo.jpg"}
 		}
 		return struct{ Name, Profile, Pic string }{person.FullName(), person.Profile, person.ProfilePic}

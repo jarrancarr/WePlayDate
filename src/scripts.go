@@ -96,10 +96,69 @@ func addScripts() {
 		`$('#'+roomName+' a.gesture').attr("onclick","alert('Not yet implemented.')");`+
 		`$('#'+roomName+' a.invitePerson').attr("onclick","alert('Not yet implemented.')");`+
 		`sendMessage(roomName, $('#'+roomName+' .text textarea').val()); 	}`)
-	weePlayDate.AddScript("home-script", `function whoseThere(room) { if ($('#'+room).hasClass('extendFloatDialog')) { $('#'+room).removeClass('extendFloatDialog'); $('#'+room+' .subFloatHeader').addClass('hidden'); $('#'+room+' .discussion').css('height',''); } else { $('#'+room).addClass('extendFloatDialog'); $('#'+room+' .subFloatHeader').removeClass('hidden'); $('#'+room+' .discussion').css('height','275px'); $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'whoseThere' }, dataType: 'html', data: { 'roomName':room }, success: function(data, textStatus, jqXHR) { var ul = $("#"+room+" .whoseThere ul"); var obj = JSON.parse(data); ul.empty(); $.each(obj, function(index, party) { user = decodeURIComponent(party[1].replace(/\+/g, ' ')); name = decodeURIComponent(party[0].replace(/\+/g, ' ')); item = $(document.createElement('li')).text(name); item.attr("class", "ptListItem"); item.attr("onclick", "onShowProfileModal('"+user+"', '"+name+"', 'closeModal'); $(location).attr('href','#personModal');"); ul.append( item ); }); }, error: function(data, textStatus, jqXHR) { console.log("fail!"); } }); }	}	`)
-	weePlayDate.AddScript("home-script", `function exitRoom(roomName) { $('#'+roomName).remove(); $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'exitRoom' },	dataType: 'html', data: { 'roomName':roomName }, success: function(data, textStatus, jqXHR) {}, error: function(data, textStatus, jqXHR) { console.log("exit room fail!"); }	});	}	`)
-	weePlayDate.AddScript("home-script", `function sendMessage(room,message) { $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'message' },	dataType: 'html', data: { 'roomName':room,'message':encodeURIComponent(message) }, success: function(data, textStatus, jqXHR) { $("#"+room+" textarea").val(''); var ul = $("#"+room+" .discussion ul"); var obj = JSON.parse(data); ul.empty(); $.each(obj, function(index, message) { if (message['author']=='') { item = $(document.createElement('li')).text( decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); item.attr("class", "push"); } else { item = $(document.createElement('li')).text( message['author']+':'+decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); item.attr("class", "pull"); } ul.append( item ).append( '<br/>' ); }); ul.parent().scrollTop(ul.parent()[0].scrollHeight - ul.parent().height()); }, error: function(data, textStatus, jqXHR) { console.log("send message fail!"); $("#"+room+" textarea").val('') } }); }`)
-	weePlayDate.AddScript("home-script", `function initiateRoom(roomName) { $.ajax({url: '/home',type: 'AJAX', headers: { 'ajaxProcessingHandler':'newRoom' },	dataType: 'html', data: { 'roomName':roomName, 'roomPass':'HaHa!' }, success: function(data, textStatus, jqXHR) { enterRoom(roomName); }, error: function(data, textStatus, jqXHR) { console.log("new room fail!"); }	});	}`)
+	weePlayDate.AddScript("home-script", `function whoseThere(room) { `+
+		`if ($('#'+room).hasClass('extendFloatDialog')) { `+
+		`$('#'+room).removeClass('extendFloatDialog'); `+
+		`$('#'+room+' .subFloatHeader').addClass('hidden'); `+
+		`$('#'+room+' .discussion').css('height',''); `+
+		`} else { `+
+		`$('#'+room).addClass('extendFloatDialog'); `+
+		`$('#'+room+' .subFloatHeader').removeClass('hidden'); `+
+		`$('#'+room+' .discussion').css('height','275px'); `+
+		`$.ajax({url: '/home',type: 'AJAX', `+
+		`headers: { 'ajaxProcessingHandler':'whoseThere' }, `+
+		`dataType: 'html', data: { 'roomName':room }, `+
+		`success: function(data, textStatus, jqXHR) { `+
+		`var ul = $("#"+room+" .whoseThere ul"); `+
+		`var obj = JSON.parse(data); ul.empty(); `+
+		`$.each(obj, function(index, party) { `+
+		`user = decodeURIComponent(party[1].replace(/\+/g, ' ')); `+
+		`name = decodeURIComponent(party[0].replace(/\+/g, ' ')); `+
+		`item = $(document.createElement('li')).text(name); `+
+		`item.attr("class", "ptListItem"); `+
+		`item.attr("onclick", "onShowProfileModal('"+user+"', '"+name+"', 'closeModal'); `+
+		`$(location).attr('href','#personModal');"); `+
+		`ul.append( item ); }); }, `+
+		`error: function(data, textStatus, jqXHR) { `+
+		`console.log("fail!"); } }); }	}	`)
+	weePlayDate.AddScript("home-script", `function exitRoom(roomName) { `+
+		`$('#'+roomName).remove(); `+
+		`$.ajax({url: '/home',type: 'AJAX', `+
+		`headers: { 'ajaxProcessingHandler':'exitRoom' },	`+
+		`dataType: 'html', data: { 'roomName':roomName }, `+
+		`success: function(data, textStatus, jqXHR) {}, `+
+		`error: function(data, textStatus, jqXHR) { console.log("exit room fail!"); }	});	}	`)
+	weePlayDate.AddScript("home-script", `function sendMessage(room,message) { `+
+		`$.ajax({url: '/home',type: `+
+		`'AJAX', headers: { 'ajaxProcessingHandler':'message' }, `+
+		`dataType: 'html', `+
+		`data: { 'roomName':room,'message':encodeURIComponent(message) }, `+
+		`success: function(data, textStatus, jqXHR) { `+
+		`$("#"+room+" textarea").val(''); `+
+		`var ul = $("#"+room+" .discussion ul"); `+
+		`var obj = JSON.parse(data); `+
+		`ul.empty(); `+
+		`$.each(obj, function(index, message) { `+
+		`if (message['author']=='') { `+
+		`item = $(document.createElement('li')).text( decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); `+
+		`item.attr("class", "push"); `+
+		`} else { `+
+		`item = $(document.createElement('li')).text( message['author']+':'+decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); `+
+		`item.attr("class", "pull"); } `+
+		`ul.append( item ).append( '<br/>' ); }); `+
+		`ul.parent().scrollTop(ul.parent()[0].scrollHeight - ul.parent().height()); }, `+
+		`error: function(data, textStatus, jqXHR) { `+
+		`console.log("send message fail!"); `+
+		`$("#"+room+" textarea").val('') } }); }`)
+	weePlayDate.AddScript("home-script", `function initiateRoom(roomName) { `+
+		`$.ajax({url: '/home',type: 'AJAX', `+
+		`headers: { 'ajaxProcessingHandler':'newRoom' }, `+
+		`dataType: 'html', `+
+		`data: { 'roomName':roomName, 'roomPass':'HaHa!' }, `+
+		`success: function(data, textStatus, jqXHR) { `+
+		`enterRoom(roomName); }, `+
+		`error: function(data, textStatus, jqXHR) { `+
+		`console.log("new room fail!"); }	});	}`)
 	weePlayDate.AddScript("home-script", `function onShowProfileModal(user, name, retUrl) {`+
 		`$.ajax({ url: '/home', type: 'AJAX',`+
 		`headers: { 'ajaxProcessingHandler':'personProfile' },`+
@@ -130,8 +189,15 @@ func addScripts() {
 		`$(location).attr('href','#personModal'); }, `+
 		`error: function(data, textStatus, jqXHR) { console.log("onShowProfileModal fail: "+textStatus); } `+
 		`}); }`)
-	weePlayDate.AddScript("home-script", `function minimize(room) { if ($('#'+room).hasClass('minimizedFloatDialog')) { $('#'+room).removeClass('minimizedFloatDialog'); $('#'+room+' .text').removeClass('hidden');  } 
-		else { $('#'+room).addClass('minimizedFloatDialog'); $('#'+room+' .text').addClass('hidden'); $('#'+room).removeClass('extendFloatDialog'); $('#'+room+' .subFloatHeader').addClass('hidden'); $('#'+room).removeClass('extendFloatDialog'); } }`)
+	weePlayDate.AddScript("home-script", `function minimize(room) { `+
+		`if ($('#'+room).hasClass('minimizedFloatDialog')) { `+
+		`$('#'+room).removeClass('minimizedFloatDialog'); `+
+		`$('#'+room+' .text').removeClass('hidden'); `+
+		`} else { $('#'+room).addClass('minimizedFloatDialog'); `+
+		`$('#'+room+' .text').addClass('hidden'); `+
+		`$('#'+room).removeClass('extendFloatDialog'); `+
+		`$('#'+room+' .subFloatHeader').addClass('hidden'); `+
+		`$('#'+room).removeClass('extendFloatDialog'); } }`)
 	weePlayDate.AddScript("home-script", `function configEdit(id, field, url) { `+
 		`$('#editModal div').empty().append("<form action='/home' method='post'><h2>Edit</h2>`+
 		`<input type='text' name='edit'/>`+
@@ -156,46 +222,58 @@ func addScripts() {
 		`var ele = $(tag); `+
 		`ele.nextAll().remove(); `+
 		`ele.after("<textarea id='newText' class='ptButton' rows='"+rows+"' cols='"+cols+"' style='margin: -16px; width: 100%; resize: none;'>"+prompt+"</textarea>`+
-		`<a title='Submit' class='modalButton submit' onclick='update(\""+field+"\", $(\"#newText\").text());'>S</a>`+
+		`<a title='Submit' class='modalButton submit' onclick='update(\""+field+"\", $(\"#newText\").val(), $(this).parent())'>S</a>`+
 		`<a title='Cancel' class='modalButton cancel'>C</a>"); }`)
-	weePlayDate.AddScript("home-script", `function update(field, data) { `+
+	weePlayDate.AddScript("home-script", `function update(field, data, reloadTag) { `+
 		`$.ajax({ url: '/home', type: 'AJAX', `+
 		`headers: { 'ajaxProcessingHandler':'editUpdate' }, `+
-		`dataType: 'html', data: {field:data},`+
-		`success: function(data, textStatus, jqXHR) { `+
-		`},`+
+		`dataType: 'html', data: '{"field":"'+field+'", "data":'+JSON.stringify(data)+'}',`+
+		`success: function(data, textStatus, jqXHR) { reloadTag.html(data); },`+
 		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } }); }`)
-	weePlayDate.AddScript("main-script", `function addKid() { var kid = $('#newKid'); var form = $('#family'); form.append("<input type='hidden' name='child"+child+"' value='"+kid.find('#newKid').val()+"|"+$.datepicker.formatDate("`+Date_Format+`", kid.find('#dob').datepicker('getDate'))+"|"+$('input[name=gender]:checked','#kid').val()+"'/>");
-		form.find('ul').append("<li class='ptListItem'>"+kid.find('#newKid').val()+", "+$.datepicker.formatDate("`+Date_Format+`", kid.find('#dob').datepicker('getDate'))+", "+$('input[name=gender]:checked','#kid').val()+"<a class='edit' title='Close'>E</a></li>");
-		kid[0].style.display = 'none'; kid.find('#newKid').val(''); $('input[name=gender]:checked','#kid').prop("checked",false); kid.find('#age').val('1'); child = child + 1; if (parent>0) $('#submitFamily')[0].style.display = 'inline'; }`)
-	weePlayDate.AddScript("main-script", `function addParent() { var parentTag = $('#newParent'); var form = $('#family'); form.append("<input type='hidden' name='parent"+parent+"' value='"+parentTag.find('#newParent').val()+"|"+$('input[name=gender]:checked','#parent').val()+"'/>");
-		form.find('ul').append("<li class='ptListItem'>"+parentTag.find('#newParent').val()+", "+$('input[name=gender]:checked','#parent').val()+"</li>");
-		parentTag[0].style.display = 'none'; parentTag.find('#newParent').val(''); $('input[name=gender]:checked','#parent').prop("checked",false); parent = parent + 1; if (child>0) $('#submitFamily')[0].style.display = 'inline'; }`)
+	weePlayDate.AddScript("main-script", `function addKid() { `+
+		`var kid = $('#newKid'); `+
+		`var form = $('#family'); `+
+		`form.append("<input type='hidden' name='child"+child+"' value='"+kid.find('#newKid').val()+"|"+$.datepicker.formatDate("`+
+		Date_Format+`", kid.find('#dob').datepicker('getDate'))+"|"+$('input[name=gender]:checked','#kid').val()+"'/>"); `+
+		`form.find('ul').append("<li class='ptListItem'>"+kid.find('#newKid').val()+", "+$.datepicker.formatDate("`+
+		Date_Format+`", kid.find('#dob').datepicker('getDate'))+", "+$('input[name=gender]:checked','#kid').val()+"<a class='edit' title='Close'>E</a></li>"); `+
+		`kid[0].style.display = 'none'; `+
+		`kid.find('#newKid').val(''); `+
+		`$('input[name=gender]:checked','#kid').prop("checked",false); `+
+		`kid.find('#age').val('1'); `+
+		`child = child + 1; `+
+		`if (parent>0) $('#submitFamily')[0].style.display = 'inline'; }`)
+	weePlayDate.AddScript("main-script", `function addParent() { `+
+		`var parentTag = $('#newParent'); `+
+		`var form = $('#family'); `+
+		`form.append("<input type='hidden' name='parent"+parent+"' value='"+parentTag.find('#newParent').val()+"|"+$('input[name=gender]:checked','#parent').val()+"'/>"); `+
+		`form.find('ul').append("<li class='ptListItem'>"+parentTag.find('#newParent').val()+", "+$('input[name=gender]:checked','#parent').val()+"</li>"); `+
+		`parentTag[0].style.display = 'none'; `+
+		`parentTag.find('#newParent').val(''); `+
+		`$('input[name=gender]:checked','#parent').prop("checked",false); `+
+		`parent = parent + 1; if (child>0) `+
+		`$('#submitFamily')[0].style.display = 'inline'; }`)
 	weePlayDate.AddScript("home-script", `function toggleEditMode(tagId){ $('#'+tagId+' .edit, .side').each(function(){$(this).toggle();}); }`)
 	weePlayDate.AddScript("home-script", `function sidebar(tagId){ $('#'+tagId).toggle(); $('#'+tagId+'-Min').toggle(); }`)
 
-	weePlayDate.AddScript("admin-script", `function urlRewrite(where,state) {
-				search = window.location.search;
-				if (search == "") search = "?";
-				if (state=='none') {
-					if (search.includes(where)) search=search.replace(where+"=open",where+"=closed");
-					else search = search +"&"+ where + "=closed";
-				} else { 
-					if (search.includes(where)) {
-						search=search.replace(where+"=closed",where+"=open");
-					} else search = search +"&"+ where + "=open";
-				}
-				window.location.href = window.location.protocol + "//" + window.location.host + "/" + window.location.pathname + search;
-			}`)
-	weePlayDate.AddScript("admin-script", `function urlRedirect(param, val) { 
-		href = window.location.href;
-		if (href.includes(param)) {
-			before = href.slice(0,href.indexOf(param));
-			after = href.slice(href.indexOf(param),href.length);
-			after = after.slice(href.indexOf("&"),after.length);
-			window.location.href = before + param + "=" + val + after
-		} else {
-			window.location.href = window.location.href + "&" + param + "=" + val ; 
-		}}`)
+	weePlayDate.AddScript("admin-script", `function urlRewrite(where,state) { `+
+		`search = window.location.search; `+
+		`if (search == "") search = "?"; `+
+		`if (state=='none') { `+
+		`if (search.includes(where)) search=search.replace(where+"=open",where+"=closed"); `+
+		`else search = search +"&"+ where + "=closed"; `+
+		`} else { `+
+		`if (search.includes(where)) { `+
+		`search=search.replace(where+"=closed",where+"=open"); `+
+		`} else search = search +"&"+ where + "=open"; } `+
+		`window.location.href = window.location.protocol + "//" + window.location.host + "/" + window.location.pathname + search; }`)
+	weePlayDate.AddScript("admin-script", `function urlRedirect(param, val) { `+
+		`href = window.location.href; `+
+		`if (href.includes(param)) { `+
+		`before = href.slice(0,href.indexOf(param)); `+
+		`after = href.slice(href.indexOf(param),href.length); `+
+		`after = after.slice(href.indexOf("&"),after.length); `+
+		`window.location.href = before + param + "=" + val + after } `+
+		`else { window.location.href = window.location.href + "&" + param + "=" + val ; }}`)
 	//weePlayDate.AddScript("admin-script", ``)
 }

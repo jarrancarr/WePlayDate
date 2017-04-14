@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"encoding/json"
 	//"html/template"
 	"io/ioutil"
 	"net/http"
@@ -79,6 +81,7 @@ func MainInitProcessor(w http.ResponseWriter, r *http.Request, s *website.Sessio
 func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("RegisterPostHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	userName := r.Form.Get("userName")
+	familyName := r.Form.Get("familyName")
 	email := r.Form.Get("email")
 	zip := r.Form.Get("zip")
 
@@ -90,7 +93,7 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 		childSpecs := strings.Split(r.Form.Get(fmt.Sprintf("child%d", i)), "|")
 		if len(childSpecs) == 3 {
 			dob, _ := time.Parse(childSpecs[1], Date_Format)
-			children = append(children, &Person{Name: []string{childSpecs[0]}, DOB: dob, Male: (childSpecs[2] == "Boy"), Admin: false})
+			children = append(children, &Person{Name: []string{childSpecs[0], familyName}, DOB: dob, Male: (childSpecs[2] == "Boy"), Zip:[]string{zip}, Admin: false})
 			child = childSpecs[0]
 			logger.Info.Println("child: " + child + ", " + children[i].DOB.Format(Date_Format_GL))
 			s.Item["numChildren"] = i + 1
@@ -102,7 +105,7 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 		parent = ""
 		parentSpecs := strings.Split(r.Form.Get(fmt.Sprintf("parent%d", i)), "|")
 		if len(parentSpecs) == 2 {
-			parents = append(parents, &Person{Name: []string{parentSpecs[0]}, Male: (parentSpecs[1] == "Dad"), Admin: false})
+			parents = append(parents, &Person{Name: []string{parentSpecs[0], familyName}, Male: (parentSpecs[1] == "Dad"), Admin: false})
 			parent = parentSpecs[0]
 			logger.Info.Println("parent: " + parent)
 			s.Item["numParents"] = i + 1
@@ -335,27 +338,65 @@ func EditDataPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 	return r.Form.Get("redirect"), nil
 }
 func UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Debug.Println("UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
-	info := pullData(r)
+	logger.Trace.Println("UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	data := pullData(r)
+	for k, v := range(data) {
+		logger.Debug.Println(k+" = "+v)
+	}
 	fam := Families[s.GetUserName()]
 	if fam == nil {
 		return "", errors.New("No family by that user id")
 	}
-	for k, v := range info {
-		logger.Debug.Println("key: " + k + "= " + v)
+	field := strings.Split(data["field"],":")
+	person := fam.GetFamilyMember(field[1])
+	
+	switch (field[0]) {
+		case "personProfile" : 
+			if person != nil {
+				if len(field) == 3 {
+					if field[2] == "undo" {
+						s.AddData("redo", person.Profile)
+						person.Profile = s.GetData("undo")
+						break
+					}
+					if field[2] == "redo" {
+						person.Profile = s.GetData("redo")
+						break
+					}
+				}
+				s.AddData("undo",person.Profile)
+				logger.Debug.Println("old = "+person.Profile)
+				person.Profile = data["data"]
+				logger.Debug.Println("new = "+person.Profile)
+			}
+			break
 	}
+	htmlProfile := ""
+	if len(field) == 3 {
+		if field[2] == "undo" {
+			htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:redo', '', $(this).parent())">R</a>`
+		} else {
+			htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
+		}
+	} else {
+		htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
+	}
+	for _, line := range(strings.Split(person.Profile,"\n")) {
+		htmlProfile += "<p>"+line+"</p>"
+	}
+	w.Write([]byte(`<a title="Edit" class="modalButton edit" onclick="update('New profile for `+field[1]+`', this, 'personProfile:`+
+		field[1]+`', 4, 180);">E</a>`+htmlProfile))
 	return "ok", nil
 }
 func pullData(r *http.Request) map[string]string {
+	logger.Trace.Println("pullData(r *http.Request)")
 	httpData, _ := ioutil.ReadAll(r.Body)
-	if httpData == nil || len(httpData) == 0 {
-		return nil
-	}
-	dataList := strings.Split(string(httpData), "&")
-	mapData := make(map[string]string)
-	for _, item := range dataList {
-		kv := strings.Split(item, "=")
-		mapData[kv[0]] = kv[1]
-	}
-	return mapData
+	if httpData == nil || len(httpData) == 0 { return nil }
+	reader := bytes.NewReader(httpData)
+	mapData := new(map[string]string)
+    if err := json.NewDecoder(reader).Decode(mapData); err != nil {
+		logger.Error.Println("error decoding json string: "+string(httpData))
+        return nil
+    }
+	return *mapData
 }

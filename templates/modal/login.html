@@ -1,0 +1,20 @@
+<div id="loginModal" class="modalDialog">
+	<div style="text-align: center; width: 600px;">
+		<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>		
+		<h2>Enter {{.Site.Name}}!</h2>		
+		<div class="container">
+			<form action="/main" method="post">
+				<span>
+					User Name: <input type="text" class= "ptButton ptInput" name="UserName"><br><br>
+					Password: <input type="password" class= "ptButton ptInput" name="Password"><br><br><br>
+				</span>
+				<input type="submit" class="ptButton" value="Login">
+				<a href="#applyModal" class="ptButton">Register</a>
+				<a href="#clearModal" class="ptButton">Cancel</a>
+				<a href="#passwordModal" class= "ptButton">Forgot Password?</a>
+				<input type="hidden" name="postProcessingHandler" value="login">
+				<input type="hidden" name="redirect" value="home#welcomeModal">
+			</form>
+		</div>
+	</div>
+</div>

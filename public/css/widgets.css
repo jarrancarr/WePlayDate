@@ -49,16 +49,28 @@
 .side:hover { background: #df0; }
 .submit {
 	background: rgba(0,255,0,0.2);
-	right: 140px;
+	right: 40px;
 	bottom: -10px;
 }
-.submit:hover { background: #2c2; }
+.submit:hover { background: #c22; }
 .cancel {
-	background: rgba(0,255,0,0.2);
-	right: 120px;
+	background: rgba(255,0,0,0.2);
+	right: 10px;
 	bottom: -10px;
 }
 .cancel:hover { background: #2c2; }
+.undo {
+	background: rgba(255,0,255,0.2);
+	right: 10px;
+	bottom: -10px;
+}
+.undo:hover { background: #c2c; }
+.redo {
+	background: rgba(0,255,255,0.2);
+	right: 10px;
+	bottom: -10px;
+}
+.redo:hover { background: #2cc; }
 
 .editmode {
 	background:  rgba(255,192,0,0.2);

@@ -14,5 +14,8 @@ func addTemplatePages() {
 	weePlayDate.AddPage("", "modal/welcome", "")
 	weePlayDate.AddPage("", "modal/info", "")
 	weePlayDate.AddPage("", "modal/article", "")
+	weePlayDate.AddPage("", "modal/apply", "")
+	weePlayDate.AddPage("", "modal/login", "")
+	weePlayDate.AddPage("", "modal/errors", "")
 	weePlayDate.AddPage("", "wallpaper", "")
 }

@@ -1,0 +1,24 @@
+<div id="failedLogin" class="modalDialog">
+	<div>
+		<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+		<h2>Sorry, that login was not recognized.</h2>
+		<p>Please try again.</p>
+	</div>
+</div>
+
+<div id="checkEmail" class="modalDialog">
+	<div style="text-align: center;">
+		<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+		<h2>Your application was successful</h2>
+		<p>Check you email for a secure link to set up you account.</p>
+	</div>
+</div>
+
+<div id="errorModal" class="modalDialog">
+	<div style="text-align: center;">
+		<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+		<h2>There was a problem</h2>
+		<p>{{session "param" "error"}}</p></br>
+		<a href='{{session "param" "retry"}}' title="Back" class="ptButton">Try again</a>
+	</div>
+</div>
