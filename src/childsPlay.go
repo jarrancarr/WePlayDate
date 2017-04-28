@@ -38,6 +38,7 @@ func (cps *ChildsPlayService) Get(p *website.Page, s *website.Session, data []st
 	case "posts":
 		pos := []string{"10", "20", "30", "40", "50", "60", "70", "80"}
 		articles := []website.Item{}
+		if cps.Places[data[1]]==nil { cps.MakePlace(data[1]) }
 		for n, art := range cps.Places[data[1]].Article {
 			articles = append(articles, struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{
 				art.Title, art.Text, pos[rand.Intn(len(pos))], pos[rand.Intn(len(pos))], "100", "100", art.Pic, n, "0"})
@@ -123,6 +124,10 @@ func (cps *ChildsPlayService) Metric(what ...string) int {
 	return 0
 }
 
+func (cps *ChildsPlayService) MakePlace(where string) {
+	cps.Places[where] = &Region{Name: where, Article: make(map[string]*Post)}
+}
+
 func CreateChildsPlayService() *ChildsPlayService {
 	logger.Debug.Println("CreateChildsPlayService()")
 	cps := ChildsPlayService{Lock: sync.Mutex{}, Places: make(map[string]*Region), Metrics: make(map[string][]int)}
@@ -132,8 +137,8 @@ func CreateChildsPlayService() *ChildsPlayService {
 		keys[i] = k
 		i++
 	}
-	cps.Places["20720"] = &Region{Name: "20720", Article: make(map[string]*Post)}
-	cps.Places["20726"] = &Region{Name: "20726", Article: make(map[string]*Post)}
+	cps.MakePlace("20720")
+	cps.MakePlace("20726")
 	for _, aName := range []string{"bd", "ck", "ic", "bh", "fk", "ds", "nb"} {
 		cps.Places["20720"].Article[aName] = makeArticle()
 	}

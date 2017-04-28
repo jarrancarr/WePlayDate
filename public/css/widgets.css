@@ -61,13 +61,13 @@
 .cancel:hover { background: #2c2; }
 .undo {
 	background: rgba(255,0,255,0.2);
-	right: 10px;
+	left: 20px;
 	bottom: -10px;
 }
 .undo:hover { background: #c2c; }
 .redo {
 	background: rgba(0,255,255,0.2);
-	right: 10px;
+	left: 20px;
 	bottom: -10px;
 }
 .redo:hover { background: #2cc; }

@@ -93,7 +93,7 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 		childSpecs := strings.Split(r.Form.Get(fmt.Sprintf("child%d", i)), "|")
 		if len(childSpecs) == 3 {
 			dob, _ := time.Parse(childSpecs[1], Date_Format)
-			children = append(children, &Person{Name: []string{childSpecs[0], familyName}, DOB: dob, Male: (childSpecs[2] == "Boy"), Zip:[]string{zip}, Admin: false})
+			children = append(children, &Person{Name: []string{childSpecs[0], familyName}, DOB: dob, Male: (childSpecs[2] == "Boy"), Admin: false})
 			child = childSpecs[0]
 			logger.Info.Println("child: " + child + ", " + children[i].DOB.Format(Date_Format_GL))
 			s.Item["numChildren"] = i + 1
@@ -155,7 +155,7 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 
 	Families[userName] = &Family{Login: &website.Account{[]string{""}, userName, base64.URLEncoding.EncodeToString(secret),
 		email, []*website.Role{website.StandardRoles["basic"]}, false, time.Now().Add(time.Minute * 15)},
-		Parent: parents, Child: children}
+		Parent: parents, Child: children, Zip:[]string{zip}}
 
 	// email user the key to log in.
 	logger.Info.Println("Log in key is: " + base64.URLEncoding.EncodeToString(secret))
@@ -348,19 +348,26 @@ func UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.S
 		return "", errors.New("No family by that user id")
 	}
 	field := strings.Split(data["field"],":")
-	person := fam.GetFamilyMember(field[1])
+	if len(field)<2 {
+		return "", errors.New("Not enough data found.")
+	}
+	
+	htmlProfile := ""
 	
 	switch (field[0]) {
 		case "personProfile" : 
+			person := fam.GetFamilyMember(field[1])
 			if person != nil {
 				if len(field) == 3 {
 					if field[2] == "undo" {
 						s.AddData("redo", person.Profile)
 						person.Profile = s.GetData("undo")
+						htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:redo', '', $(this).parent())">R</a>`
 						break
 					}
 					if field[2] == "redo" {
 						person.Profile = s.GetData("redo")
+						htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
 						break
 					}
 				}
@@ -369,22 +376,33 @@ func UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.S
 				person.Profile = data["data"]
 				logger.Debug.Println("new = "+person.Profile)
 			}
+			for _, line := range(strings.Split(person.Profile,"\n")) {
+				htmlProfile += "<p>"+line+"</p>"
+			}
+			break
+		case "familyProfile" :
+			if len(field) == 3 {
+				if field[2] == "undo" {
+					s.AddData("redo", fam.Profile)
+					fam.Profile = s.GetData("undo")
+					htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('familyProfile:`+field[1]+`:redo', '', $(this).parent())">R</a>`
+					break
+				}
+				if field[2] == "redo" {
+					fam.Profile = s.GetData("redo")
+					htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('familyProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
+					break
+				}
+			} else {
+				htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('familyProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
+			}
+			fam.Profile = data["data"]
+			for _, line := range(strings.Split(fam.Profile,"\n")) {
+				htmlProfile += "<p>"+line+"</p>"
+			}
 			break
 	}
-	htmlProfile := ""
-	if len(field) == 3 {
-		if field[2] == "undo" {
-			htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:redo', '', $(this).parent())">R</a>`
-		} else {
-			htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
-		}
-	} else {
-		htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
-	}
-	for _, line := range(strings.Split(person.Profile,"\n")) {
-		htmlProfile += "<p>"+line+"</p>"
-	}
-	w.Write([]byte(`<a title="Edit" class="modalButton edit" onclick="update('New profile for `+field[1]+`', this, 'personProfile:`+
+	w.Write([]byte(`<a title="Edit" class="modalButton edit" onclick="update('New profile for `+field[1]+`', this, '`+field[0]+`:`+
 		field[1]+`', 4, 180);">E</a>`+htmlProfile))
 	return "ok", nil
 }

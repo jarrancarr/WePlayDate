@@ -83,7 +83,7 @@
 						{{ end }}
 					</div>
 					<div class="personProfileEdit" style="width: 670px;">
-						<a href="#editModal" title="Edit Family profile" class="modalButton edit" style="display:none;" onclick="configEdit('{{$fam.Login.User}}', 'familyProfile', '#myFamilyProfileModal')">E</a>
+						<a title="Edit Family profile" class="modalButton edit" style="display:none;" onclick="input('New profile for {{ $fam.Login.User }}', this, 'familyProfile:{{ $fam.Login.User }}', 4, 180);">E</a>
 						<p>{{.Profile}}</p>
 					</div>
 					<div class="personProfileEdit" style="width: 670px; border: 0px;">

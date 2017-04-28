@@ -3,9 +3,13 @@
 		<div style="float:left;">
 			{{with $test := service "account" "isLoggedIn"}}
 				{{if eq "True" $test}}
-					Hello {{service "account" "session" "name"}}
+					<!--Hello {{service "account" "session" "name"}}-->
+					<div id="family-chat">
+						<p>hi dad</p>
+					</div>
 				{{end}}
 			{{end}}
+			
 		</div>
 	</div>
 </div>

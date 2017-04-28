@@ -1,0 +1,23 @@
+<div id="local-{{ . }}" class="floatPanel local" onclick="$('.floatPanel').css('z-index','2'); $(this).css('z-index','3');" style="position:fixed;">
+	<a title="Hide" class="hideModal modalButton" onclick="sidebar('local-{{ . }}');">&lt</a>
+	<a class='modalButton whosHere' title='Who'>?</a>
+	<a class='modalButton closeBy' title='Map' onclick="regionsNear('local-{{ . }}');">*</a>
+		<h4 class='dialogHeader ptListItem'>
+			<a onclick='enterRoom("{{ . }}")'>{{ . }}</a>
+		</h4>
+	<div class="floatFrame">
+		{{ range get "childsPlay" "posts" . }}
+			{{with session "item" "family"}}
+				{{range .Zip }} {{ $place := . }}
+					<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}">
+						<img src="../img/{{.JPG}}" width="{{.W}}" height="{{.H}}" onclick="openArticle('{{ $place }}','{{.Link}}')">
+					</div>
+				{{ end }}
+			{{ end }}
+		{{ end }}
+	</div>
+</div>
+<div id="local-{{ . }}-Min" class="minButton" style="display: none;">
+	<a title="Hide" class="hideModal modalButton" onclick="sidebar('local-{{ . }}');">&gt</a>
+	<a class='vertical' style='height: 75px;' onclick='enterRoom("{{ . }}")'>{{ . }}</a>					
+</div>
