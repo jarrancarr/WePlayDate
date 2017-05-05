@@ -119,6 +119,11 @@ article {
 	overflow: hidden;
 	height: calc(100% - 28px);
 }
+.content {
+	margin: 10px;
+	padding: 10px;
+	border: 0px;
+}
 .post {
 	position: absolute;
 }
@@ -141,6 +146,18 @@ article {
 	top: 0;
 	float: left;
 }
+.thumbnail {
+	width: 60px;
+	height: 80px;
+	margin: 8px;
+	padding: 0px;
+	border-width: 3px;
+	border-style: inset;
+	border-color: black;
+	position: relative;
+	top: 0;
+	float: left;
+}
 #images {
 	z-index : 2;
 	position: fixed;
@@ -157,6 +174,7 @@ article {
 	right: 0;
 	left: 0;
 	bottom: 0;
+	padding: 15px 20px 15px 20px;
 	background: rgba(192, 255, 255, 0.5);
 	z-index: 10;
 	opacity:0;

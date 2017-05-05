@@ -67,6 +67,9 @@ func addScripts() {
 		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } `+
 		`}); }, 5000);	`)
 	weePlayDate.AddScript("init-home-script", `$('.local').draggable({containment:'#lower',cursor:'move',zIndex:3 }); $('.local').resizable({handles:'se'});`)
+	weePlayDate.AddScript("init-home-script", `$('.modalDialog').on("mouseenter", "div", function(){`+
+		`$('.modalDialog .peekaboo').css("display","block");})`+
+		`.on("mouseleave", "div", function(){$('.modalDialog .peekaboo').css("display","none");});`)
 	weePlayDate.AddScript("home-script", `function enterRoom(roomName) {`+
 		`if ($('#'+roomName).length) { return; }`+
 		`body = $('body');`+
@@ -162,30 +165,35 @@ func addScripts() {
 	weePlayDate.AddScript("home-script", `function onShowProfileModal(user, name, retUrl) {`+
 		`$.ajax({ url: '/home', type: 'AJAX',`+
 		`headers: { 'ajaxProcessingHandler':'personProfile' },`+
-		`dataType: 'html', data: { 'user':user, 'name':name },`+
+		`dataType: 'html', data: '{ "user":"'+user+'", "name":"'+name+'" }',`+
 		`success: function(data, textStatus, jqXHR) {`+
 		`var obj = JSON.parse(data);`+
 		`$('#personModal div a.closeModal').attr('href','#'+retUrl);`+
 		`if (retUrl == 'myFamilyProfileModal') {`+
-		`$('#personModal div a.editmode').show();`+
+		`$('#personModal div a.edit').addClass('peekaboo');`+
+		`$('#personModal div a.comment').removeClass('peekaboo').css("display","none");;`+
 		`$('#personModal div div#personProfileControl').show();`+
 		`$('#personModal div div#familyLink').hide();`+
 		`} else {`+
-		`$('#personModal div a.editmode').hide();`+
+		`$('#personModal div a.edit').removeClass('peekaboo').css("display","none");;`+
+		`$('#personModal div a.comment').addClass('peekaboo');`+
 		`$('#personModal div div#personProfileControl').hide();`+
 		`$('#personModal div div#familyLink').show();`+
 		`}`+
-		`$("#personModal div .personProfileInfo").empty().append("<p>Name:"+obj["name"]+"</p><p>Age:"+obj["age"]+", "+obj["sex"]+"</p><p>"+obj["profile"]+"</p>");`+
-		`$("#personModal div #personProfilePic img").attr('src','../img/'+obj["pic"]);`+
-		`$("#personModal div #personProfilePic a.edit").attr('onclick', 'alert("do this");').css('display','none');`+
-		`$("#personModal div #personProfilePic a.comment").attr('onclick', `+
-		`'configEdit("'+user+'", "familyProfileComment:'+name+'", "?fid='+user+'&name='+name+'#personModal")').css('display','block');`+
+		`$("#personModal div .personProfileInfo").empty().append("<p>Name:"+obj["name"]+"</p>`+
+		`<p>Age:"+obj["age"]+", "+obj["sex"]+"</p><p>"+obj["profile"]+"</p>");`+
+		`$("#personModal div #personProfilePic img").attr('src','../img/profile/'+obj["pic"]);`+
+		`$("#personProfile p").remove();`+
+		`$("#personProfile a.undo").remove();`+
+		`$("#personProfile").append("<p>"+obj["profile"]+"</p>");`+
+		`$("#personProfile a.edit").attr('onclick','input("New profile for '+name+'", this, "personProfile:'+name+'", 4, 180, 0,0,0,0)');`+
+		`$("#personProfile a.comment").attr('onclick','input("Comment on '+name+'", this, "personProfileComment:'+user+':'+name+'", 4, 180, 0,0,0,0)');`+
+		`$("#personProfilePic a.comment").attr('onclick','input("Comment on '+name+' Profile Pic", this, "personProfilePicComment:'+user+':'+name+'", 4, 180, 0,0,0,0)');`+
 		`var likes = obj["likes"].split("|");`+
 		`if (likes.length>0) {`+
 		`$("#personModal div .personProfileInfo").append("<ul>Likes:</ul>");`+
 		`$.each(likes, function(index, like) { $("#personModal div ul").append("<li>"+like+"</li>"); });`+
 		`}`+
-		`$("#personModal div #personProfile").empty().append('<a href="#editModal" title="Edit" class="modalButton edit" style="display:none;" onclick="configEdit(\''+user+'\', \'#personModal\', \'?fid='+user+'&name='+name+'#personModal\');">E</a><p>'+obj["profile"]+'</p>'); `+
 		`$(location).attr('href','#personModal'); }, `+
 		`error: function(data, textStatus, jqXHR) { console.log("onShowProfileModal fail: "+textStatus); } `+
 		`}); }`)
@@ -209,7 +217,7 @@ func addScripts() {
 	weePlayDate.AddScript("home-script", `function openArticle(place, articleId) {`+
 		`$.ajax({url: '/home',type: 'AJAX', `+
 		`headers: { 'ajaxProcessingHandler':'article' }, `+
-		`dataType: 'html', data: { 'place':place,'articleName':articleId },`+
+		`dataType: 'html', data: '{ "place":"'+place+'","articleName":"'+articleId+'" }',`+
 		`success: function(data, textStatus, jqXHR) { `+
 		`var info = JSON.parse(data); var aModal = $('#articleModal div div');`+
 		`aModal.empty().append("<h2>"+info["title"]+"</h2>`+
@@ -218,18 +226,26 @@ func addScripts() {
 		`$(location).attr('href','#articleModal'); },`+
 		`error: function(data, textStatus, jqXHR) { console.log("open article fail: "+textStatus); }`+
 		`}); }`)
-	weePlayDate.AddScript("home-script", `function input(prompt, tag, field, rows, cols) { `+
+	weePlayDate.AddScript("home-script", `function input(prompt, tag, field, rows, cols, t, r, b, l) { `+
 		`var ele = $(tag); `+
 		`ele.nextAll().remove(); `+
-		`ele.after("<textarea id='newText' class='ptButton' rows='"+rows+"' cols='"+cols+"' style='margin: -16px; width: 100%; resize: none;'>"+prompt+"</textarea>`+
+		`ele.after("<textarea id='newText' class='ptButton' rows='"+rows+"' cols='"+cols+"' `+
+		`style='margin: "+t+"px "+r+"px "+b+"px "+l+"px; width: 100%; resize: none;'>"+prompt+"</textarea>`+
 		`<a title='Submit' class='modalButton submit' onclick='update(\""+field+"\", $(\"#newText\").val(), $(this).parent())'>S</a>`+
-		`<a title='Cancel' class='modalButton cancel'>C</a>"); }`)
+		`<a title='Cancel' class='modalButton cancel'>X</a>"); }`)
 	weePlayDate.AddScript("home-script", `function update(field, data, reloadTag) { `+
 		`$.ajax({ url: '/home', type: 'AJAX', `+
 		`headers: { 'ajaxProcessingHandler':'editUpdate' }, `+
 		`dataType: 'html', data: '{"field":"'+field+'", "data":'+JSON.stringify(data)+'}',`+
 		`success: function(data, textStatus, jqXHR) { reloadTag.html(data); },`+
 		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } }); }`)
+	weePlayDate.AddScript("home-script", `function openMap(place) { `+
+		`$.ajax({ url: '/home', type: 'AJAX', `+
+		`headers: { 'ajaxProcessingHandler':'getMap' }, `+
+		`dataType: 'html', data: '{"place":"'+place+'"}',`+
+		`success: function(data, textStatus, jqXHR) { $('#mapModal').html(data); $(location).attr('href','#mapModal');},`+
+		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } }); }`)
+	
 	weePlayDate.AddScript("main-script", `function addKid() { `+
 		`var kid = $('#newKid'); `+
 		`var form = $('#family'); `+
@@ -275,5 +291,4 @@ func addScripts() {
 		`after = after.slice(href.indexOf("&"),after.length); `+
 		`window.location.href = before + param + "=" + val + after } `+
 		`else { window.location.href = window.location.href + "&" + param + "=" + val ; }}`)
-	//weePlayDate.AddScript("admin-script", ``)
 }

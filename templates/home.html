@@ -14,12 +14,13 @@
 			{{page "dashboard"}}
 		</div>
 		<div id="lower" class="frame">
-			{{with session "item" "family"}}
-				{{range .Zip }} {{ $place := . }}
-					<div id="local-{{ . }}" class="floatPanel local" onclick="$('.floatPanel').css('z-index','2'); $(this).css('z-index','3');" style="position:fixed;">
+			{{with session "item" "family"}} {{ $fam := . }}
+				{{range .Zip }} {{ $place := . }} {{ $cfg := index $fam.Item . }}
+					<div id="local-{{ . }}" class="floatPanel local" onclick="$('.floatPanel').css('z-index','2'); $(this).css('z-index','3');" 
+						style='position:fixed; left:{{ $cfg.X }}%; top:{{ $cfg.Y }}%; width:{{ $cfg.W }}px; height:{{ $cfg.H }}px;'>
 						<a title="Hide" class="hideModal modalButton" onclick="sidebar('local-{{ . }}');">&lt</a>
 						<a class='modalButton whosHere' title='Who'>?</a>
-						<a class='modalButton closeBy' title='Map' onclick="regionsNear('local-{{ . }}');">*</a>
+						<a class='modalButton closeBy' title='Map' onclick="openMap('{{ . }}');">*</a>
 							<h4 class='dialogHeader ptListItem'>
 								<a onclick='enterRoom("{{ . }}")'>{{ . }}</a>
 							</h4>
@@ -56,10 +57,9 @@
 		<div id="myFamilyProfileModal" class="modalDialog">
 			<div style="text-align: center; width: 700px;">
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-				<a title="Edit Mode" class="modalButton editmode" onclick="toggleEditMode('myFamilyProfileModal')">E</a>
 				{{with session "item" "family"}} {{$fam := .}}
 					<div id="familyProfilePic" class="pictureFrame" style="width: 320px;">
-						<a title="Edit" class="modalButton edit" style="display:none;">E</a>
+						<a title="Edit" class="modalButton edit peekaboo" style="display:none;">E</a>
 						{{ with index .Comments "ProfilePic" }}
 							{{ $length := len . }}
 							{{if not eq $length 0}}
@@ -76,18 +76,20 @@
 							{{ end }}
 						</div>
 						{{range .Parent }}
-							<a href="?fid={{ $fam.Login.User }}&name={{ index .Name 0 }}#personModal" class="ptButton showModalTrigger" >{{index .Name 0}} {{index .Name 1}}</a></br>
+							<!--<a href="?fid={{ $fam.Login.User }}&name={{ index .Name 0 }}#personModal" class="ptButton showModalTrigger" >{{index .Name 0}} {{index .Name 1}}</a></br>-->
+							<a class='ptButton' onclick='onShowProfileModal("{{ $fam.Login.User }}", "{{ index .Name 0 }}","myFamilyProfileModal")'>{{index .Name 0}} {{index .Name 1}}</a></br>
 						{{ end }}
 						{{range .Child }}
-							<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myFamilyProfileModal')">{{index .Name 0}} {{index .Name 1}}, {{.Sex}}, Age {{.Age}}</a></br>
+							<!--<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('{{$fam.Login.User}}', {{index .Name 0}}, 'myFamilyProfileModal')">{{index .Name 0}} {{index .Name 1}}, {{.Sex}}, Age {{.Age}}</a></br>-->
+							<a class='ptButton' onclick='onShowProfileModal("{{ $fam.Login.User }}", "{{ index .Name 0 }}","myFamilyProfileModal")'>{{index .Name 0}} {{index .Name 1}}</a></br>
 						{{ end }}
 					</div>
 					<div class="personProfileEdit" style="width: 670px;">
-						<a title="Edit Family profile" class="modalButton edit" style="display:none;" onclick="input('New profile for {{ $fam.Login.User }}', this, 'familyProfile:{{ $fam.Login.User }}', 4, 180);">E</a>
+						<a title="Edit Family profile" class="modalButton edit peekaboo" onclick="input('New profile for {{ $fam.Login.User }}', this, 'familyProfile:{{ $fam.Login.User }}', 4, 180, 0,0,0,0);">E</a>
 						<p>{{.Profile}}</p>
 					</div>
 					<div class="personProfileEdit" style="width: 670px; border: 0px;">
-						<input class="ptButton" value="Manage albums" style="width: 100px;"/>
+						<a href="#manageAlbumsModal" class="ptButton" value="Manage albums" >Manage albums</a>
 						<input class="ptButton" value="Manage family" style="width: 100px;"/>
 					</div>
 				{{end}}
@@ -96,10 +98,17 @@
 		{{ page "modal/family" }}
 		{{ page "modal/person" }}
 		{{ page "modal/info" }}
+		{{ page "modal/album" }}
 		<div id="editModal" class="modalDialog">
 			<div>
 				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
 				<h2>Edit</h2>
+			</div>
+		</div>
+		<div id="mapModal" class="modalDialog">
+			<div>
+				<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+				<h2>Map</h2>
 			</div>
 		</div>
 		{{ page "modal/article" }}

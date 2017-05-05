@@ -278,22 +278,24 @@ func GetFamilyProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 	return "ok", nil
 }
 func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Trace.Println("WeePlayDate.GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	logger.Debug.Println("WeePlayDate.GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	data := pullData(r)
-	logger.Trace.Println(data["user"] + " " + data["name"])
+	logger.Debug.Println(data["user"] + " " + data["name"])
 	family := Families[data["user"]]
-	name := strings.Split(data["name"], "+")[0]
+	name := strings.Split(data["name"], " ")[0]
 	if family == nil {
 		return "", errors.New("No such user family in system")
 	}
 	var thisPerson *Person
 	for _, fm := range family.Parent {
+		logger.Debug.Println("comparing "+fm.Name[0]+"=="+ name)
 		if fm.Name[0] == name {
 			thisPerson = fm
 		}
 	}
 	if thisPerson == nil {
 		for _, fm := range family.Child {
+			logger.Debug.Println("comparing "+fm.Name[0]+"=="+ name)
 			if fm.Name[0] == name {
 				thisPerson = fm
 			}
@@ -308,7 +310,7 @@ func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 	return "ok", nil
 }
 func GetArticleAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
-	logger.Trace.Println("WeePlayDate.GetProfileAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	logger.Trace.Println("WeePlayDate.GetArticleAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	info := pullData(r)
 	if cps.Places[info["place"]] == nil {
 		return "", errors.New("No such place as " + info["place"])
@@ -363,22 +365,23 @@ func UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.S
 						s.AddData("redo", person.Profile)
 						person.Profile = s.GetData("undo")
 						htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:redo', '', $(this).parent())">R</a>`
-						break
 					}
 					if field[2] == "redo" {
 						person.Profile = s.GetData("redo")
 						htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
-						break
 					}
+				} else {
+					s.AddData("undo",person.Profile)
+					person.Profile = data["data"]
+					htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
 				}
-				s.AddData("undo",person.Profile)
-				logger.Debug.Println("old = "+person.Profile)
-				person.Profile = data["data"]
-				logger.Debug.Println("new = "+person.Profile)
+				for _, line := range(strings.Split(person.Profile,"\n")) {
+					htmlProfile += "<p>"+line+"</p>"
+				}
 			}
-			for _, line := range(strings.Split(person.Profile,"\n")) {
-				htmlProfile += "<p>"+line+"</p>"
-			}
+			htmlProfile += `<a title="Edit" class="modalButton edit peekaboo" onclick="input('New profile for `+
+				field[1]+`', this, 'personProfile:`+field[0]+`:`+field[1]+`', 4, 180, 0,0,0,0);">E</a>`
+			htmlProfile += `<a title="Comment" class="modalButton comment" style="display:none;">C</a>`
 			break
 		case "familyProfile" :
 			if len(field) == 3 {
@@ -386,24 +389,71 @@ func UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.S
 					s.AddData("redo", fam.Profile)
 					fam.Profile = s.GetData("undo")
 					htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('familyProfile:`+field[1]+`:redo', '', $(this).parent())">R</a>`
-					break
 				}
 				if field[2] == "redo" {
 					fam.Profile = s.GetData("redo")
 					htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('familyProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
-					break
 				}
 			} else {
+				s.AddData("undo", fam.Profile)
+				fam.Profile = data["data"]
 				htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('familyProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
 			}
-			fam.Profile = data["data"]
 			for _, line := range(strings.Split(fam.Profile,"\n")) {
 				htmlProfile += "<p>"+line+"</p>"
 			}
+			htmlProfile += `<a title="Edit" class="modalButton edit peekaboo" onclick="input('New profile for `+
+				field[1]+`', this, 'familyProfile:`+field[0]+`:`+field[1]+`', 4, 180, 0,0,0,0);">E</a>`
+			htmlProfile += `<a title="Comment" class="modalButton comment" style="display:none;">C</a>`
+			break
+		
+		case "personProfileComment":
+			otherFam := Families[field[1]]
+			person := fam.Parent[0] // need to get which family member
+			otherPerson := otherFam.GetFamilyMember(field[2])
+			if otherPerson != nil {
+				logger.Debug.Println("personProfileComment: "+otherPerson.FullName())
+				otherPerson.CommentOn(person, "personProfileComment", data["data"])
+			}
+			htmlProfile += `<a title="Comment" class="modalButton comment peekaboo" onclick="input('comment on profile',this, 'personProfileComment:`+field[1]+`:`+field[2]+`', 12, 65, 0,0,0,0);">C</a>`
+			htmlProfile += `<a title="Edit" class="modalButton edit" style="display:none;">E</a>`
+			for _, line := range(strings.Split(otherPerson.Profile,"\n")) {
+				htmlProfile += "<p>"+line+"</p>"
+			}
+			break
+		
+		case "personProfilePicComment":
+			otherFam := Families[field[1]]
+			person := fam.Parent[0] // need to get which family member
+			otherPerson := otherFam.GetFamilyMember(field[2])
+			if otherPerson != nil {
+				logger.Debug.Println("personProfilePicComment: "+otherPerson.FullName())
+				otherPerson.CommentOn(person, "personProfilePicComment", data["data"])
+			}
+			htmlProfile += `<img src="../img/profile/`+otherPerson.ProfilePic+`">`
+			htmlProfile += `<a title="Comment" class="modalButton comment peekaboo" onclick="input('comment on profile Pic',this, 'personProfilePicComment:`+field[1]+`:`+field[2]+`', 12, 65, 0,0,0,0);">C</a>`
+			htmlProfile += `<a title="Edit" class="modalButton edit" style="display:none;">E</a>`
 			break
 	}
-	w.Write([]byte(`<a title="Edit" class="modalButton edit" onclick="update('New profile for `+field[1]+`', this, '`+field[0]+`:`+
-		field[1]+`', 4, 180);">E</a>`+htmlProfile))
+	
+	w.Write([]byte(htmlProfile))
+	return "ok", nil
+}
+func GetMapAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("GetMapAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	data := pullData(r)
+	pl := cps.Places[data["place"]]
+	htmlModal := `<div style="background: url('../img/map/`+pl.MapPhoto+`'); width: 800px; height: 800px; background-size: 100% 100%;"><a href="#closeModal" title="Close" class="closeModal modalButton">X</a><h2>Map</h2>`
+	htmlModal += `<p>opening map:`+data["place"]+`</p>`
+	if pl == nil {
+		htmlModal += `<p>sorry, that place is not found.</p>`
+	} else {
+		htmlModal += `<p>`+fmt.Sprintf("%d", len(pl.Activities))+` activities</p>`
+		htmlModal += `<p>`+fmt.Sprintf("%d", len(pl.Article))+` articles</p>`
+		htmlModal += `<p>lat:`+fmt.Sprintf("%f", pl.Center.Lat)+` long:`+fmt.Sprintf("%f", pl.Center.Long)+`</p>`
+	}
+	htmlModal += `</div>`
+	w.Write([]byte(htmlModal))
 	return "ok", nil
 }
 func pullData(r *http.Request) map[string]string {
