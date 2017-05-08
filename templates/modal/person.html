@@ -3,11 +3,13 @@
 <div id="personModal" class="modalDialog">
 	<div style="text-align: center; width: 600px;">
 		<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
+		<a title="Tag" class="modalButton tag">T</a>
 		<!--<a title="Edit Mode" class="modalButton editmode" onclick="toggleEditMode('personModal')">E</a>-->
 		<div id="personProfilePic" class="pictureFrame">
 			<a title="Edit" class="modalButton edit">E</a>
 			<a title="Comment" class="modalButton comment" onclick="input('comment on profile picture',this, 'personProfile:{{ $name }}', 12, 65, 0,0,0,0);">C</a>
-			<img src="../img/profile/{{ .Pic }}">
+			<!--<img src="../img/profile/{{ .Pic }}">-->
+			<img src="../img/test3.bpg">
 		</div>
 		<div class="personProfileInfo"></div>
 		<div id="personProfile" class="personProfileEdit">

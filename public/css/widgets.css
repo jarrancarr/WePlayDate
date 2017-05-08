@@ -1,3 +1,24 @@
+.modalButton {
+	color: #fff;
+	line-height: 25px;
+	position: absolute;
+	text-align: center;
+	width: 24px;
+	text-decoration: none;
+	font-weight: bold;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;
+	-moz-box-shadow: 1px 1px 3px #000;
+	-webkit-box-shadow: 1px 1px 3px #000;
+	box-shadow: 1px 1px 3px #000;
+}
+.closeModal {
+	background: #666;
+	right: -12px;
+	top: -10px;
+}
+.closeModal:hover { background: #0df; }
 .sendMessage {
 	background: rgba(0,255,0,0.2);
 	left: 12px;
@@ -40,6 +61,12 @@
 	bottom: -10px;
 }
 .comment:hover { background: #f0a; }
+.tag {
+	background:  rgba(0,0,0,0.2);
+	left: -12px;
+	top: -10px;
+}
+.tag:hover { background: #000; }
 .side {
 	position: relative;
 	background:  rgba(192,255,0,0.2);

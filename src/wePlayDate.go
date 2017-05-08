@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"encoding/json"
 	//"html/template"
 	"io/ioutil"
 	"net/http"
@@ -155,7 +155,7 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 
 	Families[userName] = &Family{Login: &website.Account{[]string{""}, userName, base64.URLEncoding.EncodeToString(secret),
 		email, []*website.Role{website.StandardRoles["basic"]}, false, time.Now().Add(time.Minute * 15)},
-		Parent: parents, Child: children, Zip:[]string{zip}}
+		Parent: parents, Child: children, Zip: []string{zip}}
 
 	// email user the key to log in.
 	logger.Info.Println("Log in key is: " + base64.URLEncoding.EncodeToString(secret))
@@ -192,6 +192,7 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 		for _, z := range fam.Zip {
 			mss.Execute([]string{"addRoom", z, ""}, s, p)
 		}
+		mss.Execute([]string{"addRoom", userName, ""}, s, p)
 		if !s.Cookie {
 			return r.Form.Get("redirect") + "?_id=" + s.Data["id"], nil
 		}
@@ -288,14 +289,14 @@ func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 	}
 	var thisPerson *Person
 	for _, fm := range family.Parent {
-		logger.Debug.Println("comparing "+fm.Name[0]+"=="+ name)
+		logger.Debug.Println("comparing " + fm.Name[0] + "==" + name)
 		if fm.Name[0] == name {
 			thisPerson = fm
 		}
 	}
 	if thisPerson == nil {
 		for _, fm := range family.Child {
-			logger.Debug.Println("comparing "+fm.Name[0]+"=="+ name)
+			logger.Debug.Println("comparing " + fm.Name[0] + "==" + name)
 			if fm.Name[0] == name {
 				thisPerson = fm
 			}
@@ -342,100 +343,100 @@ func EditDataPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 func UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	data := pullData(r)
-	for k, v := range(data) {
-		logger.Debug.Println(k+" = "+v)
+	for k, v := range data {
+		logger.Debug.Println(k + " = " + v)
 	}
 	fam := Families[s.GetUserName()]
 	if fam == nil {
 		return "", errors.New("No family by that user id")
 	}
-	field := strings.Split(data["field"],":")
-	if len(field)<2 {
+	field := strings.Split(data["field"], ":")
+	if len(field) < 2 {
 		return "", errors.New("Not enough data found.")
 	}
-	
+
 	htmlProfile := ""
-	
-	switch (field[0]) {
-		case "personProfile" : 
-			person := fam.GetFamilyMember(field[1])
-			if person != nil {
-				if len(field) == 3 {
-					if field[2] == "undo" {
-						s.AddData("redo", person.Profile)
-						person.Profile = s.GetData("undo")
-						htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:redo', '', $(this).parent())">R</a>`
-					}
-					if field[2] == "redo" {
-						person.Profile = s.GetData("redo")
-						htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
-					}
-				} else {
-					s.AddData("undo",person.Profile)
-					person.Profile = data["data"]
-					htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
-				}
-				for _, line := range(strings.Split(person.Profile,"\n")) {
-					htmlProfile += "<p>"+line+"</p>"
-				}
-			}
-			htmlProfile += `<a title="Edit" class="modalButton edit peekaboo" onclick="input('New profile for `+
-				field[1]+`', this, 'personProfile:`+field[0]+`:`+field[1]+`', 4, 180, 0,0,0,0);">E</a>`
-			htmlProfile += `<a title="Comment" class="modalButton comment" style="display:none;">C</a>`
-			break
-		case "familyProfile" :
+
+	switch field[0] {
+	case "personProfile":
+		person := fam.GetFamilyMember(field[1])
+		if person != nil {
 			if len(field) == 3 {
 				if field[2] == "undo" {
-					s.AddData("redo", fam.Profile)
-					fam.Profile = s.GetData("undo")
-					htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('familyProfile:`+field[1]+`:redo', '', $(this).parent())">R</a>`
+					s.AddData("redo", person.Profile)
+					person.Profile = s.GetData("undo")
+					htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('personProfile:` + field[1] + `:redo', '', $(this).parent())">R</a>`
 				}
 				if field[2] == "redo" {
-					fam.Profile = s.GetData("redo")
-					htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('familyProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
+					person.Profile = s.GetData("redo")
+					htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:` + field[1] + `:undo', '', $(this).parent())">U</a>`
 				}
 			} else {
-				s.AddData("undo", fam.Profile)
-				fam.Profile = data["data"]
-				htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('familyProfile:`+field[1]+`:undo', '', $(this).parent())">U</a>`
+				s.AddData("undo", person.Profile)
+				person.Profile = data["data"]
+				htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('personProfile:` + field[1] + `:undo', '', $(this).parent())">U</a>`
 			}
-			for _, line := range(strings.Split(fam.Profile,"\n")) {
-				htmlProfile += "<p>"+line+"</p>"
+			for _, line := range strings.Split(person.Profile, "\n") {
+				htmlProfile += "<p>" + line + "</p>"
 			}
-			htmlProfile += `<a title="Edit" class="modalButton edit peekaboo" onclick="input('New profile for `+
-				field[1]+`', this, 'familyProfile:`+field[0]+`:`+field[1]+`', 4, 180, 0,0,0,0);">E</a>`
-			htmlProfile += `<a title="Comment" class="modalButton comment" style="display:none;">C</a>`
-			break
-		
-		case "personProfileComment":
-			otherFam := Families[field[1]]
-			person := fam.Parent[0] // need to get which family member
-			otherPerson := otherFam.GetFamilyMember(field[2])
-			if otherPerson != nil {
-				logger.Debug.Println("personProfileComment: "+otherPerson.FullName())
-				otherPerson.CommentOn(person, "personProfileComment", data["data"])
+		}
+		htmlProfile += `<a title="Edit" class="modalButton edit peekaboo" onclick="input('New profile for ` +
+			field[1] + `', this, 'personProfile:` + field[0] + `:` + field[1] + `', 4, 180, 0,0,0,0);">E</a>`
+		htmlProfile += `<a title="Comment" class="modalButton comment" style="display:none;">C</a>`
+		break
+	case "familyProfile":
+		if len(field) == 3 {
+			if field[2] == "undo" {
+				s.AddData("redo", fam.Profile)
+				fam.Profile = s.GetData("undo")
+				htmlProfile += `<a title="Redo" class="modalButton undo" onclick="update('familyProfile:` + field[1] + `:redo', '', $(this).parent())">R</a>`
 			}
-			htmlProfile += `<a title="Comment" class="modalButton comment peekaboo" onclick="input('comment on profile',this, 'personProfileComment:`+field[1]+`:`+field[2]+`', 12, 65, 0,0,0,0);">C</a>`
-			htmlProfile += `<a title="Edit" class="modalButton edit" style="display:none;">E</a>`
-			for _, line := range(strings.Split(otherPerson.Profile,"\n")) {
-				htmlProfile += "<p>"+line+"</p>"
+			if field[2] == "redo" {
+				fam.Profile = s.GetData("redo")
+				htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('familyProfile:` + field[1] + `:undo', '', $(this).parent())">U</a>`
 			}
-			break
-		
-		case "personProfilePicComment":
-			otherFam := Families[field[1]]
-			person := fam.Parent[0] // need to get which family member
-			otherPerson := otherFam.GetFamilyMember(field[2])
-			if otherPerson != nil {
-				logger.Debug.Println("personProfilePicComment: "+otherPerson.FullName())
-				otherPerson.CommentOn(person, "personProfilePicComment", data["data"])
-			}
-			htmlProfile += `<img src="../img/profile/`+otherPerson.ProfilePic+`">`
-			htmlProfile += `<a title="Comment" class="modalButton comment peekaboo" onclick="input('comment on profile Pic',this, 'personProfilePicComment:`+field[1]+`:`+field[2]+`', 12, 65, 0,0,0,0);">C</a>`
-			htmlProfile += `<a title="Edit" class="modalButton edit" style="display:none;">E</a>`
-			break
+		} else {
+			s.AddData("undo", fam.Profile)
+			fam.Profile = data["data"]
+			htmlProfile += `<a title="Undo" class="modalButton undo" onclick="update('familyProfile:` + field[1] + `:undo', '', $(this).parent())">U</a>`
+		}
+		for _, line := range strings.Split(fam.Profile, "\n") {
+			htmlProfile += "<p>" + line + "</p>"
+		}
+		htmlProfile += `<a title="Edit" class="modalButton edit peekaboo" onclick="input('New profile for ` +
+			field[1] + `', this, 'familyProfile:` + field[0] + `:` + field[1] + `', 4, 180, 0,0,0,0);">E</a>`
+		htmlProfile += `<a title="Comment" class="modalButton comment" style="display:none;">C</a>`
+		break
+
+	case "personProfileComment":
+		otherFam := Families[field[1]]
+		person := fam.Parent[0] // need to get which family member
+		otherPerson := otherFam.GetFamilyMember(field[2])
+		if otherPerson != nil {
+			logger.Debug.Println("personProfileComment: " + otherPerson.FullName())
+			otherPerson.CommentOn(person, "personProfileComment", data["data"])
+		}
+		htmlProfile += `<a title="Comment" class="modalButton comment peekaboo" onclick="input('comment on profile',this, 'personProfileComment:` + field[1] + `:` + field[2] + `', 12, 65, 0,0,0,0);">C</a>`
+		htmlProfile += `<a title="Edit" class="modalButton edit" style="display:none;">E</a>`
+		for _, line := range strings.Split(otherPerson.Profile, "\n") {
+			htmlProfile += "<p>" + line + "</p>"
+		}
+		break
+
+	case "personProfilePicComment":
+		otherFam := Families[field[1]]
+		person := fam.Parent[0] // need to get which family member
+		otherPerson := otherFam.GetFamilyMember(field[2])
+		if otherPerson != nil {
+			logger.Debug.Println("personProfilePicComment: " + otherPerson.FullName())
+			otherPerson.CommentOn(person, "personProfilePicComment", data["data"])
+		}
+		htmlProfile += `<img src="../img/profile/` + otherPerson.ProfilePic + `">`
+		htmlProfile += `<a title="Comment" class="modalButton comment peekaboo" onclick="input('comment on profile Pic',this, 'personProfilePicComment:` + field[1] + `:` + field[2] + `', 12, 65, 0,0,0,0);">C</a>`
+		htmlProfile += `<a title="Edit" class="modalButton edit" style="display:none;">E</a>`
+		break
 	}
-	
+
 	w.Write([]byte(htmlProfile))
 	return "ok", nil
 }
@@ -443,14 +444,14 @@ func GetMapAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Sessio
 	logger.Debug.Println("GetMapAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	data := pullData(r)
 	pl := cps.Places[data["place"]]
-	htmlModal := `<div style="background: url('../img/map/`+pl.MapPhoto+`'); width: 800px; height: 800px; background-size: 100% 100%;"><a href="#closeModal" title="Close" class="closeModal modalButton">X</a><h2>Map</h2>`
-	htmlModal += `<p>opening map:`+data["place"]+`</p>`
+	htmlModal := `<div style="background: url('../img/map/` + pl.MapPhoto + `'); width: 800px; height: 800px; background-size: 100% 100%;"><a href="#closeModal" title="Close" class="closeModal modalButton">X</a><h2>Map</h2>`
+	htmlModal += `<p>opening map:` + data["place"] + `</p>`
 	if pl == nil {
 		htmlModal += `<p>sorry, that place is not found.</p>`
 	} else {
-		htmlModal += `<p>`+fmt.Sprintf("%d", len(pl.Activities))+` activities</p>`
-		htmlModal += `<p>`+fmt.Sprintf("%d", len(pl.Article))+` articles</p>`
-		htmlModal += `<p>lat:`+fmt.Sprintf("%f", pl.Center.Lat)+` long:`+fmt.Sprintf("%f", pl.Center.Long)+`</p>`
+		htmlModal += `<p>` + fmt.Sprintf("%d", len(pl.Activities)) + ` activities</p>`
+		htmlModal += `<p>` + fmt.Sprintf("%d", len(pl.Article)) + ` articles</p>`
+		htmlModal += `<p>lat:` + fmt.Sprintf("%f", pl.Center.Lat) + ` long:` + fmt.Sprintf("%f", pl.Center.Long) + `</p>`
 	}
 	htmlModal += `</div>`
 	w.Write([]byte(htmlModal))
@@ -459,12 +460,14 @@ func GetMapAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Sessio
 func pullData(r *http.Request) map[string]string {
 	logger.Trace.Println("pullData(r *http.Request)")
 	httpData, _ := ioutil.ReadAll(r.Body)
-	if httpData == nil || len(httpData) == 0 { return nil }
+	if httpData == nil || len(httpData) == 0 {
+		return nil
+	}
 	reader := bytes.NewReader(httpData)
 	mapData := new(map[string]string)
-    if err := json.NewDecoder(reader).Decode(mapData); err != nil {
-		logger.Error.Println("error decoding json string: "+string(httpData))
-        return nil
-    }
+	if err := json.NewDecoder(reader).Decode(mapData); err != nil {
+		logger.Error.Println("error decoding json string: " + string(httpData))
+		return nil
+	}
 	return *mapData
 }

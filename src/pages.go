@@ -34,7 +34,7 @@ func addPages() {
 
 	home := weePlayDate.AddPage("home", "home", "/home")
 	home.AddAJAXHandler("newRoom", mss.CreateRoomAJAXHandler)
-	home.AddAJAXHandler("update", mss.GetRoomsAJAXHandler)
+	home.AddAJAXHandler("talks", mss.GetConversationsAJAXHandler)
 	home.AddAJAXHandler("message", mss.MessageAJAXHandler)
 	home.AddAJAXHandler("exitRoom", mss.ExitRoomAJAXHandler)
 	home.AddAJAXHandler("whoseThere", WhoseThereAjaxHandler)
@@ -43,7 +43,6 @@ func addPages() {
 	home.AddAJAXHandler("article", GetArticleAjaxHandler)
 	home.AddAJAXHandler("editUpdate", UpdateFieldAjaxHandler)
 	home.AddAJAXHandler("getMap", GetMapAjaxHandler)
-	
 
 	home.AddPostHandler("logout", acs.LogoutPostHandler)
 	home.AddPostHandler("selectFamilyMember", SelectFamilyMember)

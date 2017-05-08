@@ -41,15 +41,11 @@ func addScripts() {
 
 	weePlayDate.AddScript("init-home-script", `setInterval( function() { `+
 		`$.ajax({ url: '/home', type: 'AJAX', `+
-		`headers: { 'ajaxProcessingHandler':'update' }, dataType: 'html', data: {}, `+
+		`headers: { 'ajaxProcessingHandler':'talks' }, dataType: 'html', data: JSON.stringify({rooms:roomlist}), `+
 		`success: function(data, textStatus, jqXHR) { `+
 		`var ul = $( "<ul/>", {"class": "ptButton"}); `+
 		`var obj = JSON.parse(data); `+
 		`$("#roomList").empty().append(ul); `+
-		`$.each(obj["rooms"], function(val, i) { `+
-		`item = $(document.createElement('button')).text( val + '  ' + i + ' occupance' ); `+
-		`item.attr("class", "ptListItem").attr("onclick","enterRoom('"+val+"')"); `+
-		`ul.append( item ); });`+
 		`$.each(obj["conversations"], function(room, talk) { `+
 		`var ul = $("#"+room+" div.discussion ul"); `+
 		`ul.empty(); `+
@@ -97,8 +93,9 @@ func addScripts() {
 		`sendMessage('"+roomName+"',$('#"+roomName+" textarea').val());");`+
 		`$('#'+roomName+' a.addEmoji').attr("onclick","alert('Not yet implemented.')");`+
 		`$('#'+roomName+' a.gesture').attr("onclick","alert('Not yet implemented.')");`+
-		`$('#'+roomName+' a.invitePerson').attr("onclick","alert('Not yet implemented.')");`+
-		`sendMessage(roomName, $('#'+roomName+' .text textarea').val()); 	}`)
+		`$('#'+roomName+' a.invitePerson').attr("onclick","invite('roomName')");`+
+		`sendMessage(roomName, $('#'+roomName+' .text textarea').val());`+
+		`roomlist.push(roomName); 	}`)
 	weePlayDate.AddScript("home-script", `function whoseThere(room) { `+
 		`if ($('#'+room).hasClass('extendFloatDialog')) { `+
 		`$('#'+room).removeClass('extendFloatDialog'); `+
@@ -125,7 +122,8 @@ func addScripts() {
 		`error: function(data, textStatus, jqXHR) { `+
 		`console.log("fail!"); } }); }	}	`)
 	weePlayDate.AddScript("home-script", `function exitRoom(roomName) { `+
-		`$('#'+roomName).remove(); `+
+		`$('#'+roomName).remove();`+
+		`array.splice(roomlist, indexOf(roomName));`+
 		`$.ajax({url: '/home',type: 'AJAX', `+
 		`headers: { 'ajaxProcessingHandler':'exitRoom' },	`+
 		`dataType: 'html', data: { 'roomName':roomName }, `+
@@ -245,7 +243,7 @@ func addScripts() {
 		`dataType: 'html', data: '{"place":"'+place+'"}',`+
 		`success: function(data, textStatus, jqXHR) { $('#mapModal').html(data); $(location).attr('href','#mapModal');},`+
 		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } }); }`)
-	
+
 	weePlayDate.AddScript("main-script", `function addKid() { `+
 		`var kid = $('#newKid'); `+
 		`var form = $('#family'); `+

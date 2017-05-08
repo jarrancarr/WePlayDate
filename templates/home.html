@@ -3,7 +3,12 @@
 	<head>
 		{{page "head"}}
 		<script>
-			$(document).ready( function () { {{range script "init-script"}} {{.}} {{end}} {{range script "init-home-script"}} {{.}} {{end}} } ); 
+			var roomlist;
+			$(document).ready( function () { 
+				roomlist = ["20720","20726"];
+				enterRoom('{{ session "data" "userName" }}');
+				{{range script "init-script"}} {{.}} {{end}} {{range script "init-home-script"}} {{.}} {{end}}
+			} ); 
 			{{range script "home-script"}} {{.}} {{end}}
 		</script>
 	</head>

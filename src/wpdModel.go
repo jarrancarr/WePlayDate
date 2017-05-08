@@ -44,18 +44,18 @@ type Event struct {
 }
 
 type Coordinates struct {
-	Lat, Long  float32
+	Lat, Long float32
 }
 
 type Region struct {
 	Name, MapPhoto string
-	Center		Coordinates;
-	Boundry		[]Coordinates;  // based on a voronoi diagram
-	Lounge     *service.Room
-	Article    map[string]*Post
-	Activities []Event
-	Place		map[string]*Region
-	Neighbor	[]*Region
+	Center         Coordinates
+	Boundry        []Coordinates // based on a voronoi diagram
+	Lounge         *service.Room
+	Article        map[string]*Post
+	Activities     []Event
+	Place          map[string]*Region
+	Neighbor       []*Region
 }
 
 type Challenge struct {
@@ -82,15 +82,15 @@ type Post struct {
 }
 
 type Family struct {
-	Login                  	*website.Account
-	Parent, Child          	[]*Person
-	Outer                  	*Group
-	Zip, Buzzword, Turnoff 	[]string
-	Profile, ProfilePic    	string
-	MailBox                	map[string][]Message
-	Album                  	map[string][]string // map to list of photo filenames
-	Comments               	map[string][]Comment
-	Item 					map[string]interface{}
+	Login                  *website.Account
+	Parent, Child          []*Person
+	Outer                  *Group
+	Zip, Buzzword, Turnoff []string
+	Profile, ProfilePic    string
+	MailBox                map[string][]Message
+	Album                  map[string][]string // map to list of photo filenames
+	Comments               map[string][]Comment
+	Item                   map[string]interface{}
 }
 
 type Activity struct {
@@ -147,11 +147,19 @@ func (f *Family) String() string {
 }
 
 func (f *Family) GetFamilyMember(name string) *Person {
-	logger.Debug.Println("GetFamilyMember('"+name+"')")
-	parts := strings.Split(name," ")
-	for _, n := range(parts) {
-		for _, p := range(f.Parent) { if p.Name[0] == n { return p } }
-		for _, p := range(f.Child) { if p.Name[0] == n { return p } }
+	logger.Debug.Println("GetFamilyMember('" + name + "')")
+	parts := strings.Split(name, " ")
+	for _, n := range parts {
+		for _, p := range f.Parent {
+			if p.Name[0] == n {
+				return p
+			}
+		}
+		for _, p := range f.Child {
+			if p.Name[0] == n {
+				return p
+			}
+		}
 	}
 	logger.Warning.Println("No family member found.")
 	return nil
@@ -172,7 +180,7 @@ func (f *Family) AddPhoto(album, photo string) {
 }
 
 func (f *Family) AddItem(name string, item interface{}) {
-	if f.Item==nil {
+	if f.Item == nil {
 		f.Item = make(map[string]interface{})
 	}
 	f.Item[name] = item
@@ -183,7 +191,7 @@ func (p *Person) CommentOn(person *Person, onWhat, sayWhat string) {
 		p.Comments = make(map[string][]Comment)
 	}
 	if p.Comments[onWhat] == nil {
-		p.Comments[onWhat] = make([]Comment,1)
+		p.Comments[onWhat] = make([]Comment, 1)
 	}
 	p.Comments[onWhat] = append(p.Comments[onWhat], Comment{person, sayWhat})
 }
@@ -248,7 +256,7 @@ var (
 		"adaknight": &Family{Login: &website.Account{[]string{"Knight"}, "adaknight", "aknight96", "", []*website.Role{website.StandardRoles["basic"]},
 			false, time.Now()}, Parent: []*Person{&Andy, &Deanna}, Child: []*Person{&AJ}, Zip: []string{"20720"}, Buzzword: []string{"Hi", "Help"}, Turnoff: []string{"hate"}},
 	}
-	
+
 	famKeys      []string
 	Conversation = []string{"Hello", "Nice kids", "Be right back", "see you later", "what time", "the park was nice",
 		"tomorrow is better", "I don't know", "Wait till I call you", "there are more at home", "what did you find there",
@@ -310,9 +318,9 @@ func initData() {
 	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "cars.jpg")
 	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "blocks.jpg")
 	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "mower.jpg")
-	Families["jjlcarr"].AddItem("20720", struct{ X,Y,W,H int }{10,20,400,300}) 
-	Families["jjlcarr"].AddItem("20726", struct{ X,Y,W,H int }{30,60,400,300}) 
-	factor := 10;
+	Families["jjlcarr"].AddItem("20720", struct{ X, Y, W, H int }{10, 20, 400, 300})
+	Families["jjlcarr"].AddItem("20726", struct{ X, Y, W, H int }{30, 60, 400, 300})
+	factor := 10
 	for i := 0; i < 10*factor; i++ {
 		familyName := familyNames[rand.Intn(len(familyNames))]
 		mom := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName}, DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
@@ -406,18 +414,20 @@ func initData() {
 			}
 			p.Profile = story()
 		}
-		for i:=0;i<boy; i++ { f.ProfilePic += "b" 
+		for i := 0; i < boy; i++ {
+			f.ProfilePic += "b"
 		}
-		for i:=0;i<girl; i++ { f.ProfilePic += "g" 
+		for i := 0; i < girl; i++ {
+			f.ProfilePic += "g"
 		}
 		f.ProfilePic += fmt.Sprintf("%d.jpg", rand.Intn(10))
 		famKeys[i] = k
 		f.Profile = story()
 		i++
-		for ;rand.Intn(3)>0; {
+		for rand.Intn(3) > 0 {
 			album := word()
 			f.AddAlbum(album)
-			for ;rand.Intn(11)>0; {
+			for rand.Intn(11) > 0 {
 				f.AddPhoto(album, word()+".jpg")
 			}
 		}
