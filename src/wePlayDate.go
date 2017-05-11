@@ -9,9 +9,11 @@ import (
 	"fmt"
 	//"html/template"
 	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
+	"strconv"
 	"time"
 	//"sync"
 
@@ -44,10 +46,11 @@ func main() {
 	go simulateCommunity(mss)
 	go collectMetrics(cps, mss, acs, weePlayDate)
 
-	http.HandleFunc("/js/", website.ServeResource)
-	http.HandleFunc("/css/", website.ServeResource)
-	http.HandleFunc("/img/", website.ServeResource)
-	http.HandleFunc("/audio/", website.ServeResource)
+	http.HandleFunc("/js/", serveResource)
+	http.HandleFunc("/css/", serveResource)
+	http.HandleFunc("/img/", serveResource)
+	http.HandleFunc("/audio/", serveResource)
+	http.HandleFunc("/upload", uploadPhoto)
 	http.ListenAndServe(":8070", nil)
 }
 
@@ -188,9 +191,13 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 		s.Data["name"] += " " + fam.Parent[0].Name[1]
 		s.Data["userName"] = userName
 		s.Item["family"] = fam
+		s.AddData("notifications", "[]")
 		acs.Active[userName] = s
-		for _, z := range fam.Zip {
+		for i, z := range fam.Zip {
 			mss.Execute([]string{"addRoom", z, ""}, s, p)
+			if fam.Item[z] == nil {
+				fam.AddItem(z, ModalPlacement{30+10*i, 190+10*i, 400, 300})
+			}
 		}
 		mss.Execute([]string{"addRoom", userName, ""}, s, p)
 		if !s.Cookie {
@@ -305,7 +312,7 @@ func GetPersonProfileAjaxHandler(w http.ResponseWriter, r *http.Request, s *webs
 	if thisPerson == nil {
 		return "", errors.New("No such person")
 	}
-	w.Write([]byte(`{"name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + `", "pic":"` + thisPerson.ProfilePic +
+	w.Write([]byte(`{"host":"` + s.GetUserName() + `", "name":"` + thisPerson.FullName() + `", "age":"` + thisPerson.Age() + `", "pic":"` + thisPerson.ProfilePic +
 		`", "sex":"` + thisPerson.Sex() + `", "profile":"` + thisPerson.Profile +
 		`", "likes":"` + strings.Join(thisPerson.Likes, "|") + `"}`))
 	return "ok", nil
@@ -457,6 +464,48 @@ func GetMapAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Sessio
 	w.Write([]byte(htmlModal))
 	return "ok", nil
 }
+func wpdMessageHook(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Debug.Println("wpdMessageHook(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	if s.Item["config"] != nil {
+		for k, v := range(s.Item["config"].(map[string]interface{})) {
+			if Families["jjlcarr"].Item[k] != nil {
+				p := Families["jjlcarr"].Item[k].(ModalPlacement)
+				for prop, val := range(v.(map[string]interface{})) {
+					switch prop {
+						case "left": p.X, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
+						case "top": p.Y, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
+						case "width": p.W, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
+						case "height": p.H, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
+					}
+				}
+				Families["jjlcarr"].Item[k] = p
+			}
+		}
+	}
+	_, data := website.PullData(r)
+	if data["targetFamily"] != "" {
+		fam := Families[data["targetFamily"]]
+		if fam != nil {
+			fam.AddNotification("Chat invitaion: "+data["roomName"]);
+		}
+	}
+	fam := s.Item["family"].(*Family)
+	if fam.Notification != nil {
+		note := `[`
+		first := true
+		for _, n := range(fam.Notification) {
+			if first { first = false 
+			} else {
+				note += ","
+			}
+			note += `"`+n+`"`
+		}
+		note += `]`
+		fam.Notification = nil
+		s.AddData("notifications", note)
+	}
+	return "ok", nil
+}
 func pullData(r *http.Request) map[string]string {
 	logger.Trace.Println("pullData(r *http.Request)")
 	httpData, _ := ioutil.ReadAll(r.Body)
@@ -470,4 +519,61 @@ func pullData(r *http.Request) map[string]string {
 		return nil
 	}
 	return *mapData
+}
+func serveResource(w http.ResponseWriter, r *http.Request) {
+	logger.Trace.Println("ServeResource(" + r.URL.Path + ")")
+	path := "../public" + r.URL.Path
+	if strings.HasSuffix(r.URL.Path, "js") {
+		w.Header().Add("Content-Type", "application/javascript")
+	} else if strings.HasSuffix(r.URL.Path, "css") {
+		w.Header().Add("Content-Type", "text/css")
+	} else if strings.HasSuffix(r.URL.Path, "png") {
+		w.Header().Add("Content-Type", "image/png+xml")
+	} else if strings.HasSuffix(r.URL.Path, "svg") {
+		w.Header().Add("Content-Type", "image/svg+xml")
+	} else if strings.HasSuffix(r.URL.Path, "mp3") {
+		w.Header().Add("Content-Type", "audio/mpeg")
+	} 
+	
+	if strings.HasSuffix(r.URL.Path, "bpg") && strings.Contains(r.URL.Path, "/thumb/") {
+		if cps.Thumbnail != nil && cps.Thumbnail[r.URL.Path] != nil {
+			w.Write(cps.Thumbnail[r.URL.Path])
+			return;
+		} else {
+			data, err := ioutil.ReadFile(strings.Replace(path,"/img/", "/img/thumb/", 1))
+			if err == nil {
+				cps.AddThumb(r.URL.Path, data)
+			}
+		}
+	} 
+
+	data, err := ioutil.ReadFile(path)
+
+	if err == nil {
+		w.Write(data)
+	} else {
+		logger.Debug.Println(err)
+		w.WriteHeader(404)
+		w.Write([]byte("404, My Friend - " + http.StatusText(404)))
+	}
+}
+func uploadPhoto(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(32 << 20)
+	file, handler, err := r.FormFile("newPhoto")
+	album := r.FormValue("album")
+	redirect := r.FormValue("redirect")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+	f, err := os.OpenFile("../public/img/album/jjlcarr/"+album+"_"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		logger.Error.Println(err)
+		return
+	}
+	defer f.Close()
+	io.Copy(f, file)
+	Families["jjlcarr"].AddPhoto(album, handler.Filename)
+	http.Redirect(w, r, redirect, 302)
 }

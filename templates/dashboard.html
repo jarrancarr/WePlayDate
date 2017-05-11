@@ -1,4 +1,18 @@
-<div id="dashboard" class="empty" style="width: 100%; height: 28px;"> 
+<div id="dashboard" class="empty" style="width: 100%; height: 28px; pointer-events:auto;"> 
+	<div style="float: left">
+		{{ with session "item" "family"}}
+			{{range .Parent }}
+				<label style="display:inline-block; margin-left:8px;">
+					<input type="checkbox" name="parent" value="{{index .Name 0}}">{{index .Name 0}}
+				</label>
+			{{end}}
+			{{range .Child }}
+				<label style="display:inline-block; margin-left:8px;">
+					<input type="checkbox" name="child" value="{{index .Name 0}}">{{index .Name 0}}
+				</label>
+			{{end}}
+		{{end}}
+	</div>
 	<input id="messages" type="button" class="dashButton" value="messages"/> 
 	<input id="matches" type="button" class="dashButton" value="matches"/> 
 	<input id="mail" type="button" class="dashButton" value="mail"/> 

@@ -5,11 +5,11 @@ import (
 	//"net/http"
 	//"errors"
 	//"time"
+	"math"
 	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
-	"math"
 
 	"github.com/jarrancarr/website"
 )
@@ -17,6 +17,7 @@ import (
 type ChildsPlayService struct {
 	Places  map[string]*Region
 	Metrics map[string][]int
+	Thumbnail map[string][]byte
 	Lock    sync.Mutex
 }
 
@@ -37,12 +38,29 @@ func (cps *ChildsPlayService) Get(p *website.Page, s *website.Session, data []st
 	logger.Trace.Println("ChildsPlayService.Get(page<" + p.Title + ">, session<" + s.GetUserName() + ">, " + strings.Join(data, "|") + ")")
 	switch data[0] {
 	case "posts":
-		pos := []string{"10", "20", "30", "40", "50", "60", "70", "80"}
+		down := 0
+		wid, _ := strconv.Atoi(data[2])
+		if wid==0 { wid = 400 }
+		hit, _ := strconv.Atoi(data[3])
+		if hit==0 { hit = 270 }
+		wid = (wid-100)*100/wid
+		hit, down = (hit-130)*100/hit, 2000/hit
+		deg := 36
+		arc := 360/deg
+		posX := make([]string,deg)
+		posY := make([]string,deg)
+		for i:= 0; i<deg; i += 1 {
+			posX[i] = fmt.Sprintf("%d",int(float64(wid/2)+math.Sin(float64(arc*i))*float64(wid/2)))
+			posY[i] = fmt.Sprintf("%d",down+int(float64(hit/2)+math.Cos(float64(arc*i))*float64(hit/2)))
+			//posX[i] = fmt.Sprintf("%d",int(float64(wid/2)+math.Sin(float64(arc*i))*float64(wid/4)+math.Sin(float64(3*arc*i))*float64(wid/12)))
+			//posY[i] = fmt.Sprintf("%d",int(float64(hit/2)+math.Cos(float64(arc*i))*float64(hit/4)-math.Cos(float64(3*arc*i))*float64(hit/12)))
+		}
 		articles := []website.Item{}
 		if cps.Places[data[1]]==nil { return nil }
 		for n, art := range cps.Places[data[1]].Article {
+			i := rand.Intn(len(posX))
 			articles = append(articles, struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{
-				art.Title, art.Text, pos[rand.Intn(len(pos))], pos[rand.Intn(len(pos))], "100", "100", art.Pic, n, "0"})
+				art.Title, art.Text, posX[i], posY[i], "100", "100", art.Pic, n, "0"})
 		}
 		return articles
 	case "getFamily":
@@ -134,6 +152,13 @@ func (cps *ChildsPlayService) MakePlace(where string, lat, long float32) {
 	}
 }
 
+func (cps *ChildsPlayService) AddThumb(key string, data []byte ) {
+	if cps.Thumbnail == nil {
+		cps.Thumbnail = make(map[string][]byte)
+	}
+	cps.Thumbnail[key] = data
+}
+
 func degreesToRadians(degrees float32) float32 {
 	return degrees * 3.14159 / 180;
 }
@@ -188,6 +213,7 @@ func CreateChildsPlayService() *ChildsPlayService {
 }
 
 var pics = []string{"bigDog.jpg", "cuteCat.jpg", "iceCream.jpg", "blackHorse.jpg", "funnyKid.jpg", "Drone.jpg", "Bridge.jpg", "IceSculpt.jpg", "Butterfly.jpg", "Dance.png", "Playhouse.jpg", "PettingZoo.jpg", "City.jpg", "Country.jpg"}
+//var pics = []string{"bigDog.bpg", "cuteCat.bpg", "iceCream.bpg", "blackHorse.bpg", "funnyKid.bpg", "Drone.bpg", "Bridge.bpg", "IceSculpt.bpg", "Butterfly.bpg", "Dance.bpg", "Playhouse.bpg", "PettingZoo.bpg", "City.bpg", "Country.bpg"}
 var text = []string{"Check out this huge dog!", "Super Awe....", "Making ice cream, easy", "This is a beautiful horse", "Kid trips over pillow", "Using drones to spy on neighbors", "Beautiful pics of bridges at night",
 	"There will be a class on ice sculpting in Monroe park", "The butterfly park in Bowie has opened", "Salsa Dance club", "Playhouse givaway", "Friendship gardens are hosting a petting zoo.", "City life at night", "Nothing like country living."}
 

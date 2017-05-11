@@ -17,5 +17,5 @@ func addServices() {
 	weePlayDate.AddService("message", mss)
 	cps = CreateChildsPlayService()
 	weePlayDate.AddService("childsPlay", cps)
-	
+	mss.AddHook(wpdMessageHook)
 }

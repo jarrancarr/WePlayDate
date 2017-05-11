@@ -25,9 +25,20 @@
 					{{ range $photo := $book }}
 						<div class="thumbnail">
 							<a title="Remove" class="modalButton cancel">X</a>
-							<img src="../img/album/{{ $fam }}/{{ $title }}_{{ . }}">
+							<img src='../img/album/{{ session "data" "userName" }}/{{ $title }}_{{ . }}'>
 						</div>
 					{{ end }}
+					<div class="thumbnail">
+						<img src="../img/addPhoto.jpg" onclick="$('#photoUpload_{{ $title }}').toggle()">
+					</div>
+					<div id="photoUpload_{{ $title }}" class="container" style="display:none; clear:all">
+						<form enctype="multipart/form-data" action="/upload" method="post">
+							<input type="file" name="newPhoto">
+							<input type="hidden" name="album" value="{{ $title }}">
+							<input type="hidden" name="redirect" value="/home#album{{ $title }}Modal">
+							<input type="submit" value="Upload" name="submit">
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -40,8 +40,16 @@ func addScripts() {
 	//weePlayDate.AddScript("init-script", `$('.letter').draggable({containment:'#board',cursor:'move',zIndex:3,revert: true }); $('#word').droppable({ accept:'.letter', drop: function(event, ui) { $(ui.draggable).clone().appendTo($('#word')).css('top','10px').css('left','0px').css('margin-left','-20px'); } }); `)
 
 	weePlayDate.AddScript("init-home-script", `setInterval( function() { `+
+		`for (var rm in roomlist) { `+
+ 		`left = $("#local-"+roomlist[rm]).css("left"); `+
+		`fromTop = $("#local-"+roomlist[rm]).css("top"); `+
+		`width = $("#local-"+roomlist[rm]).css("width"); `+
+		`height = $("#local-"+roomlist[rm]).css("height"); `+
+		`config[roomlist[rm]] = {"left":left,"top":fromTop,"width":width,"height":height}; `+
+		`}`+
 		`$.ajax({ url: '/home', type: 'AJAX', `+
-		`headers: { 'ajaxProcessingHandler':'talks' }, dataType: 'html', data: JSON.stringify({rooms:roomlist}), `+
+		`headers: { 'ajaxProcessingHandler':'talks' }, dataType: 'html', `+
+		`data: JSON.stringify({config:config, rooms:roomlist}), `+
 		`success: function(data, textStatus, jqXHR) { `+
 		`var ul = $( "<ul/>", {"class": "ptButton"}); `+
 		`var obj = JSON.parse(data); `+
@@ -58,11 +66,18 @@ func addScripts() {
 		`item.attr("class", "pull"); } `+
 		`ul.append( item ).append( '<br/>' ); `+
 		`}); `+
-		`$("#"+room+" .dialogHeader").addClass("update"); `+
-		`}); },`+
+		`$("#"+room+" .dialogHeader").addClass("update"); }); `+
+		`$("#alerts").empty(); `+
+		`$.each(obj["notifications"], function(index, note) { `+
+		`$("#alerts").append("<polygon points='"+(60+index*50)+",10 "+(10+index*50)+",90 "+(110+index*50)+",90' style='fill:yellow;stroke:purple;stroke-width:2'>`+
+		`<animateTransform attributeName='transform' type='rotate' from='0' to='360' begin='0s' dur='4s' repeatCount='indefinite'/>`+
+		`</polygon>"); }); `+
+		`},`+
 		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } `+
-		`}); }, 5000);	`)
-	weePlayDate.AddScript("init-home-script", `$('.local').draggable({containment:'#lower',cursor:'move',zIndex:3 }); $('.local').resizable({handles:'se'});`)
+		`}); }, 4000);	`)
+	weePlayDate.AddScript("init-home-script", `$('.local').draggable(`+
+		`{containment:'#lower',cursor:'move',zIndex:3 }); `+
+		`$('.local').resizable({handles:'se'});`)
 	weePlayDate.AddScript("init-home-script", `$('.modalDialog').on("mouseenter", "div", function(){`+
 		`$('.modalDialog .peekaboo').css("display","block");})`+
 		`.on("mouseleave", "div", function(){$('.modalDialog .peekaboo').css("display","none");});`)
@@ -94,7 +109,7 @@ func addScripts() {
 		`$('#'+roomName+' a.addEmoji').attr("onclick","alert('Not yet implemented.')");`+
 		`$('#'+roomName+' a.gesture').attr("onclick","alert('Not yet implemented.')");`+
 		`$('#'+roomName+' a.invitePerson').attr("onclick","invite('roomName')");`+
-		`sendMessage(roomName, $('#'+roomName+' .text textarea').val());`+
+//		`sendMessage(roomName, $('#'+roomName+' .text textarea').val());`+
 		`roomlist.push(roomName); 	}`)
 	weePlayDate.AddScript("home-script", `function whoseThere(room) { `+
 		`if ($('#'+room).hasClass('extendFloatDialog')) { `+
@@ -147,15 +162,16 @@ func addScripts() {
 		`item = $(document.createElement('li')).text( message['author']+':'+decodeURIComponent(message['message'].replace(/\+/g, ' ')) ); `+
 		`item.attr("class", "pull"); } `+
 		`ul.append( item ).append( '<br/>' ); }); `+
-		`ul.parent().scrollTop(ul.parent()[0].scrollHeight - ul.parent().height()); }, `+
+		`par = ul.parent();`+
+		`if (par) par.scrollTop(par[0].scrollHeight - par.height()); }, `+
 		`error: function(data, textStatus, jqXHR) { `+
 		`console.log("send message fail!"); `+
 		`$("#"+room+" textarea").val('') } }); }`)
-	weePlayDate.AddScript("home-script", `function initiateRoom(roomName) { `+
+	weePlayDate.AddScript("home-script", `function startChat(roomName, family) { `+
 		`$.ajax({url: '/home',type: 'AJAX', `+
 		`headers: { 'ajaxProcessingHandler':'newRoom' }, `+
 		`dataType: 'html', `+
-		`data: { 'roomName':roomName, 'roomPass':'HaHa!' }, `+
+		`data: { 'roomName':roomName, 'roomPass':'','targetFamily':family }, `+
 		`success: function(data, textStatus, jqXHR) { `+
 		`enterRoom(roomName); }, `+
 		`error: function(data, textStatus, jqXHR) { `+
@@ -167,6 +183,7 @@ func addScripts() {
 		`success: function(data, textStatus, jqXHR) {`+
 		`var obj = JSON.parse(data);`+
 		`$('#personModal div a.closeModal').attr('href','#'+retUrl);`+
+		`$("#personModal div a.chat").attr('onclick',onclick='startChat("'+obj["host"]+'_'+user+'","'+user+'")');`+
 		`if (retUrl == 'myFamilyProfileModal') {`+
 		`$('#personModal div a.edit').addClass('peekaboo');`+
 		`$('#personModal div a.comment').removeClass('peekaboo').css("display","none");;`+
@@ -221,6 +238,7 @@ func addScripts() {
 		`aModal.empty().append("<h2>"+info["title"]+"</h2>`+
 		`<a class='ptButton' onclick='onShowProfileModal(\""+info["user"]+"\",\""+info["author"]+"\",\"articleModal\")'>"+info["author"]+"</a>`+
 		`<img src='../img/"+info["pic"]+"'><p>"+info["text"]+"</p>");`+
+//		`setBpg("../img/"+info["pic"], aModal[0], 300, 300); `+
 		`$(location).attr('href','#articleModal'); },`+
 		`error: function(data, textStatus, jqXHR) { console.log("open article fail: "+textStatus); }`+
 		`}); }`)

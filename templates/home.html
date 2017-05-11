@@ -4,12 +4,27 @@
 		{{page "head"}}
 		<script>
 			var roomlist;
+			var config;
 			$(document).ready( function () { 
 				roomlist = ["20720","20726"];
+				config = {};
 				enterRoom('{{ session "data" "userName" }}');
 				{{range script "init-script"}} {{.}} {{end}} {{range script "init-home-script"}} {{.}} {{end}}
 			} ); 
 			{{range script "home-script"}} {{.}} {{end}}
+			
+			function setBpg(filename, where, w, h) {
+				var canvas = document.createElement("canvas");
+				canvas.width = w;
+				canvas.height = h;
+				where.appendChild(canvas);				
+				var ctx = canvas.getContext("2d");
+				var img = new BPGDecoder(ctx);				
+				img.onload = function() { ctx.putImageData(this.imageData, 0, 0); };
+				img.load(filename);
+			}
+			
+			
 		</script>
 	</head>
 	<body>
@@ -22,7 +37,7 @@
 			{{with session "item" "family"}} {{ $fam := . }}
 				{{range .Zip }} {{ $place := . }} {{ $cfg := index $fam.Item . }}
 					<div id="local-{{ . }}" class="floatPanel local" onclick="$('.floatPanel').css('z-index','2'); $(this).css('z-index','3');" 
-						style='position:fixed; left:{{ $cfg.X }}%; top:{{ $cfg.Y }}%; width:{{ $cfg.W }}px; height:{{ $cfg.H }}px;'>
+						style='position:fixed; left:{{ $cfg.X }}px; top:{{ $cfg.Y }}px; width:{{ $cfg.W }}px; height:{{ $cfg.H }}px;'>
 						<a title="Hide" class="hideModal modalButton" onclick="sidebar('local-{{ . }}');">&lt</a>
 						<a class='modalButton whosHere' title='Who'>?</a>
 						<a class='modalButton closeBy' title='Map' onclick="openMap('{{ . }}');">*</a>
@@ -30,9 +45,9 @@
 								<a onclick='enterRoom("{{ . }}")'>{{ . }}</a>
 							</h4>
 						<div class="floatFrame">
-							{{ range get "childsPlay" "posts" . }}
-								<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}">
-									<img src="../img/{{.JPG}}" width="{{.W}}" height="{{.H}}" onclick="openArticle('{{ $place }}','{{.Link}}')">
+							{{ range get "childsPlay" "posts" . "$cfg.W" "$cfg.H" }}
+								<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}" onclick="openArticle('{{ $place }}','{{.Link}}')">
+									<img src="../img/{{.JPG}}" width="100%" height="100%">
 								</div>
 							{{ end }}
 						</div>
@@ -45,7 +60,7 @@
 			{{end}}
 			<div class="panel" style="position: absolute; top: 0px;">
 				<div class="row panel-body" style="height: 100%; overflow: hidden;"> 
-					<div class="span4"></div>	<div class="span8"></div>
+					<div id="notes" class="span4"></div>	<div class="span8"></div>
 				</div>
 			</div>
 		</div>
@@ -55,6 +70,10 @@
 				{{range htmls "circleMenuItem" "MODAL>>logOutModal,myFamilyProfileModal,infoModal,adminModal,loungeModal" "TX>>50,130,210,290,370,450" "FILL>>93e,3e9,9e3,e93,39e,e39"	"LABEL>>Bye-Bye,Profile,Info,Admin,Lounge" "CX>>90,170,250,330,410,490"}}
 					{{.}}
 				{{end}}
+			</svg>
+		</div>
+		<div id="alert-menu">
+			<svg id="alerts" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
 			</svg>
 		</div>
 		<div id="images"><svg width="100%" height="100%"></svg></div>

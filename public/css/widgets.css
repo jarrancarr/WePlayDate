@@ -67,6 +67,12 @@
 	top: -10px;
 }
 .tag:hover { background: #000; }
+.chat {
+	background:  rgba(255,128,0,0.2);
+	left: 12px;
+	top: -10px;
+}
+.chat:hover { background: #fa0; }
 .side {
 	position: relative;
 	background:  rgba(192,255,0,0.2);

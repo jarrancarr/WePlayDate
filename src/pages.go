@@ -47,6 +47,8 @@ func addPages() {
 	home.AddPostHandler("logout", acs.LogoutPostHandler)
 	home.AddPostHandler("selectFamilyMember", SelectFamilyMember)
 	home.AddPostHandler("edit", EditDataPostHandler)
+	
+	//home.AddPreProcessor(ConfigPreProcessor)
 
 	home.Html.Add("circleMenuItem", html.NewTag("circle id==login cx==${CX} cy==10 r==50 fill==#${FILL} stroke==#222 stroke-width==1 fill-opacity==0.8"))
 	home.Html.Add("circleMenuItem", html.NewTag("a xlink:href==#${MODAL}").AppendChild(

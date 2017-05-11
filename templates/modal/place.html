@@ -9,8 +9,8 @@
 		{{ range get "childsPlay" "posts" . }}
 			{{with session "item" "family"}}
 				{{range .Zip }} {{ $place := . }}
-					<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}">
-						<img src="../img/{{.JPG}}" width="{{.W}}" height="{{.H}}" onclick="openArticle('{{ $place }}','{{.Link}}')">
+					<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}" onclick="openArticle('{{ $place }}','{{.Link}}')">
+						<img src="../img/{{.JPG}}" width="{{.W}}" height="{{.H}}">
 					</div>
 				{{ end }}
 			{{ end }}

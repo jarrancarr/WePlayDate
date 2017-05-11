@@ -90,6 +90,7 @@ type Family struct {
 	MailBox                map[string][]Message
 	Album                  map[string][]string // map to list of photo filenames
 	Comments               map[string][]Comment
+	Notification           []string
 	Item                   map[string]interface{}
 }
 
@@ -97,6 +98,10 @@ type Activity struct {
 	What      string
 	Component []*Activity
 	Required  map[int]map[*Skill]int
+}
+
+type ModalPlacement struct {
+	X, Y, W, H int
 }
 
 type Skill struct {
@@ -117,7 +122,6 @@ func (p *Person) Sex() string {
 	}
 	return "Girl"
 }
-
 func (p *Person) Age() string {
 	age := time.Since(p.DOB)
 	if age.Hours() > float64(24*365*3) {
@@ -125,9 +129,17 @@ func (p *Person) Age() string {
 	}
 	return fmt.Sprintf("%d months", int(age.Hours()/(24*30)))
 }
-
 func (p *Person) FullName() string {
 	return strings.Join(p.Name, " ")
+}
+func (p *Person) CommentOn(person *Person, onWhat, sayWhat string) {
+	if p.Comments == nil {
+		p.Comments = make(map[string][]Comment)
+	}
+	if p.Comments[onWhat] == nil {
+		p.Comments[onWhat] = make([]Comment, 1)
+	}
+	p.Comments[onWhat] = append(p.Comments[onWhat], Comment{person, sayWhat})
 }
 
 func (f *Family) Name() string {
@@ -141,11 +153,15 @@ func (f *Family) Name() string {
 	name += " " + f.Parent[0].Name[1]
 	return name
 }
-
 func (f *Family) String() string {
 	return f.Name() + ": " + f.Login.User
 }
-
+func (f *Family) AddNotification(note string) {
+	if f.Notification == nil {
+		f.Notification = make([]string,1)
+	}
+	f.Notification = append(f.Notification, note)
+}
 func (f *Family) GetFamilyMember(name string) *Person {
 	logger.Debug.Println("GetFamilyMember('" + name + "')")
 	parts := strings.Split(name, " ")
@@ -164,7 +180,6 @@ func (f *Family) GetFamilyMember(name string) *Person {
 	logger.Warning.Println("No family member found.")
 	return nil
 }
-
 func (f *Family) AddAlbum(name string) {
 	if f.Album == nil {
 		f.Album = make(map[string][]string)
@@ -173,27 +188,15 @@ func (f *Family) AddAlbum(name string) {
 		f.Album[name] = make([]string, 1)
 	}
 }
-
 func (f *Family) AddPhoto(album, photo string) {
 	f.AddAlbum(album)
 	f.Album[album] = append(f.Album[album], photo)
 }
-
 func (f *Family) AddItem(name string, item interface{}) {
 	if f.Item == nil {
 		f.Item = make(map[string]interface{})
 	}
 	f.Item[name] = item
-}
-
-func (p *Person) CommentOn(person *Person, onWhat, sayWhat string) {
-	if p.Comments == nil {
-		p.Comments = make(map[string][]Comment)
-	}
-	if p.Comments[onWhat] == nil {
-		p.Comments[onWhat] = make([]Comment, 1)
-	}
-	p.Comments[onWhat] = append(p.Comments[onWhat], Comment{person, sayWhat})
 }
 
 func (r *Region) AddPlace(name string, p *Region) {
@@ -202,7 +205,6 @@ func (r *Region) AddPlace(name string, p *Region) {
 	}
 	r.Place[name] = p
 }
-
 func (r *Region) AddNeighbor(p *Region) {
 	if r.Neighbor == nil {
 		r.Neighbor = make([]*Region, 2)
@@ -305,21 +307,19 @@ var (
 )
 
 func initData() {
-	Families["jjlcarr"].AddAlbum("Meet Logan")
-	Families["jjlcarr"].AddPhoto("Meet Logan", "BirthMinute.jpg")
-	Families["jjlcarr"].AddPhoto("Meet Logan", "HiDad.jpg")
-	Families["jjlcarr"].AddPhoto("Meet Logan", "FirstCry.jpg")
-	Families["jjlcarr"].AddAlbum("Logan's 1st Birthday")
-	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "friends.jpg")
-	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "grandma.jpg")
-	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "cake.jpg")
-	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "truck.jpg")
-	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "trainset.jpg")
-	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "cars.jpg")
-	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "blocks.jpg")
-	Families["jjlcarr"].AddPhoto("Logan's 1st Birthday", "mower.jpg")
-	Families["jjlcarr"].AddItem("20720", struct{ X, Y, W, H int }{10, 20, 400, 300})
-	Families["jjlcarr"].AddItem("20726", struct{ X, Y, W, H int }{30, 60, 400, 300})
+//	Families["jjlcarr"].AddAlbum("Meet_Logan")
+//	Families["jjlcarr"].AddPhoto("Meet_Logan", "BirthMinute.jpg")
+//	Families["jjlcarr"].AddPhoto("Meet_Logan", "HiDad.jpg")
+//	Families["jjlcarr"].AddPhoto("Meet_Logan", "FirstCry.jpg")
+//	Families["jjlcarr"].AddAlbum("Logan_1st_Birthday")
+//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "friends.jpg")
+//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "grandma.jpg")
+//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "cake.jpg")
+//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "truck.jpg")
+//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "trainset.jpg")
+//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "cars.jpg")
+//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "blocks.jpg")
+//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "mower.jpg")
 	factor := 10
 	for i := 0; i < 10*factor; i++ {
 		familyName := familyNames[rand.Intn(len(familyNames))]
@@ -448,6 +448,8 @@ func simulateCommunity(mss *service.MessageService) {
 	for {
 		go activeUser(Families[famKeys[rand.Intn(len(famKeys))]], mss)
 		time.Sleep(time.Millisecond * 2000)
+		Families[famKeys[rand.Intn(len(famKeys))]].AddNotification("ALERT:Random Alert message-"+famKeys[rand.Intn(len(famKeys))]+" refered to you")
+		Families["jjlcarr"].AddNotification("ALERT:Random Alert message-"+famKeys[rand.Intn(len(famKeys))]+" refered to you")
 	}
 }
 
