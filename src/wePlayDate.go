@@ -350,9 +350,6 @@ func EditDataPostHandler(w http.ResponseWriter, r *http.Request, s *website.Sess
 func UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Trace.Println("UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	data := pullData(r)
-	for k, v := range data {
-		logger.Debug.Println(k + " = " + v)
-	}
 	fam := Families[s.GetUserName()]
 	if fam == nil {
 		return "", errors.New("No family by that user id")
@@ -441,6 +438,31 @@ func UpdateFieldAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.S
 		htmlProfile += `<img src="../img/profile/` + otherPerson.ProfilePic + `">`
 		htmlProfile += `<a title="Comment" class="modalButton comment peekaboo" onclick="input('comment on profile Pic',this, 'personProfilePicComment:` + field[1] + `:` + field[2] + `', 12, 65, 0,0,0,0);">C</a>`
 		htmlProfile += `<a title="Edit" class="modalButton edit" style="display:none;">E</a>`
+		break
+	}
+
+	w.Write([]byte(htmlProfile))
+	return "ok", nil
+}
+func CommandAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
+	logger.Trace.Println("CommandAjaxHandler(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
+	obj, data := website.PullData(r)
+	fam := Families[s.GetUserName()]
+	if fam == nil {
+		return "", errors.New("No family by that user id")
+	}
+
+	htmlProfile := ""
+
+	switch data["command"] {
+		case "deletePhoto":
+			specs := interfacesToStrings(obj["specs"].([]interface{}))
+			err := os.Remove("../public/img/album/"+s.GetUserName()+"/"+specs[0]+"_"+specs[1])
+			if err != nil {
+				logger.Error.Println(err)
+			} else {
+				fam.RmPhoto(specs[0],specs[1])
+			}
 		break
 	}
 
@@ -576,4 +598,12 @@ func uploadPhoto(w http.ResponseWriter, r *http.Request) {
 	io.Copy(f, file)
 	Families["jjlcarr"].AddPhoto(album, handler.Filename)
 	http.Redirect(w, r, redirect, 302)
+}
+
+func interfacesToStrings(data []interface{}) []string {
+	output := make([]string,len(data))
+	for i:=0;i<len(data);i+=1 {
+		output[i] = data[i].(string)
+	}
+	return output
 }

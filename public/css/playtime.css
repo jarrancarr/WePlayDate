@@ -451,6 +451,7 @@ article {
 	box-shadow: 1px 1px 5px #000;
 	float: left;
 	margin: 3px 24px 0px 3px;
+	clear: both;
 }
 .pull{
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #daa), color-stop(1, #c88));
@@ -470,6 +471,7 @@ article {
 	float: right;
 	margin: 3px 3px 0px 24px;
 	color:#222;
+	clear: both;
 }
 .ptFloatDialog {
 	position: relative;

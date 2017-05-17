@@ -67,14 +67,10 @@ func addScripts() {
 		`ul.append( item ).append( '<br/>' ); `+
 		`}); `+
 		`$("#"+room+" .dialogHeader").addClass("update"); }); `+
-		`$("#alerts").empty(); `+
-		`$.each(obj["notifications"], function(index, note) { `+
-		`$("#alerts").append("<polygon points='"+(60+index*50)+",10 "+(10+index*50)+",90 "+(110+index*50)+",90' style='fill:yellow;stroke:purple;stroke-width:2'>`+
-		`<animateTransform attributeName='transform' type='rotate' from='0' to='360' begin='0s' dur='4s' repeatCount='indefinite'/>`+
-		`</polygon>"); }); `+
+		`$.each(obj["notifications"], function(index, note) { createAlert(note, index); });`+
 		`},`+
 		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } `+
-		`}); }, 4000);	`)
+		`}); }, 10000);	`)
 	weePlayDate.AddScript("init-home-script", `$('.local').draggable(`+
 		`{containment:'#lower',cursor:'move',zIndex:3 }); `+
 		`$('.local').resizable({handles:'se'});`)
@@ -96,20 +92,17 @@ func addScripts() {
 		`<a class='modalButton gesture' title='Gesture'>*</a>`+
 		`<a class='modalButton invitePerson' title='Invite'>+</a>`+
 		`<a class='modalButton other' title='Other'>?</a>`+
-		`<textarea class='ptExpand' cols='40' rows='4' name='message-"+roomName+"'/>`+
+		`<textarea class='ptExpand' cols='40' rows='4' name='message-"+roomName+"' `+
+		`onkeypress=\"keypress(event, '"+roomName+"')\"/>`+
 		`</div></div>");`+
 		`$('.ptFloatDialog').each(function(){ $( this ).position({my:"right bottom"}); });`+
 		`$('#'+roomName+' a.closeModal').attr('onclick', 'exitRoom("'+roomName+'")');`+
 		`$('#'+roomName+' a.minimizeModal').attr('onclick', 'minimize("'+roomName+'")'); `+
 		`$('#'+roomName+' a.whosHere').attr('onclick', 'whoseThere("'+roomName+'")');`+
-		`$('#'+roomName+' a.sendMessage').attr("onclick",`+
-		`"var li = $( '<li class=\"ptListItem push\">'+$('#"+roomName+" textarea').val()+'</li>'); `+
-		`$('#"+roomName+" .discussion ul').append(li); `+
-		`sendMessage('"+roomName+"',$('#"+roomName+" textarea').val());");`+
+		`$('#'+roomName+' a.sendMessage').attr("onclick","sendMessage('"+roomName+"');");`+
 		`$('#'+roomName+' a.addEmoji').attr("onclick","alert('Not yet implemented.')");`+
 		`$('#'+roomName+' a.gesture').attr("onclick","alert('Not yet implemented.')");`+
 		`$('#'+roomName+' a.invitePerson').attr("onclick","invite('roomName')");`+
-//		`sendMessage(roomName, $('#'+roomName+' .text textarea').val());`+
 		`roomlist.push(roomName); 	}`)
 	weePlayDate.AddScript("home-script", `function whoseThere(room) { `+
 		`if ($('#'+room).hasClass('extendFloatDialog')) { `+
@@ -138,17 +131,21 @@ func addScripts() {
 		`console.log("fail!"); } }); }	}	`)
 	weePlayDate.AddScript("home-script", `function exitRoom(roomName) { `+
 		`$('#'+roomName).remove();`+
-		`array.splice(roomlist, indexOf(roomName));`+
 		`$.ajax({url: '/home',type: 'AJAX', `+
 		`headers: { 'ajaxProcessingHandler':'exitRoom' },	`+
 		`dataType: 'html', data: { 'roomName':roomName }, `+
 		`success: function(data, textStatus, jqXHR) {}, `+
 		`error: function(data, textStatus, jqXHR) { console.log("exit room fail!"); }	});	}	`)
-	weePlayDate.AddScript("home-script", `function sendMessage(room,message) { `+
+	weePlayDate.AddScript("home-script", `function keypress(e, room){ `+
+		`var code = (e.keyCode ? e.keyCode : e.which); `+
+		`if (code == 13) { sendMessage(room); }} `+
+		`function sendMessage(room) { `+
+		`var li = $('<li class="ptListItem push">'+$('#'+room+' textarea').val()+'</li>'); `+
+		`$('#'+room+' .discussion ul').append(li); `+
 		`$.ajax({url: '/home',type: `+
 		`'AJAX', headers: { 'ajaxProcessingHandler':'message' }, `+
 		`dataType: 'html', `+
-		`data: { 'roomName':room,'message':encodeURIComponent(message) }, `+
+		`data: { 'roomName':room,'message':encodeURIComponent($("#"+room+" textarea").val()) }, `+
 		`success: function(data, textStatus, jqXHR) { `+
 		`$("#"+room+" textarea").val(''); `+
 		`var ul = $("#"+room+" .discussion ul"); `+
@@ -252,8 +249,14 @@ func addScripts() {
 	weePlayDate.AddScript("home-script", `function update(field, data, reloadTag) { `+
 		`$.ajax({ url: '/home', type: 'AJAX', `+
 		`headers: { 'ajaxProcessingHandler':'editUpdate' }, `+
-		`dataType: 'html', data: '{"field":"'+field+'", "data":'+JSON.stringify(data)+'}',`+
+		`dataType: 'html', data: '{"field":"'+field+'", "data":'+JSON.stringify(specs)+'}',`+
 		`success: function(data, textStatus, jqXHR) { reloadTag.html(data); },`+
+		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } }); }`)
+	weePlayDate.AddScript("home-script", `function command(order, specs, reloadTag) { `+
+		`$.ajax({ url: '/home', type: 'AJAX', `+
+		`headers: { 'ajaxProcessingHandler':'command' }, `+
+		`dataType: 'html', data: '{"command":"'+order+'", "specs":'+JSON.stringify(specs)+'}',`+
+		`success: function(data, textStatus, jqXHR) { if (reloadTag) {reloadTag.html(data); } },`+
 		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } }); }`)
 	weePlayDate.AddScript("home-script", `function openMap(place) { `+
 		`$.ajax({ url: '/home', type: 'AJAX', `+
@@ -261,7 +264,32 @@ func addScripts() {
 		`dataType: 'html', data: '{"place":"'+place+'"}',`+
 		`success: function(data, textStatus, jqXHR) { $('#mapModal').html(data); $(location).attr('href','#mapModal');},`+
 		`error: function(data, textStatus, jqXHR) { console.log("button fail!"); } }); }`)
-
+	weePlayDate.AddScript("home-script", `function createAlert(note, index){ `+
+		`var link = document.createElementNS(svgNS,"a");`+
+		`link.setAttributeNS(null, "id","alert-"+note); `+
+		`link.setAttributeNS(null, "onclick","showAlert(this)"); `+
+		`var triangle = document.createElementNS(svgNS,"polygon");`+
+		`triangle.setAttributeNS(null,"class","alert"); `+
+		`triangle.setAttributeNS(null,"points",""+50+",10 "+10+",80 "+90+",80"); `+
+		`triangle.setAttributeNS(null,"style",'fill:yellow;stroke:purple;stroke-width:2'); `+
+//		`var animateTF = document.createElementNS(svgNS,"animateTransform"); `+
+//		`animateTF.setAttributeNS(null,"attributeName","transform"); `+
+//		`animateTF.setAttributeNS(null,"type","rotate"); `+
+//		`animateTF.setAttributeNS(null,"from","0 "+50+" 47"); `+
+//		`animateTF.setAttributeNS(null,"to","1080 "+50+" 47"); `+
+//		`animateTF.setAttributeNS(null,"dur","4s"); `+
+//		`animateTF.setAttributeNS(null,"begin","0s"); `+
+//		`animateTF.setAttributeNS(null,"repeatCount","indefinite"); `+
+//		`triangle.appendChild(animateTF); `+
+		`link.appendChild(triangle); `+
+		`document.getElementById("alerts").appendChild(link);`+
+		`var push=0; var dec=20;`+
+		`$(".alert").each(function(index){ $(this)[0].setAttributeNS(null,"transform","translate("+push+",0)"); push+=dec; dec--;});`+
+		`}`)
+	weePlayDate.AddScript("home-script", `function showAlert(ele) { `+
+		`alert(ele.id); this.remove();`+
+		`}`)
+		
 	weePlayDate.AddScript("main-script", `function addKid() { `+
 		`var kid = $('#newKid'); `+
 		`var form = $('#family'); `+

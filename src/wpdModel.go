@@ -6,6 +6,10 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+	"os"
+    "image"
+    "image/jpeg"
+    "image/color"
 
 	"github.com/jarrancarr/website"
 	"github.com/jarrancarr/website/service"
@@ -27,13 +31,11 @@ type Person struct {
 	Picture    []string
 	Comments   map[string][]Comment
 }
-
 type Group struct {
 	member     []*Family
 	Circle     map[string]*Group
 	Permission map[string]bool
 }
-
 type Event struct {
 	Title, Details string
 	Attendees      []*Family
@@ -42,11 +44,9 @@ type Event struct {
 	Duration       time.Duration
 	Where          string
 }
-
 type Coordinates struct {
 	Lat, Long float32
 }
-
 type Region struct {
 	Name, MapPhoto string
 	Center         Coordinates
@@ -57,22 +57,18 @@ type Region struct {
 	Place          map[string]*Region
 	Neighbor       []*Region
 }
-
 type Challenge struct {
 	Phrase, Reply string
 }
-
 type Message struct {
 	From          *Family
 	CC            []*Family
 	Subject, Body string
 }
-
 type Comment struct {
 	From *Person
 	Text string
 }
-
 type Post struct {
 	Author      *Person
 	User        string
@@ -80,11 +76,10 @@ type Post struct {
 	Title, Text string
 	Blog        []*Post
 }
-
 type Family struct {
 	Login                  *website.Account
 	Parent, Child          []*Person
-	Outer                  *Group
+	Center                 *Group
 	Zip, Buzzword, Turnoff []string
 	Profile, ProfilePic    string
 	MailBox                map[string][]Message
@@ -93,17 +88,14 @@ type Family struct {
 	Notification           []string
 	Item                   map[string]interface{}
 }
-
 type Activity struct {
 	What      string
 	Component []*Activity
 	Required  map[int]map[*Skill]int
 }
-
 type ModalPlacement struct {
 	X, Y, W, H int
 }
-
 type Skill struct {
 	What       string
 	Experience map[int8]string
@@ -191,6 +183,17 @@ func (f *Family) AddAlbum(name string) {
 func (f *Family) AddPhoto(album, photo string) {
 	f.AddAlbum(album)
 	f.Album[album] = append(f.Album[album], photo)
+}
+func (f *Family) RmPhoto(album, photo string) {
+	if f.Album[album] != nil {
+		for search := 0;search<len(f.Album[album]);search += 1 {
+			if photo == f.Album[album][search] {
+				f.Album[album] = append(f.Album[album][:search],f.Album[album][search+1:]...)
+				break
+			}
+			
+		}
+	}
 }
 func (f *Family) AddItem(name string, item interface{}) {
 	if f.Item == nil {
@@ -383,7 +386,10 @@ func initData() {
 
 	famKeys = make([]string, len(Families))
 	i := 0
+	os.RemoveAll("../public/img/album/")
+	os.Mkdir("../public/img/album/", os.FileMode(0522))
 	for k, f := range Families {
+		famKeys[i] = k
 		if len(f.Parent) == 2 {
 			f.ProfilePic = "mf"
 		} else {
@@ -414,24 +420,54 @@ func initData() {
 			}
 			p.Profile = story()
 		}
-		for i := 0; i < boy; i++ {
+		for x := 0; x < boy; x++ {
 			f.ProfilePic += "b"
 		}
-		for i := 0; i < girl; i++ {
+		for x := 0; x < girl; x++ {
 			f.ProfilePic += "g"
 		}
 		f.ProfilePic += fmt.Sprintf("%d.jpg", rand.Intn(10))
-		famKeys[i] = k
+		generateProfilePic(f.ProfilePic)
 		f.Profile = story()
-		i++
-		for rand.Intn(3) > 0 {
+		os.Mkdir("../public/img/album/"+k, os.FileMode(0522))
+		for x:=0;rand.Intn(5)>x;x+=1 {
 			album := word()
 			f.AddAlbum(album)
-			for rand.Intn(11) > 0 {
-				f.AddPhoto(album, word()+".jpg")
+			for y:=0;rand.Intn(5+y)>y;y+=1 {
+				pic := word()
+				f.AddPhoto(album, pic+".jpg")
+				generateAlbumPhoto(k, album, pic)
 			}
 		}
+		i++
 	}
+}
+func generateAlbumPhoto(user, album, pic string) {
+	sx, sy := rand.Intn(20)*rand.Intn(20)+100, rand.Intn(20)*rand.Intn(20)+100
+    m := image.NewRGBA(image.Rect(0, 0, sx, sy))
+	r1x, r1y := rand.Intn(sx), rand.Intn(sy)
+	g1x, g1y := rand.Intn(sx), rand.Intn(sy)
+	b1x, b1y := rand.Intn(sx), rand.Intn(sy)
+	r2x, r2y := rand.Intn(sx), rand.Intn(sy)
+	g2x, g2y := rand.Intn(sx), rand.Intn(sy)
+	b2x, b2y := rand.Intn(sx), rand.Intn(sy)
+	r3x, r3y := rand.Intn(sx), rand.Intn(sy)
+	g3x, g3y := rand.Intn(sx), rand.Intn(sy)
+	b3x, b3y := rand.Intn(sx), rand.Intn(sy)
+	for x:=0;x<sx;x+=1 {
+		for y:=0;y<sy;y+=1 {
+			distR := ((x-r1x)*(x-r1x)+(y-r1y)*(y-r1y))/(rand.Intn(50000)+100000)+((x-r2x)*(x-r2x)+(y-r2y)*(y-r2y))/(rand.Intn(50000)+100000)+((x-r3x)*(x-r3x)+(y-r3y)*(y-r3y))/(rand.Intn(50000)+100000)
+			distG := ((x-g1x)*(x-g1x)+(y-g1y)*(y-g1y))/(rand.Intn(50000)+100000)+((x-g2x)*(x-g2x)+(y-g2y)*(y-g2y))/(rand.Intn(50000)+100000)+((x-g3x)*(x-g3x)+(y-g3y)*(y-g3y))/(rand.Intn(50000)+100000)
+			distB := ((x-b1x)*(x-b1x)+(y-b1y)*(y-b1y))/(rand.Intn(50000)+100000)+((x-b2x)*(x-b2x)+(y-b2y)*(y-b2y))/(rand.Intn(50000)+100000)+((x-b3x)*(x-b3x)+(y-b3y)*(y-b3y))/(rand.Intn(50000)+100000)
+			m.Set(x,y,color.RGBA{uint8(distR%256),uint8(distG%256),uint8(distB%256),255})
+		}
+	}
+    toimg, _ := os.Create("../public/img/album/"+user+"/"+album+"_"+pic+".jpg")
+    defer toimg.Close()
+    jpeg.Encode(toimg, m, &jpeg.Options{jpeg.DefaultQuality})
+}
+func generateProfilePic(pic string) {
+	
 }
 
 func addLikes(p *Person) {
@@ -443,17 +479,18 @@ func addLikes(p *Person) {
 func simulateCommunity(mss *service.MessageService) {
 	logger.Trace.Println()
 	for i := 0; i < 10; i++ {
-		go activeUser(Families[famKeys[rand.Intn(len(Families))]], mss)
+		go activeUser(Families[famKeys[rand.Intn(len(famKeys))]], mss)
 	}
 	for {
 		go activeUser(Families[famKeys[rand.Intn(len(famKeys))]], mss)
 		time.Sleep(time.Millisecond * 2000)
 		Families[famKeys[rand.Intn(len(famKeys))]].AddNotification("ALERT:Random Alert message-"+famKeys[rand.Intn(len(famKeys))]+" refered to you")
-		Families["jjlcarr"].AddNotification("ALERT:Random Alert message-"+famKeys[rand.Intn(len(famKeys))]+" refered to you")
+		//Families["jjlcarr"].AddNotification("ALERT:Random Alert message-"+famKeys[rand.Intn(len(famKeys))]+" refered to you")
 	}
 }
 
 func activeUser(fm *Family, mss *service.MessageService) {
+	if fm == nil { return }
 	logger.Trace.Println()
 	userSession := website.Session{make(map[string]interface{}), make(map[string]string), true}
 	userSession.Data["name"] = fm.Parent[0].FullName()

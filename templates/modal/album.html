@@ -24,7 +24,7 @@
 				<div style="width: 100%; height: 100%; overflow-y: auto;">
 					{{ range $photo := $book }}
 						<div class="thumbnail">
-							<a title="Remove" class="modalButton cancel">X</a>
+							<a title="Remove" class="modalButton cancel" onclick="command('deletePhoto',['{{ $title }}','{{ . }}'],null)">X</a>
 							<img src='../img/album/{{ session "data" "userName" }}/{{ $title }}_{{ . }}'>
 						</div>
 					{{ end }}

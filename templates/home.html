@@ -45,7 +45,7 @@
 								<a onclick='enterRoom("{{ . }}")'>{{ . }}</a>
 							</h4>
 						<div class="floatFrame">
-							{{ range get "childsPlay" "posts" . "$cfg.W" "$cfg.H" }}
+							{{ range get "childsPlay" "posts" . }}
 								<div class="post" style="left:{{.X}}%; top:{{.Y}}%; width:{{.W}}px; height:{{.H}}px;" title="{{.Title}}" onclick="openArticle('{{ $place }}','{{.Link}}')">
 									<img src="../img/{{.JPG}}" width="100%" height="100%">
 								</div>
@@ -114,6 +114,7 @@
 					</div>
 					<div class="personProfileEdit" style="width: 670px; border: 0px;">
 						<a href="#manageAlbumsModal" class="ptButton" value="Manage albums" >Manage albums</a>
+						<a href="#playDateSchedualModal" class="ptButton" value="playDateSchedual" >PlayDate Schedual</a>
 						<input class="ptButton" value="Manage family" style="width: 100px;"/>
 					</div>
 				{{end}}

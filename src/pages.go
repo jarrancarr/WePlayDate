@@ -43,6 +43,7 @@ func addPages() {
 	home.AddAJAXHandler("article", GetArticleAjaxHandler)
 	home.AddAJAXHandler("editUpdate", UpdateFieldAjaxHandler)
 	home.AddAJAXHandler("getMap", GetMapAjaxHandler)
+	home.AddAJAXHandler("command", CommandAjaxHandler)
 
 	home.AddPostHandler("logout", acs.LogoutPostHandler)
 	home.AddPostHandler("selectFamilyMember", SelectFamilyMember)

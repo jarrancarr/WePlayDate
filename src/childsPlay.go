@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"os"
 
 	"github.com/jarrancarr/website"
 )
@@ -35,13 +36,14 @@ func (cps *ChildsPlayService) Execute(data []string, s *website.Session, p *webs
 }
 
 func (cps *ChildsPlayService) Get(p *website.Page, s *website.Session, data []string) website.Item {
-	logger.Trace.Println("ChildsPlayService.Get(page<" + p.Title + ">, session<" + s.GetUserName() + ">, " + strings.Join(data, "|") + ")")
+	logger.Debug.Println("ChildsPlayService.Get(page<" + p.Title + ">, session<" + s.GetUserName() + ">, " + strings.Join(data, "|") + ")")
 	switch data[0] {
 	case "posts":
 		down := 0
-		wid, _ := strconv.Atoi(data[2])
+		cfg := s.Item["family"].(*Family).Item[data[1]].(ModalPlacement)
+		wid := cfg.W
 		if wid==0 { wid = 400 }
-		hit, _ := strconv.Atoi(data[3])
+		hit := cfg.H
 		if hit==0 { hit = 270 }
 		wid = (wid-100)*100/wid
 		hit, down = (hit-130)*100/hit, 2000/hit
@@ -59,6 +61,7 @@ func (cps *ChildsPlayService) Get(p *website.Page, s *website.Session, data []st
 		if cps.Places[data[1]]==nil { return nil }
 		for n, art := range cps.Places[data[1]].Article {
 			i := rand.Intn(len(posX))
+			logger.Debug.Println(art)
 			articles = append(articles, struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{
 				art.Title, art.Text, posX[i], posY[i], "100", "100", art.Pic, n, "0"})
 		}
@@ -218,7 +221,11 @@ var text = []string{"Check out this huge dog!", "Super Awe....", "Making ice cre
 	"There will be a class on ice sculpting in Monroe park", "The butterfly park in Bowie has opened", "Salsa Dance club", "Playhouse givaway", "Friendship gardens are hosting a petting zoo.", "City life at night", "Nothing like country living."}
 
 func makeArticle() *Post {
-	fam := Families[famKeys[rand.Intn(len(famKeys))]]
+	rd := rand.Intn(len(famKeys))
+	fam := Families[famKeys[rd]]
+	if (fam==nil) {
+		os.Exit(1)
+	}
 	par := rand.Intn(len(fam.Parent))
 	art := rand.Intn(len(pics))
 	return &Post{Author: fam.Parent[par], User: fam.Login.User, Pic: pics[art], Text: text[art]}
