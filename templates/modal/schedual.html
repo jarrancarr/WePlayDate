@@ -1,21 +1,33 @@
 <div id="playDateSchedualModal" class="modalDialog">
-	<div style="text-align: center; width: 700px;">
+	<div style="text-align: center; width: 700px; height: 500px;">
 		<a href="#closeModal" title="Close" class="closeModal modalButton">X</a>
-		<div id="familyProfilePic" class="pictureFrame" style="width: 320px;">
-			<a title="Comment" class="modalButton comment">C</a>
-			<img src="../img/family/xxx" width="320" height="248" style="height:248px;">
-		</div>
-		<div class="personProfileInfo" style="width: 320px;">
-			<h3>The ? Family!</h3>
-			<div class="frame">
-				Home area codes:
+		{{with session "item" "family"}} {{$fam := .}}
+			<div class="container">
+				{{ range .Child }}				
+					<label style="display:inline-block; margin-left:8px;">
+						<input class="ptSlot" type="checkbox" name="child" value="{{index .Name 0}}">{{index .Name 0}}
+					</label>
+				{{ end }}
 			</div>
-				<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('', , 'familyProfileModal')"></a></br>
-				<a href="#personModal" class="ptButton showModalTrigger" onclick="onShowProfileModal('',, 'familyProfileModal')"></a></br>
-			</div>
-			<div class="personProfileEdit" style="width: 670px;">
-				<p></p>
-			</div>
-		</div>
+			{{ range $i, $_ := for 7 }}
+				<div class="week">
+					<div class="day">
+						<a class="ptSlot" onclick="">8 am</a>
+						<a class="ptSlot">9 am</a>
+						<a class="ptSlot">10 am</a>
+						<a class="ptSlot">11 am</a>
+						<a class="ptSlot">12 pm</a>
+						<a class="ptSlot">1 pm</a>
+						<a class="ptSlot">2 pm</a>
+						<a class="ptSlot">3 pm</a>
+						<a class="ptSlot">4 pm</a>
+						<a class="ptSlot">5 pm</a>
+						<a class="ptSlot">6 pm</a>
+						<a class="ptSlot">7 pm</a>
+						<a class="ptSlot">8 pm</a>
+					</div>
+				</div>
+			{{ end }}
+		{{ end }}
 	</div>
 </div>

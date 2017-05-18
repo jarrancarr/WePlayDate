@@ -83,10 +83,11 @@ type Family struct {
 	Zip, Buzzword, Turnoff []string
 	Profile, ProfilePic    string
 	MailBox                map[string][]Message
-	Album                  map[string][]string // map to list of photo filenames
+	Album                  map[string][]string 		// map to list of photo filenames
 	Comments               map[string][]Comment
 	Notification           []string
 	Item                   map[string]interface{}
+	Availability		   map[string][]int 		// int[0] = 30 means: index 0 = 8am, 30 = 2*3*5 so kid 1,2,3
 }
 type Activity struct {
 	What      string
@@ -456,9 +457,9 @@ func generateAlbumPhoto(user, album, pic string) {
 	b3x, b3y := rand.Intn(sx), rand.Intn(sy)
 	for x:=0;x<sx;x+=1 {
 		for y:=0;y<sy;y+=1 {
-			distR := ((x-r1x)*(x-r1x)+(y-r1y)*(y-r1y))/(rand.Intn(50000)+100000)+((x-r2x)*(x-r2x)+(y-r2y)*(y-r2y))/(rand.Intn(50000)+100000)+((x-r3x)*(x-r3x)+(y-r3y)*(y-r3y))/(rand.Intn(50000)+100000)
-			distG := ((x-g1x)*(x-g1x)+(y-g1y)*(y-g1y))/(rand.Intn(50000)+100000)+((x-g2x)*(x-g2x)+(y-g2y)*(y-g2y))/(rand.Intn(50000)+100000)+((x-g3x)*(x-g3x)+(y-g3y)*(y-g3y))/(rand.Intn(50000)+100000)
-			distB := ((x-b1x)*(x-b1x)+(y-b1y)*(y-b1y))/(rand.Intn(50000)+100000)+((x-b2x)*(x-b2x)+(y-b2y)*(y-b2y))/(rand.Intn(50000)+100000)+((x-b3x)*(x-b3x)+(y-b3y)*(y-b3y))/(rand.Intn(50000)+100000)
+			distR := ((x-r1x)*(x-r1x)+(y-r1y)*(y-r1y))/(rand.Intn(1500)+100)+((x-r2x)*(x-r2x)+(y-r2y)*(y-r2y))/(rand.Intn(1500)+100)+((x-r3x)*(x-r3x)+(y-r3y)*(y-r3y))/(rand.Intn(1500)+100)
+			distG := ((x-g1x)*(x-g1x)+(y-g1y)*(y-g1y))/(rand.Intn(1500)+100)+((x-g2x)*(x-g2x)+(y-g2y)*(y-g2y))/(rand.Intn(1500)+100)+((x-g3x)*(x-g3x)+(y-g3y)*(y-g3y))/(rand.Intn(1500)+100)
+			distB := ((x-b1x)*(x-b1x)+(y-b1y)*(y-b1y))/(rand.Intn(1500)+100)+((x-b2x)*(x-b2x)+(y-b2y)*(y-b2y))/(rand.Intn(1500)+100)+((x-b3x)*(x-b3x)+(y-b3y)*(y-b3y))/(rand.Intn(1500)+100)
 			m.Set(x,y,color.RGBA{uint8(distR%256),uint8(distG%256),uint8(distB%256),255})
 		}
 	}
