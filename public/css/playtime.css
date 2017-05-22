@@ -371,10 +371,11 @@ article {
 	color:#ffffff;
 	font-family:Arial;
 	font-size:13px;
-	padding:3px 12px;
+	padding:2px 8px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #154682;
 	text-align: center;
+	user-select: none;
 }
 .ptSlot:hover {
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #148ade), color-stop(1, #bed1c9));
@@ -388,10 +389,18 @@ article {
 }
 .day {
 	float:left;
-	width:100px;
+	width:80px;
 }
 .week {
-	width:700px;
+	width:640px;
+}
+.avail {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #8ed), color-stop(1, #8a4));
+	background:-moz-linear-gradient(top, #8ed 5%, #8a4 100%);
+	background:-webkit-linear-gradient(top, #8ed 5%, #8a4 100%);
+	background:-o-linear-gradient(top, #8ed 5%, #8a4 100%);
+	background:-ms-linear-gradient(top, #8ed 5%, #8a4 100%);
+	background:linear-gradient(to bottom, #8ed 5%, #8a4 100%);
 }
 .ptInput {
 	float: right;

@@ -2,12 +2,12 @@
 	<div style="float: left">
 		{{ with session "item" "family"}}
 			{{range .Parent }}
-				<label style="display:inline-block; margin-left:8px;">
+				<label class="ptSlot" style="display:inline-block; margin-left:8px;">
 					<input type="checkbox" name="parent" value="{{index .Name 0}}">{{index .Name 0}}
 				</label>
 			{{end}}
 			{{range .Child }}
-				<label style="display:inline-block; margin-left:8px;">
+				<label class="ptSlot" style="display:inline-block; margin-left:8px;">
 					<input type="checkbox" name="child" value="{{index .Name 0}}">{{index .Name 0}}
 				</label>
 			{{end}}

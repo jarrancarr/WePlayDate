@@ -41,7 +41,7 @@ func addScripts() {
 
 	weePlayDate.AddScript("init-home-script", `setInterval( function() { `+
 		`for (var rm in roomlist) { `+
- 		`left = $("#local-"+roomlist[rm]).css("left"); `+
+		`left = $("#local-"+roomlist[rm]).css("left"); `+
 		`fromTop = $("#local-"+roomlist[rm]).css("top"); `+
 		`width = $("#local-"+roomlist[rm]).css("width"); `+
 		`height = $("#local-"+roomlist[rm]).css("height"); `+
@@ -235,7 +235,7 @@ func addScripts() {
 		`aModal.empty().append("<h2>"+info["title"]+"</h2>`+
 		`<a class='ptButton' onclick='onShowProfileModal(\""+info["user"]+"\",\""+info["author"]+"\",\"articleModal\")'>"+info["author"]+"</a>`+
 		`<img src='../img/"+info["pic"]+"'><p>"+info["text"]+"</p>");`+
-//		`setBpg("../img/"+info["pic"], aModal[0], 300, 300); `+
+		//		`setBpg("../img/"+info["pic"], aModal[0], 300, 300); `+
 		`$(location).attr('href','#articleModal'); },`+
 		`error: function(data, textStatus, jqXHR) { console.log("open article fail: "+textStatus); }`+
 		`}); }`)
@@ -272,24 +272,24 @@ func addScripts() {
 		`triangle.setAttributeNS(null,"class","alert"); `+
 		`triangle.setAttributeNS(null,"points",""+50+",10 "+10+",80 "+90+",80"); `+
 		`triangle.setAttributeNS(null,"style",'fill:yellow;stroke:purple;stroke-width:2'); `+
-//		`var animateTF = document.createElementNS(svgNS,"animateTransform"); `+
-//		`animateTF.setAttributeNS(null,"attributeName","transform"); `+
-//		`animateTF.setAttributeNS(null,"type","rotate"); `+
-//		`animateTF.setAttributeNS(null,"from","0 "+50+" 47"); `+
-//		`animateTF.setAttributeNS(null,"to","1080 "+50+" 47"); `+
-//		`animateTF.setAttributeNS(null,"dur","4s"); `+
-//		`animateTF.setAttributeNS(null,"begin","0s"); `+
-//		`animateTF.setAttributeNS(null,"repeatCount","indefinite"); `+
-//		`triangle.appendChild(animateTF); `+
+		//		`var animateTF = document.createElementNS(svgNS,"animateTransform"); `+
+		//		`animateTF.setAttributeNS(null,"attributeName","transform"); `+
+		//		`animateTF.setAttributeNS(null,"type","rotate"); `+
+		//		`animateTF.setAttributeNS(null,"from","0 "+50+" 47"); `+
+		//		`animateTF.setAttributeNS(null,"to","1080 "+50+" 47"); `+
+		//		`animateTF.setAttributeNS(null,"dur","4s"); `+
+		//		`animateTF.setAttributeNS(null,"begin","0s"); `+
+		//		`animateTF.setAttributeNS(null,"repeatCount","indefinite"); `+
+		//		`triangle.appendChild(animateTF); `+
 		`link.appendChild(triangle); `+
 		`document.getElementById("alerts").appendChild(link);`+
 		`var push=0; var dec=20;`+
 		`$(".alert").each(function(index){ $(this)[0].setAttributeNS(null,"transform","translate("+push+",0)"); push+=dec; dec--;});`+
 		`}`)
 	weePlayDate.AddScript("home-script", `function showAlert(ele) { `+
-		`alert(ele.id); this.remove();`+
-		`}`)
-		
+		`ele.parentNode.removeChild(ele); `+
+		`$('#alertModal div').append(ele.id);`+
+		`$(location).attr('href','#alertModal'); }`)
 	weePlayDate.AddScript("main-script", `function addKid() { `+
 		`var kid = $('#newKid'); `+
 		`var form = $('#family'); `+

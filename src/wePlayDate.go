@@ -8,12 +8,12 @@ import (
 	"errors"
 	"fmt"
 	//"html/template"
-	"io/ioutil"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 	//"sync"
 
@@ -27,6 +27,7 @@ var (
 	acs         *website.AccountService
 	//ecs         	*ecommerse.ECommerseService
 	mss            *service.MessageService
+	uts            *service.UtilityService
 	cps            *ChildsPlayService
 	logger         *website.Log
 	Date_Format    = "MM/dd/yyyy"
@@ -196,7 +197,7 @@ func LoginPostHandler(w http.ResponseWriter, r *http.Request, s *website.Session
 		for i, z := range fam.Zip {
 			mss.Execute([]string{"addRoom", z, ""}, s, p)
 			if fam.Item[z] == nil {
-				fam.AddItem(z, ModalPlacement{30+10*i, 190+10*i, 400, 300})
+				fam.AddItem(z, ModalPlacement{30 + 10*i, 190 + 10*i, 400, 300})
 			}
 		}
 		mss.Execute([]string{"addRoom", userName, ""}, s, p)
@@ -455,14 +456,14 @@ func CommandAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Sessi
 	htmlProfile := ""
 
 	switch data["command"] {
-		case "deletePhoto":
-			specs := interfacesToStrings(obj["specs"].([]interface{}))
-			err := os.Remove("../public/img/album/"+s.GetUserName()+"/"+specs[0]+"_"+specs[1])
-			if err != nil {
-				logger.Error.Println(err)
-			} else {
-				fam.RmPhoto(specs[0],specs[1])
-			}
+	case "deletePhoto":
+		specs := interfacesToStrings(obj["specs"].([]interface{}))
+		err := os.Remove("../public/img/album/" + s.GetUserName() + "/" + specs[0] + "_" + specs[1])
+		if err != nil {
+			logger.Error.Println(err)
+		} else {
+			fam.RmPhoto(specs[0], specs[1])
+		}
 		break
 	}
 
@@ -489,15 +490,19 @@ func GetMapAjaxHandler(w http.ResponseWriter, r *http.Request, s *website.Sessio
 func wpdMessageHook(w http.ResponseWriter, r *http.Request, s *website.Session, p *website.Page) (string, error) {
 	logger.Debug.Println("wpdMessageHook(w http.ResponseWriter, r *http.Request, session<" + s.GetId() + ">, page<" + p.Title + ">)")
 	if s.Item["config"] != nil {
-		for k, v := range(s.Item["config"].(map[string]interface{})) {
+		for k, v := range s.Item["config"].(map[string]interface{}) {
 			if Families["jjlcarr"].Item[k] != nil {
 				p := Families["jjlcarr"].Item[k].(ModalPlacement)
-				for prop, val := range(v.(map[string]interface{})) {
+				for prop, val := range v.(map[string]interface{}) {
 					switch prop {
-						case "left": p.X, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
-						case "top": p.Y, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
-						case "width": p.W, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
-						case "height": p.H, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
+					case "left":
+						p.X, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
+					case "top":
+						p.Y, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
+					case "width":
+						p.W, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
+					case "height":
+						p.H, _ = strconv.Atoi(val.(string)[:len(val.(string))-2])
 					}
 				}
 				Families["jjlcarr"].Item[k] = p
@@ -508,19 +513,20 @@ func wpdMessageHook(w http.ResponseWriter, r *http.Request, s *website.Session, 
 	if data["targetFamily"] != "" {
 		fam := Families[data["targetFamily"]]
 		if fam != nil {
-			fam.AddNotification("Chat invitaion: "+data["roomName"]);
+			fam.AddNotification("Chat invitaion: " + data["roomName"])
 		}
 	}
 	fam := s.Item["family"].(*Family)
 	if fam.Notification != nil {
 		note := `[`
 		first := true
-		for _, n := range(fam.Notification) {
-			if first { first = false 
+		for _, n := range fam.Notification {
+			if first {
+				first = false
 			} else {
 				note += ","
 			}
-			note += `"`+n+`"`
+			note += `"` + n + `"`
 		}
 		note += `]`
 		fam.Notification = nil
@@ -555,19 +561,19 @@ func serveResource(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "image/svg+xml")
 	} else if strings.HasSuffix(r.URL.Path, "mp3") {
 		w.Header().Add("Content-Type", "audio/mpeg")
-	} 
-	
+	}
+
 	if strings.HasSuffix(r.URL.Path, "bpg") && strings.Contains(r.URL.Path, "/thumb/") {
 		if cps.Thumbnail != nil && cps.Thumbnail[r.URL.Path] != nil {
 			w.Write(cps.Thumbnail[r.URL.Path])
-			return;
+			return
 		} else {
-			data, err := ioutil.ReadFile(strings.Replace(path,"/img/", "/img/thumb/", 1))
+			data, err := ioutil.ReadFile(strings.Replace(path, "/img/", "/img/thumb/", 1))
 			if err == nil {
 				cps.AddThumb(r.URL.Path, data)
 			}
 		}
-	} 
+	}
 
 	data, err := ioutil.ReadFile(path)
 
@@ -601,8 +607,8 @@ func uploadPhoto(w http.ResponseWriter, r *http.Request) {
 }
 
 func interfacesToStrings(data []interface{}) []string {
-	output := make([]string,len(data))
-	for i:=0;i<len(data);i+=1 {
+	output := make([]string, len(data))
+	for i := 0; i < len(data); i += 1 {
 		output[i] = data[i].(string)
 	}
 	return output

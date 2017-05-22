@@ -3,13 +3,13 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"image/color"
+	"image/jpeg"
 	"math/rand"
+	"os"
 	"strings"
 	"time"
-	"os"
-    "image"
-    "image/jpeg"
-    "image/color"
 
 	"github.com/jarrancarr/website"
 	"github.com/jarrancarr/website/service"
@@ -17,6 +17,7 @@ import (
 
 type Person struct {
 	Name       []string
+	Prime      int // This is a index and a code used to uniquely identify presense within a group in a integer
 	DOB        time.Time
 	Male       bool
 	Email      string
@@ -83,11 +84,11 @@ type Family struct {
 	Zip, Buzzword, Turnoff []string
 	Profile, ProfilePic    string
 	MailBox                map[string][]Message
-	Album                  map[string][]string 		// map to list of photo filenames
+	Album                  map[string][]string // map to list of photo filenames
 	Comments               map[string][]Comment
 	Notification           []string
 	Item                   map[string]interface{}
-	Availability		   map[string][]int 		// int[0] = 30 means: index 0 = 8am, 30 = 2*3*5 so kid 1,2,3
+	Availability           map[string][]int // int[0] = 30 means: index 0 = 8am, 30 = 2*3*5 so kid 1,2,3
 }
 type Activity struct {
 	What      string
@@ -151,7 +152,7 @@ func (f *Family) String() string {
 }
 func (f *Family) AddNotification(note string) {
 	if f.Notification == nil {
-		f.Notification = make([]string,1)
+		f.Notification = make([]string, 1)
 	}
 	f.Notification = append(f.Notification, note)
 }
@@ -187,12 +188,12 @@ func (f *Family) AddPhoto(album, photo string) {
 }
 func (f *Family) RmPhoto(album, photo string) {
 	if f.Album[album] != nil {
-		for search := 0;search<len(f.Album[album]);search += 1 {
+		for search := 0; search < len(f.Album[album]); search += 1 {
 			if photo == f.Album[album][search] {
-				f.Album[album] = append(f.Album[album][:search],f.Album[album][search+1:]...)
+				f.Album[album] = append(f.Album[album][:search], f.Album[album][search+1:]...)
 				break
 			}
-			
+
 		}
 	}
 }
@@ -217,6 +218,7 @@ func (r *Region) AddNeighbor(p *Region) {
 }
 
 var (
+	Primes     = []int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
 	Run        = Skill{"Runner", map[int8]string{4: "Jogger", 9: "Runner", 16: "5k", 25: "13.1", 49: "26.2"}}
 	Jump       = Skill{"Jump", map[int8]string{1: "hop", 4: "leap", 9: "dive", 25: "expert", 49: "pro"}}
 	Sprint     = Skill{"Sprint", map[int8]string{1: "sprint 100", 4: "sprint 500", 9: "sprint 2000", 25: "expert", 49: "pro"}}
@@ -240,13 +242,12 @@ var (
 		4: map[*Skill]int{&Run: 16, &Kick: 16, &BallHandle: 9, &Attack: 4, &Sprint: 4}}}
 	Soccer = Activity{"Soccer", []*Activity{&Goalie, &Striker, &Fullback, &Halfback}, nil}
 
-	Jarran = Person{Name: []string{"Jarran", "Carr"}, DOB: time.Date(1971, 8, 4, 0, 0, 0, 0, time.UTC), Male: true,
-		Email: "jarran.carr@gmail.com", Admin: true}
-	Jamie = Person{Name: []string{"Jamie", "Carr"}, DOB: time.Date(1972, 2, 12, 0, 0, 0, 0, time.UTC), Male: false,
-		Email: "jamiesgems@bellsouth.com"}
-	Logan = Person{Name: []string{"Logan", "Carr"}, DOB: time.Date(2015, 5, 19, 0, 0, 0, 0, time.UTC), Male: true,
-		Email: ""}
-	Andy = Person{Name: []string{"Andy", "Knight"}, DOB: time.Date(1972, 3, 26, 0, 0, 0, 0, time.UTC), Male: true,
+	Jarran  = Person{Name: []string{"Jarran", "Carr"}, DOB: time.Date(1971, 8, 4, 0, 0, 0, 0, time.UTC), Male: true, Email: "jarran.carr@gmail.com", Admin: true}
+	Jamie   = Person{Name: []string{"Jamie", "Carr"}, DOB: time.Date(1972, 2, 12, 0, 0, 0, 0, time.UTC), Male: false, Email: "jamiesgems@bellsouth.com"}
+	Logan   = Person{Name: []string{"Logan", "Carr"}, DOB: time.Date(2015, 5, 19, 0, 0, 0, 0, time.UTC), Male: true, Email: ""}
+	Madison = Person{Name: []string{"Madison", "Carr"}, DOB: time.Date(2016, 4, 5, 0, 0, 0, 0, time.UTC), Male: false, Email: ""}
+	Audrie  = Person{Name: []string{"Audrie", "Carr"}, DOB: time.Date(2016, 4, 5, 0, 0, 0, 0, time.UTC), Male: false, Email: ""}
+	Andy    = Person{Name: []string{"Andy", "Knight"}, DOB: time.Date(1972, 3, 26, 0, 0, 0, 0, time.UTC), Male: true,
 		Email: ""}
 	Deanna = Person{Name: []string{"Deanna", "Knight"}, DOB: time.Date(1963, 3, 24, 0, 0, 0, 0, time.UTC), Male: false,
 		Email: ""}
@@ -258,7 +259,7 @@ var (
 
 	Families = map[string]*Family{
 		"jjlcarr": &Family{Login: &website.Account{[]string{"Carr"}, "jjlcarr", "jcarr48", "jcarr@novetta.com", []*website.Role{website.StandardRoles["basic"]},
-			false, time.Now()}, Parent: []*Person{&Jarran, &Jamie}, Child: []*Person{&Logan}, Zip: []string{"20720", "20726"}, Buzzword: []string{"hi", "help"}, Turnoff: []string{"hate"}},
+			false, time.Now()}, Parent: []*Person{&Jarran, &Jamie}, Child: []*Person{&Logan, &Madison, &Audrie}, Zip: []string{"20720", "20726"}, Buzzword: []string{"hi", "help"}, Turnoff: []string{"hate"}},
 		"adaknight": &Family{Login: &website.Account{[]string{"Knight"}, "adaknight", "aknight96", "", []*website.Role{website.StandardRoles["basic"]},
 			false, time.Now()}, Parent: []*Person{&Andy, &Deanna}, Child: []*Person{&AJ}, Zip: []string{"20720"}, Buzzword: []string{"Hi", "Help"}, Turnoff: []string{"hate"}},
 	}
@@ -311,20 +312,20 @@ var (
 )
 
 func initData() {
-//	Families["jjlcarr"].AddAlbum("Meet_Logan")
-//	Families["jjlcarr"].AddPhoto("Meet_Logan", "BirthMinute.jpg")
-//	Families["jjlcarr"].AddPhoto("Meet_Logan", "HiDad.jpg")
-//	Families["jjlcarr"].AddPhoto("Meet_Logan", "FirstCry.jpg")
-//	Families["jjlcarr"].AddAlbum("Logan_1st_Birthday")
-//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "friends.jpg")
-//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "grandma.jpg")
-//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "cake.jpg")
-//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "truck.jpg")
-//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "trainset.jpg")
-//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "cars.jpg")
-//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "blocks.jpg")
-//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "mower.jpg")
-	factor := 10
+	//	Families["jjlcarr"].AddAlbum("Meet_Logan")
+	//	Families["jjlcarr"].AddPhoto("Meet_Logan", "BirthMinute.jpg")
+	//	Families["jjlcarr"].AddPhoto("Meet_Logan", "HiDad.jpg")
+	//	Families["jjlcarr"].AddPhoto("Meet_Logan", "FirstCry.jpg")
+	//	Families["jjlcarr"].AddAlbum("Logan_1st_Birthday")
+	//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "friends.jpg")
+	//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "grandma.jpg")
+	//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "cake.jpg")
+	//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "truck.jpg")
+	//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "trainset.jpg")
+	//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "cars.jpg")
+	//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "blocks.jpg")
+	//	Families["jjlcarr"].AddPhoto("Logan_1st_Birthday", "mower.jpg")
+	factor := 3
 	for i := 0; i < 10*factor; i++ {
 		familyName := familyNames[rand.Intn(len(familyNames))]
 		mom := Person{Name: []string{femaleNames[rand.Intn(len(femaleNames))], familyName}, DOB: time.Date(1965+rand.Intn(35), time.Month(rand.Intn(12)), 1+rand.Intn(28), 0, 0, 0, 0, time.UTC),
@@ -400,7 +401,10 @@ func initData() {
 				f.ProfilePic = "m"
 			}
 		}
+		primeIndex := 0
 		for _, p := range f.Parent {
+			p.Prime = Primes[primeIndex]
+			primeIndex += 1
 			addLikes(p)
 			if p.Male {
 				p.ProfilePic = "blank_male.png"
@@ -411,6 +415,8 @@ func initData() {
 		}
 		boy, girl := 0, 0
 		for _, p := range f.Child {
+			p.Prime = Primes[primeIndex]
+			primeIndex += 1
 			addLikes(p)
 			if p.Male {
 				p.ProfilePic = "blank_boy.png"
@@ -431,10 +437,10 @@ func initData() {
 		generateProfilePic(f.ProfilePic)
 		f.Profile = story()
 		os.Mkdir("../public/img/album/"+k, os.FileMode(0522))
-		for x:=0;rand.Intn(5)>x;x+=1 {
+		for x := 0; rand.Intn(5) > x; x += 1 {
 			album := word()
 			f.AddAlbum(album)
-			for y:=0;rand.Intn(5+y)>y;y+=1 {
+			for y := 0; rand.Intn(5+y) > y; y += 1 {
 				pic := word()
 				f.AddPhoto(album, pic+".jpg")
 				generateAlbumPhoto(k, album, pic)
@@ -445,30 +451,30 @@ func initData() {
 }
 func generateAlbumPhoto(user, album, pic string) {
 	sx, sy := rand.Intn(20)*rand.Intn(20)+100, rand.Intn(20)*rand.Intn(20)+100
-    m := image.NewRGBA(image.Rect(0, 0, sx, sy))
-	r1x, r1y := rand.Intn(sx), rand.Intn(sy)
-	g1x, g1y := rand.Intn(sx), rand.Intn(sy)
-	b1x, b1y := rand.Intn(sx), rand.Intn(sy)
-	r2x, r2y := rand.Intn(sx), rand.Intn(sy)
-	g2x, g2y := rand.Intn(sx), rand.Intn(sy)
-	b2x, b2y := rand.Intn(sx), rand.Intn(sy)
-	r3x, r3y := rand.Intn(sx), rand.Intn(sy)
-	g3x, g3y := rand.Intn(sx), rand.Intn(sy)
-	b3x, b3y := rand.Intn(sx), rand.Intn(sy)
-	for x:=0;x<sx;x+=1 {
-		for y:=0;y<sy;y+=1 {
-			distR := ((x-r1x)*(x-r1x)+(y-r1y)*(y-r1y))/(rand.Intn(1500)+100)+((x-r2x)*(x-r2x)+(y-r2y)*(y-r2y))/(rand.Intn(1500)+100)+((x-r3x)*(x-r3x)+(y-r3y)*(y-r3y))/(rand.Intn(1500)+100)
-			distG := ((x-g1x)*(x-g1x)+(y-g1y)*(y-g1y))/(rand.Intn(1500)+100)+((x-g2x)*(x-g2x)+(y-g2y)*(y-g2y))/(rand.Intn(1500)+100)+((x-g3x)*(x-g3x)+(y-g3y)*(y-g3y))/(rand.Intn(1500)+100)
-			distB := ((x-b1x)*(x-b1x)+(y-b1y)*(y-b1y))/(rand.Intn(1500)+100)+((x-b2x)*(x-b2x)+(y-b2y)*(y-b2y))/(rand.Intn(1500)+100)+((x-b3x)*(x-b3x)+(y-b3y)*(y-b3y))/(rand.Intn(1500)+100)
-			m.Set(x,y,color.RGBA{uint8(distR%256),uint8(distG%256),uint8(distB%256),255})
+	m := image.NewRGBA(image.Rect(0, 0, sx, sy))
+	r1x, r1y, r1z := rand.Intn(sx), rand.Intn(sy), rand.Intn(150)+100
+	g1x, g1y, g1z := rand.Intn(sx), rand.Intn(sy), rand.Intn(150)+100
+	b1x, b1y, b1z := rand.Intn(sx), rand.Intn(sy), rand.Intn(150)+100
+	r2x, r2y, r2z := rand.Intn(sx), rand.Intn(sy), rand.Intn(150)+100
+	g2x, g2y, g2z := rand.Intn(sx), rand.Intn(sy), rand.Intn(150)+100
+	b2x, b2y, b2z := rand.Intn(sx), rand.Intn(sy), rand.Intn(150)+100
+	r3x, r3y, r3z := rand.Intn(sx), rand.Intn(sy), rand.Intn(150)+100
+	g3x, g3y, g3z := rand.Intn(sx), rand.Intn(sy), rand.Intn(150)+100
+	b3x, b3y, b3z := rand.Intn(sx), rand.Intn(sy), rand.Intn(150)+100
+	for x := 0; x < sx; x += 1 {
+		for y := 0; y < sy; y += 1 {
+			distR := ((x-r1x)*(x-r1x)+(y-r1y)*(y-r1y))/r1z + ((x-r2x)*(x-r2x)+(y-r2y)*(y-r2y))/r2z + ((x-r3x)*(x-r3x)+(y-r3y)*(y-r3y))/r3z
+			distG := ((x-g1x)*(x-g1x)+(y-g1y)*(y-g1y))/g1z + ((x-g2x)*(x-g2x)+(y-g2y)*(y-g2y))/g2z + ((x-g3x)*(x-g3x)+(y-g3y)*(y-g3y))/g3z
+			distB := ((x-b1x)*(x-b1x)+(y-b1y)*(y-b1y))/b1z + ((x-b2x)*(x-b2x)+(y-b2y)*(y-b2y))/b2z + ((x-b3x)*(x-b3x)+(y-b3y)*(y-b3y))/b3z
+			m.Set(x, y, color.RGBA{uint8(distR % 256), uint8(distG % 256), uint8(distB % 256), 255})
 		}
 	}
-    toimg, _ := os.Create("../public/img/album/"+user+"/"+album+"_"+pic+".jpg")
-    defer toimg.Close()
-    jpeg.Encode(toimg, m, &jpeg.Options{jpeg.DefaultQuality})
+	toimg, _ := os.Create("../public/img/album/" + user + "/" + album + "_" + pic + ".jpg")
+	defer toimg.Close()
+	jpeg.Encode(toimg, m, &jpeg.Options{jpeg.DefaultQuality})
 }
 func generateProfilePic(pic string) {
-	
+
 }
 
 func addLikes(p *Person) {
@@ -485,13 +491,15 @@ func simulateCommunity(mss *service.MessageService) {
 	for {
 		go activeUser(Families[famKeys[rand.Intn(len(famKeys))]], mss)
 		time.Sleep(time.Millisecond * 2000)
-		Families[famKeys[rand.Intn(len(famKeys))]].AddNotification("ALERT:Random Alert message-"+famKeys[rand.Intn(len(famKeys))]+" refered to you")
+		Families[famKeys[rand.Intn(len(famKeys))]].AddNotification("ALERT:Random Alert message-" + famKeys[rand.Intn(len(famKeys))] + " refered to you")
 		//Families["jjlcarr"].AddNotification("ALERT:Random Alert message-"+famKeys[rand.Intn(len(famKeys))]+" refered to you")
 	}
 }
 
 func activeUser(fm *Family, mss *service.MessageService) {
-	if fm == nil { return }
+	if fm == nil {
+		return
+	}
 	logger.Trace.Println()
 	userSession := website.Session{make(map[string]interface{}), make(map[string]string), true}
 	userSession.Data["name"] = fm.Parent[0].FullName()

@@ -9,8 +9,7 @@
 		<div id="personProfilePic" class="pictureFrame">
 			<a title="Edit" class="modalButton edit">E</a>
 			<a title="Comment" class="modalButton comment" onclick="input('comment on profile picture',this, 'personProfile:{{ $name }}', 12, 65, 0,0,0,0);">C</a>
-			<!--<img src="../img/profile/{{ .Pic }}">-->
-			<img src="../img/test3.bpg">
+			<img src="../img/profile/{{ .Pic }}">
 		</div>
 		<div class="personProfileInfo"></div>
 		<div id="personProfile" class="personProfileEdit">
@@ -30,7 +29,6 @@
 		{{ else }}
 			<div id="familyLink" class="personProfileEdit" style="border: 0px;">
 				<input class="ptButton" value="See Family" style="width: 100px;"/>
-				<input class="ptButton" value="Chat" style="width: 100px;"/>
 				<input class="ptButton" value="Message" style="width: 100px;"/>
 			</div>
 		{{ end }}

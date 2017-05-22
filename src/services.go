@@ -1,6 +1,6 @@
 package main
 
-import (	
+import (
 	"github.com/jarrancarr/website"
 	"github.com/jarrancarr/website/service"
 	//"github.com/jarrancarr/website/ecommerse"
@@ -13,8 +13,10 @@ func addServices() {
 	weePlayDate.AddSiteProcessor("secure", acs.CheckSecure)
 	//ecs = ecommerse.CreateService(acs)
 	//weePlayDate.AddService("ecommerse", ecs)
-	mss = service.CreateService(acs)
+	mss = service.CreateMessageService(acs)
 	weePlayDate.AddService("message", mss)
+	uts = service.CreateUtilityService(acs)
+	weePlayDate.AddService("utility", uts)
 	cps = CreateChildsPlayService()
 	weePlayDate.AddService("childsPlay", cps)
 	mss.AddHook(wpdMessageHook)

@@ -7,19 +7,19 @@ import (
 	//"time"
 	"math"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
-	"os"
 
 	"github.com/jarrancarr/website"
 )
 
 type ChildsPlayService struct {
-	Places  map[string]*Region
-	Metrics map[string][]int
+	Places    map[string]*Region
+	Metrics   map[string][]int
 	Thumbnail map[string][]byte
-	Lock    sync.Mutex
+	Lock      sync.Mutex
 }
 
 func (cps *ChildsPlayService) Status() string {
@@ -42,26 +42,32 @@ func (cps *ChildsPlayService) Get(p *website.Page, s *website.Session, data []st
 		down := 0
 		cfg := s.Item["family"].(*Family).Item[data[1]].(ModalPlacement)
 		wid := cfg.W
-		if wid==0 { wid = 400 }
+		if wid == 0 {
+			wid = 400
+		}
 		hit := cfg.H
-		if hit==0 { hit = 270 }
-		wid = (wid-100)*100/wid
+		if hit == 0 {
+			hit = 270
+		}
+		wid = (wid - 100) * 100 / wid
 		hit, down = (hit-130)*100/hit, 2000/hit
 		deg := 36
-		arc := 360/deg
-		posX := make([]string,deg)
-		posY := make([]string,deg)
-		for i:= 0; i<deg; i += 1 {
-			posX[i] = fmt.Sprintf("%d",int(float64(wid/2)+math.Sin(float64(arc*i))*float64(wid/2)))
-			posY[i] = fmt.Sprintf("%d",down+int(float64(hit/2)+math.Cos(float64(arc*i))*float64(hit/2)))
+		arc := 360 / deg
+		posX := make([]string, deg)
+		posY := make([]string, deg)
+		for i := 0; i < deg; i += 1 {
+			posX[i] = fmt.Sprintf("%d", int(float64(wid/2)+math.Sin(float64(arc*i))*float64(wid/2)))
+			posY[i] = fmt.Sprintf("%d", down+int(float64(hit/2)+math.Cos(float64(arc*i))*float64(hit/2)))
 			//posX[i] = fmt.Sprintf("%d",int(float64(wid/2)+math.Sin(float64(arc*i))*float64(wid/4)+math.Sin(float64(3*arc*i))*float64(wid/12)))
 			//posY[i] = fmt.Sprintf("%d",int(float64(hit/2)+math.Cos(float64(arc*i))*float64(hit/4)-math.Cos(float64(3*arc*i))*float64(hit/12)))
 		}
 		articles := []website.Item{}
-		if cps.Places[data[1]]==nil { return nil }
+		if cps.Places[data[1]] == nil {
+			return nil
+		}
 		for n, art := range cps.Places[data[1]].Article {
 			i := rand.Intn(len(posX))
-			logger.Debug.Println(art)
+			logger.Trace.Println(art)
 			articles = append(articles, struct{ Title, Desc, X, Y, W, H, JPG, Link, Age string }{
 				art.Title, art.Text, posX[i], posY[i], "100", "100", art.Pic, n, "0"})
 		}
@@ -147,15 +153,15 @@ func (cps *ChildsPlayService) Metric(what ...string) int {
 }
 
 func (cps *ChildsPlayService) MakePlace(where string, lat, long float32) {
-	cps.Places[where] = &Region{Name: where, Article: make(map[string]*Post), Center: Coordinates{lat, long} }
-	for name, place := range(cps.Places){
-		if name!=where && dist(cps.Places[where], cps.Places[name]) < 0.2 {
+	cps.Places[where] = &Region{Name: where, Article: make(map[string]*Post), Center: Coordinates{lat, long}}
+	for name, place := range cps.Places {
+		if name != where && dist(cps.Places[where], cps.Places[name]) < 0.2 {
 			cps.Places[where].AddNeighbor(place)
 		}
 	}
 }
 
-func (cps *ChildsPlayService) AddThumb(key string, data []byte ) {
+func (cps *ChildsPlayService) AddThumb(key string, data []byte) {
 	if cps.Thumbnail == nil {
 		cps.Thumbnail = make(map[string][]byte)
 	}
@@ -163,16 +169,16 @@ func (cps *ChildsPlayService) AddThumb(key string, data []byte ) {
 }
 
 func degreesToRadians(degrees float32) float32 {
-	return degrees * 3.14159 / 180;
+	return degrees * 3.14159 / 180
 }
 
 func dist(r1, r2 *Region) float32 {
 	earthRadiusKm := 6371
-	dLat := degreesToRadians(r2.Center.Lat-r1.Center.Lat)
-	dLon := degreesToRadians(r2.Center.Long-r1.Center.Long)
+	dLat := degreesToRadians(r2.Center.Lat - r1.Center.Lat)
+	dLon := degreesToRadians(r2.Center.Long - r1.Center.Long)
 	lat1 := degreesToRadians(r1.Center.Lat)
 	lat2 := degreesToRadians(r2.Center.Lat)
-	a := math.Sin(float64(dLat/2)) * math.Sin(float64(dLat/2)) + math.Sin(float64(dLon/2)) * math.Sin(float64(dLon/2)) * math.Cos(float64(lat1)) * math.Cos(float64(lat2))
+	a := math.Sin(float64(dLat/2))*math.Sin(float64(dLat/2)) + math.Sin(float64(dLon/2))*math.Sin(float64(dLon/2))*math.Cos(float64(lat1))*math.Cos(float64(lat2))
 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 	return float32(earthRadiusKm) * float32(c)
 }
@@ -186,7 +192,7 @@ func CreateChildsPlayService() *ChildsPlayService {
 		keys[i] = k
 		i++
 	}
-	
+
 	cps.MakePlace("20720", 39.005867, -76.789025)
 	cps.MakePlace("20721", 38.924936, -76.790291)
 	cps.MakePlace("20722", 38.936522, -76.949665)
@@ -216,6 +222,7 @@ func CreateChildsPlayService() *ChildsPlayService {
 }
 
 var pics = []string{"bigDog.jpg", "cuteCat.jpg", "iceCream.jpg", "blackHorse.jpg", "funnyKid.jpg", "Drone.jpg", "Bridge.jpg", "IceSculpt.jpg", "Butterfly.jpg", "Dance.png", "Playhouse.jpg", "PettingZoo.jpg", "City.jpg", "Country.jpg"}
+
 //var pics = []string{"bigDog.bpg", "cuteCat.bpg", "iceCream.bpg", "blackHorse.bpg", "funnyKid.bpg", "Drone.bpg", "Bridge.bpg", "IceSculpt.bpg", "Butterfly.bpg", "Dance.bpg", "Playhouse.bpg", "PettingZoo.bpg", "City.bpg", "Country.bpg"}
 var text = []string{"Check out this huge dog!", "Super Awe....", "Making ice cream, easy", "This is a beautiful horse", "Kid trips over pillow", "Using drones to spy on neighbors", "Beautiful pics of bridges at night",
 	"There will be a class on ice sculpting in Monroe park", "The butterfly park in Bowie has opened", "Salsa Dance club", "Playhouse givaway", "Friendship gardens are hosting a petting zoo.", "City life at night", "Nothing like country living."}
@@ -223,7 +230,7 @@ var text = []string{"Check out this huge dog!", "Super Awe....", "Making ice cre
 func makeArticle() *Post {
 	rd := rand.Intn(len(famKeys))
 	fam := Families[famKeys[rd]]
-	if (fam==nil) {
+	if fam == nil {
 		os.Exit(1)
 	}
 	par := rand.Intn(len(fam.Parent))
